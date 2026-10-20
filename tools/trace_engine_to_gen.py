@@ -61,7 +61,7 @@ def main() -> int:
                 points.append(wait_at(client, "STUPH loader entry", (0xB703,)))
                 loaded = wait_at(client, "STUPH loader return", (0x897E,))
                 points.append(loaded)
-                if int(loaded["cpu"].split("p=")[1][:2], 16) & 1:
+                if int(loaded["cpu"].split(" p=")[1][:2], 16) & 1:
                     raise RuntimeError("STUPH loader returned with carry set")
                 check_image(client, 0x0800, "STUPH")
                 points.append(wait_at(client, "module selector", (0x88FD,)))
@@ -72,7 +72,7 @@ def main() -> int:
                 points.append(wait_at(client, "GEN loader entry", (0xB703,)))
                 loaded = wait_at(client, "GEN loader return", (0x890E,))
                 points.append(loaded)
-                if int(loaded["cpu"].split("p=")[1][:2], 16) & 1:
+                if int(loaded["cpu"].split(" p=")[1][:2], 16) & 1:
                     raise RuntimeError("GEN loader returned with carry set")
                 check_image(client, 0x8956, "GEN")
                 points.append(wait_at(client, "GEN entry", (0x8956,)))
