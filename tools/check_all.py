@@ -19,6 +19,7 @@ CHECKS = (
     ("GEN menu entry", ["tools/verify_gen_menu.py"]),
     ("GEN new-character choice", ["tools/verify_gen_new_character.py"]),
     ("GEN state initialization", ["tools/verify_gen_first_input.py"]),
+    ("GEN first attribute increase", ["tools/verify_gen_attribute_increase.py"]),
 )
 
 
