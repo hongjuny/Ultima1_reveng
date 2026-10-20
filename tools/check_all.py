@@ -29,6 +29,7 @@ CHECKS = (
     ("GEN confirmation Y", ["tools/verify_gen_confirm_yes.py"]),
     ("GEN player save", ["tools/verify_gen_player_save.py"]),
     ("GEN after save", ["tools/verify_gen_after_save.py"]),
+    ("GEN player reload", ["tools/verify_gen_load_player.py"]),
 )
 
 
