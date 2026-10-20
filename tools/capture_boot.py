@@ -15,6 +15,7 @@ from disassemble import ROOT
 
 
 BOOT_PC = "2088"
+MAX_ADDRESS_HITS = 32
 PORT = 20000 + os.getpid() % 30000
 OUTPUT = ROOT / "build" / "baseline"
 
@@ -81,6 +82,47 @@ def wait_for_pc(client):
     raise RuntimeError(f"snapshot restore did not reach PC=${BOOT_PC}: {last}")
 
 
+def require_game_image(client, expected_header: bytes, expected_entry: bytes):
+    header = client.mem(0x2000, len(expected_header))
+    entry = client.mem(0x2088, len(expected_entry))
+    if header != expected_header or entry != expected_entry:
+        raise RuntimeError(
+            f"PC=${BOOT_PC} is not U1.SYSTEM: "
+            f"$2000={header.hex()} $2088={entry.hex()}"
+        )
+    return {"header_2000_hex": header.hex(), "entry_2088_hex": entry.hex()}
+
+
+def find_game_entry(client, expected_header: bytes, expected_entry: bytes):
+    client.ok_or_data(f"break-exec ${BOOT_PC}")
+    for hit in range(1, MAX_ADDRESS_HITS + 1):
+        client.ok("run")
+        try:
+            client.ok("wait-paused 20000")
+        except RuntimeError as error:
+            client.ok("pause")
+            client.ok("wait-paused 3000")
+            raise RuntimeError(
+                f"U1.SYSTEM entry not reached after {hit - 1} address hits; "
+                f"{client.ok('get-cpu')}; {client.ok('get-state')}"
+            ) from error
+        cpu = require_pc(client.cmd("get-cpu"))
+        try:
+            signature = require_game_image(client, expected_header, expected_entry)
+        except RuntimeError as error:
+            print(f"skipping earlier ${BOOT_PC} hit {hit}: {error}", flush=True)
+            client.ok_or_data("break-clear-all")
+            client.ok("step-instruction")
+            client.ok("wait-paused 3000")
+            stepped = client.ok("get-cpu")
+            if re.search(rf"\bpc={BOOT_PC}\b", stepped, re.IGNORECASE):
+                raise RuntimeError(f"could not step past earlier ${BOOT_PC}: {stepped}")
+            client.ok_or_data(f"break-exec ${BOOT_PC}")
+            continue
+        return cpu, signature
+    raise RuntimeError(f"U1.SYSTEM image not found in {MAX_ADDRESS_HITS} hits at ${BOOT_PC}")
+
+
 def main() -> int:
     if not MANIFEST.is_file():
         raise RuntimeError("capture the local baseline first")
@@ -98,6 +140,8 @@ def main() -> int:
         raise RuntimeError("disk differs from baseline")
     if describe(emulator)["sha256"] != runtime["emulator"]["sha256"]:
         raise RuntimeError("emulator differs from baseline")
+    system = (ROOT / "extracted" / "U1.SYSTEM").read_bytes()
+    expected_header, expected_entry = system[:16], system[0x88:0x98]
     sys.path.insert(0, str(source / "tools"))
     from a2m_control_client import Ctl
 
@@ -112,10 +156,7 @@ def main() -> int:
             try:
                 client.ok("hello")
                 client.ok("wait-paused 3000")  # consume headless startup pause
-                client.ok_or_data(f"break-exec ${BOOT_PC}")
-                client.ok("run")
-                client.ok("wait-paused 20000")
-                cpu = require_pc(client.cmd("get-cpu"))
+                cpu, signature = find_game_entry(client, expected_header, expected_entry)
                 state = client.ok("get-state")
                 client.ok(f"save-state {snapshot}")
                 wait_for_snapshot(snapshot)
@@ -130,6 +171,7 @@ def main() -> int:
             try:
                 client.ok("hello")
                 restored_cpu = wait_for_pc(client)
+                require_game_image(client, expected_header, expected_entry)
             finally:
                 client.s.close()
         finally:
@@ -148,6 +190,7 @@ def main() -> int:
         "cpu_at_breakpoint": cpu,
         "state_at_breakpoint": state,
         "cpu_after_snapshot_restore": restored_cpu,
+        "verified_memory": signature,
         "snapshot": {"path": str(snapshot), **describe(snapshot)},
     }
     scenario_path = OUTPUT / "boot-2088.json"

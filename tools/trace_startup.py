@@ -8,7 +8,7 @@ import re
 import sys
 
 from baseline import MANIFEST, describe
-from capture_boot import connect, launch, stop, wait_for_pc, wait_for_snapshot
+from capture_boot import connect, launch, require_game_image, stop, wait_for_pc, wait_for_snapshot
 from disassemble import ROOT
 
 
@@ -60,6 +60,7 @@ def main() -> int:
     disk = Path(manifest["disk_image"]["path"])
     emulator = Path(runtime["emulator"]["path"])
     source = ROOT / "build" / "emulator" / "a2m"
+    system = (ROOT / "extracted" / "U1.SYSTEM").read_bytes()
     sys.path.insert(0, str(source / "tools"))
     from a2m_control_client import Ctl
 
@@ -79,9 +80,13 @@ def main() -> int:
                 state = client.ok("get-state")
                 if "state=paused" not in state:
                     raise RuntimeError(f"snapshot load did not leave the CPU paused: {state}")
-                instruction = client.mem(0x2088, 2)
-                if instruction[0] != 0x78:
-                    raise RuntimeError(f"expected SEI at $2088 after restore, got {instruction.hex()}")
+                try:
+                    require_game_image(client, system[:16], system[0x88:0x98])
+                except RuntimeError as error:
+                    raise RuntimeError(
+                        "boot snapshot contains another program at $2088; "
+                        "rerun tools/capture_boot.py before tracing"
+                    ) from error
                 client.ok_or_data("break-clear-all")
                 client.ok("step-instruction")
                 client.ok("wait-paused 3000")
