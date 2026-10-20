@@ -50,6 +50,7 @@ CHECKS = (
     ("CAS attack", ["tools/verify_cas_attack.py"]),
     ("CAS guard retaliation", ["tools/verify_cas_guard_retaliation.py"]),
     ("CAS controlled guard miss", ["tools/verify_cas_guard_miss.py"]),
+    ("CAS controlled death and resurrection", ["tools/verify_cas_guard_death.py"]),
 )
 
 

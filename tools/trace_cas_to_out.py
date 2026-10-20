@@ -16,8 +16,9 @@ SOURCE = ROOT / "build" / "traces" / "cas-exit-left" / "handoff.json"
 OUTPUT = ROOT / "build" / "traces" / "cas-to-out"
 
 
-def main() -> int:
-    prior = json.loads(SOURCE.read_text())
+def main(source_report: Path = SOURCE, output: Path = OUTPUT,
+         death_path: bool = False) -> int:
+    prior = json.loads(source_report.read_text())
     if prior["timeout"] is not None or cpu_pc(prior["final_cpu"]) != 0x88FD:
         raise RuntimeError("source trace is not at module selector")
     source = prior["snapshot"]
@@ -33,14 +34,14 @@ def main() -> int:
     sys.path.insert(0, str(ROOT / "build" / "emulator" / "a2m" / "tools"))
     from a2m_control_client import Ctl
 
-    OUTPUT.mkdir(parents=True, exist_ok=True)
-    pending = OUTPUT / f"out.pending-{os.getpid()}.a2state"
+    output.mkdir(parents=True, exist_ok=True)
+    pending = output / f"out.pending-{os.getpid()}.a2state"
     pending.unlink(missing_ok=True)
     points = []
     timeout = None
     filename = None
     memory_match = None
-    with (OUTPUT / "a2m.log").open("w") as log:
+    with (output / "a2m.log").open("w") as log:
         process = launch(emulator, disk, None, log)
         try:
             client = connect(Ctl, process)
@@ -67,6 +68,17 @@ def main() -> int:
                     if not memory_match:
                         raise RuntimeError("OUT overlay differs from extracted file")
                     points.append(wait_at(client, "OUT entry", (0x8956,)))
+                    if death_path:
+                        for label, address in (("OUT health check", 0x898A),
+                                               ("OUT death reset", 0x89E8),
+                                               ("health fill", 0x8A3A),
+                                               ("food fill", 0x8A47),
+                                               ("OUT after reset", 0x8995)):
+                            point = wait_at(client, label, (address,))
+                            point["position"] = list(client.mem(0, 2))
+                            point["health"] = list(client.mem(0x7EC6, 2))
+                            point["food"] = list(client.mem(0x7EE5, 2))
+                            points.append(point)
                     points.append(wait_at(client, "OUT main loop", (0x89A1,)))
                     points.append(wait_at(client, "OUT input", (0x8A6C,)))
                 except RuntimeError as error:
@@ -81,7 +93,7 @@ def main() -> int:
                 client.s.close()
         finally:
             stop(process)
-    final = OUTPUT / "out-input.a2state"
+    final = output / "out-input.a2state"
     pending.replace(final)
     report = {"source_snapshot": source, "working_game_disk": disk_item,
               "checkpoints": points, "timeout": timeout,
@@ -90,7 +102,7 @@ def main() -> int:
               "memory_match_at_load": memory_match,
               "final_cpu": final_cpu, "final_state": final_state,
               "snapshot": {"path": str(final), **describe(final)}}
-    path = OUTPUT / "handoff.json"
+    path = output / "handoff.json"
     path.write_text(json.dumps(report, indent=2) + "\n")
     print(f"private trace: {path}")
     return 0 if timeout is None else 1

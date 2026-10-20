@@ -26,6 +26,8 @@ The [guard hit-roll fragment](CAS-guard-hit-roll.s) at `$9951–$9980` computes 
 
 A controlled replay from the same `$8A59` snapshot changed only the shared random-state byte `$1E27` immediately before the guard roll at `$997A`: `$A6→$59`. The byte-matched [STUPH random routine](STUPH-random.s) predicts the original `$9D` and changed `$02`; runtime returned `$02` and reached the miss branch `$9981` because `$02 < $45`. It returned to `$8A27` with player HP `$0096`, actor HP `$01DA`, position `(1,7)`, and watched turn bytes unchanged. [The controlled-miss verifier](../tools/verify_cas_guard_miss.py) checks that only one RAM byte changed at the intervention point and that the alternate path preserved HP. This is an injected RNG-state comparison; it establishes branch behavior for this state, not the frequency of misses during ordinary play.
 
+In a separate controlled lethal-damage replay, the guard's original `$0F` damage roll was retained. Immediately before subtraction at `$99CB`, only player HP low byte `$7EC6` changed from `$96` to `$0A` in a private snapshot. The 16-bit subtraction produced `$FFFB` and carry clear at `$99DC`, followed by `$8A41 → $88F8 → $88FD` with selector A=`$04` for `OUT`. At `$88FD`, HP and food were both zero. The `OUT` overlay loaded byte-for-byte and entered its resurrection path; at its next input, position was `(3,8)` and HP/food were both `$0063` (99). [The controlled-death verifier](../tools/verify_cas_guard_death.py) checks the one-byte intervention, borrow branch, overlay load, and final state. This is a branch test with injected low HP; ordinary-play death and any persistent penalties remain to trace.
+
 Three attack fragments reassemble byte-for-byte: the [directional scan](CAS-attack-ray.s) at `$8CC9–$8CF6` advances by `$04/$05` and accepts actor result codes `$30–$35`; the [hit roll](CAS-attack-hit-roll.s) at `$8D08–$8D2B` compares a random byte with `$80 + $7ECA`; the [damage calculation](CAS-attack-damage.s) at `$8D46–$8D83` builds a bound with `$7EC8` and three successive `ADC $7E7A` operations, draws a nonzero byte below that bound, and subtracts it from the selected actor's HP. The ADC chain preserves carry between operations. In this replay the subtraction was 26; other weapon values and actor states still need testing.
 
 | Address | Disassembly / evidence | Interpretation |
@@ -47,6 +49,7 @@ Three attack fragments reassemble byte-for-byte: the [directional scan](CAS-atta
 | `$998F–$99A5` | Guard damage bound and nonzero roll, byte-matched | `$0F` selected below `$14` |
 | `$99CB–$99E0` | Player HP subtraction, byte-matched | `$99D1` stored `$96→$87` |
 | `$997A–$9981` | Shared random call and miss branch, observed in controlled replay | `$02 < $45` reached `$9981`; player HP remained `$96` |
+| `$99DC → $8A41 → $88F8` | Borrow, castle death exit, shared selector; controlled replay | `$000A − $000F` reached `OUT` selector A=`$04` |
 | `$8C13–$8C28` | Collision-failure message and jump to `$8C3F` | Blocked movement still consumes a turn in this replay |
 
 Visible text includes a princess sequence, shops, and combat. The state changes associated with these events remain to trace.
