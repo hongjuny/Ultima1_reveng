@@ -12,6 +12,7 @@ FRAGMENTS = (
     ("MI.U1-selector.s", "MI.U1", 0x7000, 0x88F8, 0x893F),
     ("MI.U1-turn-update.s", "MI.U1", 0x7000, 0x82E2, 0x8331),
     ("MI.U1-death-reset.s", "MI.U1", 0x7000, 0x888D, 0x88A1),
+    ("MI.U1-status-values.s", "MI.U1", 0x7000, 0x837F, 0x83A9),
     ("STUPH-random.s", "STUPH", 0x0800, 0x1DF1, 0x1E18),
     ("U1.INTRO-entry.s", "U1.INTRO", 0x0800, 0x0800, 0x0806),
     ("U1.INTRO-key-loop.s", "U1.INTRO", 0x0800, 0x1039, 0x1057),
@@ -55,6 +56,7 @@ FRAGMENTS = (
     ("CAS-guard-player-hp.s", "CAS", 0x8956, 0x99CB, 0x99E1),
     ("CAS-move-commit.s", "CAS", 0x8956, 0x8C29, 0x8C4C),
     ("TWN-map-copy.s", "TWN", 0x8956, 0x89B9, 0x89DE),
+    ("TWN-food-purchase.s", "TWN", 0x8956, 0x932F, 0x9365),
     ("CAS-map-copy.s", "CAS", 0x8956, 0x89BB, 0x89E0),
 )
 
