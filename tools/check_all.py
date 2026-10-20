@@ -34,6 +34,7 @@ CHECKS = (
     ("OUT RAM lookup and fallback", ["tools/verify_out_ram_attempt.py"]),
     ("OUT disk read stall", ["tools/verify_out_disk_attempt.py"]),
     ("OUT preserved-head load", ["tools/verify_out_head_position.py"]),
+    ("OUT entry", ["tools/verify_out_entry.py"]),
 )
 
 
