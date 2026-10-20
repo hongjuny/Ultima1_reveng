@@ -12,3 +12,9 @@
 - Added a local listing generator. Its output is an unreviewed aid, not a reconstructed source or a publication artifact.
 
 Unknowns: the precise ProDOS loader semantics used by these files, module selection rules, persistent state layout, and data encodings. Future entries should cite addresses and distinguish observations from inferences.
+
+## 2026-10-20 — File-by-file record and dependency map
+
+- Added a page for each executable game file, with known entry/transition addresses and explicit open ranges.
+- Separated file requests, callable shared routines, and mutually exclusive overlays in the dependency map.
+- Reconstructed the `MI.U1` selector at `$88F8–$893E` as ca65 source. Reassembly matches all 71 bytes of the supplied extraction.

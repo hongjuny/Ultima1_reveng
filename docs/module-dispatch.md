@@ -18,7 +18,7 @@ At `$88FD`, `MI.U1` resets the stack pointer. A value of zero or at least `$19` 
 
 The initial `MI.U1` entry at `$7000` jumps to `$8956`. This first version of `$8956` loads `STUPH`, sets up shared support state, and reaches `$88FD` with A = 0, selecting `GEN`. The loaded `GEN` file then replaces this loader code at `$8956`.
 
-The shared entry at `$88F9` performs setup and sets A to `$04`, selecting `OUT` at `$88FD`. Direct jumps to `$88FB` appear in `GEN` (`$8AC0`), `DNG` (`$9725`), `TWN` (`$8ABF`), `CAS` (`$8BFD`), and `SPA` (`$8FAA`). These are observed routes back to outdoor play. The conditions that reach each jump still need tracing.
+The shared entry at `$88F8` performs setup, while `$88FB` sets A to `$04` and selects `OUT` at `$88FD`. Direct jumps to `$88FB` appear in `GEN` (`$8AC0`), `DNG` (`$9725`), `TWN` (`$8ABF`), `CAS` (`$8BFD`), and `SPA` (`$8FAA`). These are observed routes back to outdoor play. The conditions that reach each jump still need tracing.
 
 `OUT` uses its own transition routine at `$8EFA`. It saves two zero-page bytes at `$7E73–$7E74`, performs a page-copy loop using modified operands, restores A, and jumps to `$88FD` at `$8F1C`. Two callers make the next state visible:
 
