@@ -37,6 +37,7 @@ CHECKS = (
     ("OUT entry", ["tools/verify_out_entry.py"]),
     ("OUT first input", ["tools/verify_out_first_input.py"]),
     ("OUT unknown P key", ["tools/verify_out_key_p.py"]),
+    ("OUT Space dispatch", ["tools/verify_out_key_space.py"]),
 )
 
 

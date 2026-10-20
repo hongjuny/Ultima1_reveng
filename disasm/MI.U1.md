@@ -33,6 +33,8 @@ The valid names begin at byte offsets `$00`, `$04`, `$08`, `$0C`, `$10`, `$14`, 
 
 The live `OUT` `P` input returned `$50` from its key poll, then `$82A2` returned with carry set and `X=$FF`; the caller skipped its handler call. The original 26-byte command table is `0B 0A 15 08 20 01 41 42 43 44 45 46 47 48 49 4B 4E 4F 51 52 53 54 55 56 58 5A`. Space (`$20`) is present at index 4, while `P` (`$50`) is absent. The meaning of each accepted key requires its handler to be traced.
 
+The separate Space replay returned from `$82A2` with carry clear and `X=$08`, twice its table index. In `OUT`, the handler pointer at `$9AAA+8` is `$8A76`. Static code there loads `Y=$05`, `A=$50`, then jumps to shared routine `$82E2`; its state effects are pending the next replay.
+
 The initial loader at `$8975` calls `$B703` with inline filename `STUPH`. After installing shared support, it executes `LDA #$00` at `$89B8` and `JMP $88FD` at `$89BA`. Next: trace `$B703` and `$B736`, and label the common state at `$7E00`.
 
 The reviewed source for `$88F8–$893E` is [MI.U1-selector.s](MI.U1-selector.s). Run `python3 tools/verify_disasm.py` from the repository root to reassemble it and compare its bytes with the locally supplied `MI.U1` file.
