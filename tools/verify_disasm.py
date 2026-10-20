@@ -24,6 +24,7 @@ FRAGMENTS = (
     ("GEN-sex-choice.s", "GEN", 0x8956, 0x8D72, 0x8D83),
     ("GEN-class-choice.s", "GEN", 0x8956, 0x8DEA, 0x8DFB),
     ("GEN-class-bonus.s", "GEN", 0x8956, 0x8E12, 0x8E54),
+    ("GEN-name-input.s", "GEN", 0x8956, 0x8E83, 0x8EEE),
     ("OUT-location-dispatch.s", "OUT", 0x8956, 0x90FF, 0x913A),
     ("OUT-space-dispatch.s", "OUT", 0x8956, 0x8D6E, 0x8D73),
     ("TWN-map-copy.s", "TWN", 0x8956, 0x89B9, 0x89DE),

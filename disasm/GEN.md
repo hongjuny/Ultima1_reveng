@@ -14,6 +14,7 @@ Overlay range: `$8956–$AC39`; entry `$8956`.
 | `$8D72–$8D82` | Sex choice, 17 reviewed bytes | `A`/`B` stored as 0/1 at `$7EB7` |
 | `$8DEA–$8DFA` | Class choice, 17 reviewed bytes | `A`–`D` stored as 1–4 at `$7ED8` |
 | `$8E12–$8E53` | Class bonus dispatch, 66 reviewed bytes | Modify attributes by selected class |
+| `$8E83–$8EED` | Name input, 107 reviewed bytes | Validate, edit, and store a name before confirmation |
 | `$8AC0` | `JMP $88FB` | Observed continue path to `OUT` |
 
 The menu text describes new-character and previous-game options. The completion route from the new-character path, attribute generation rules, and save format remain to trace.
@@ -32,4 +33,6 @@ The reviewed [race choice](GEN-race-choice.s) and [race bonus](GEN-race-bonus.s)
 
 The sex menu displays `A) Male` and `B) Female`. Its reviewed [input fragment](GEN-sex-choice.s) stores A as 0 and B as 1 at `$7EB7`. The replay of A confirmed `$7EB7=0` and reached class input at `$8DEA`. The class menu displays `A) Fighter`, `B) Cleric`, `C) Wizard`, and `D) Thief`. An earlier trace label called `$8D72` a class input; the address is the sex input, and the label has been corrected.
 
-The reviewed [class choice](GEN-class-choice.s) and [class bonus](GEN-class-bonus.s) fragments reassemble byte-for-byte. Class IDs 1–4 are stored at `$7ED8`. Fighter adds 10 each to `$7EC8` and `$7ECA`; Cleric adds 10 to `$7ED0`; Wizard adds 10 to `$7ED2`; Thief adds 10 to `$7ECA`. These bonuses are static findings pending class-input replay. The following name input begins at `$8E83`.
+The reviewed [class choice](GEN-class-choice.s) and [class bonus](GEN-class-bonus.s) fragments reassemble byte-for-byte. Class IDs 1–4 are stored at `$7ED8`. Fighter adds 10 each to `$7EC8` and `$7ECA`; Cleric adds 10 to `$7ED0`; Wizard adds 10 to `$7ED2`; Thief adds 10 to `$7ECA`. The class-A replay confirmed `$7ED8=1` and `[25,25,10,10,10,15]→[35,35,10,10,10,15]`, then reached name input `$8E83`. The other class effects remain static findings.
+
+The reviewed [name input](GEN-name-input.s) fragment reassembles all 107 bytes at `$8E83–$8EED`. `$9042` counts name characters; `$7EB8–$7EC4` holds at most 13. The first character must be `A`–`Z`; later characters must have code `$20` or higher. Later uppercase letters become lowercase unless the preceding character is a space. `$08` and `$7F` delete the last character; Return is ignored for an empty name and otherwise branches to the confirmation prompt at `$8EEE`. These name rules are static findings; `tools/trace_gen_name_a.py` is prepared to replay one character and Return.
