@@ -1,6 +1,6 @@
 # Gameplay module dispatch
 
-Status: static trace of `MI.U1` and one exit path in `OUT`; runtime confirmed through the first `STUPH` and `GEN` loads. Later selector values remain untraced.
+Status: runtime confirmed through `GEN`, `OUT`, and the `OUT`→`CAS` transition. Other gameplay selectors remain to trace.
 
 `MI.U1` stores null-terminated module names starting at `$7E16`. Their byte offsets are the likely selector values:
 
@@ -29,6 +29,6 @@ The shared entry at `$88F8` performs setup, while `$88FB` sets A to `$04` and se
 | `$8D6E` | `$14` | `SPA` |
 | `$90FF–$9137` | `$10`, `$0C`, or `$08` | `CAS`, `TWN`, or `DNG` |
 
-The meaning of the saved bytes and the gameplay conditions behind these selections remain open. The reviewed `$90FF–$9139` source confirms the exact cases: incoming A = `$04` selects `CAS`; A = `$06` updates `$7EB1–$7EB4` and selects `TWN`; all other values select `DNG`. Incoming A likely encodes a location type, but that interpretation needs confirmation.
+The reviewed `$90FF–$9139` source confirms the exact cases: incoming A = `$04` selects `CAS`; A = `$06` updates `$7EB1–$7EB4` and selects `TWN`; all other values select `DNG`. Runtime now establishes that the incoming A is the decoded tile code for the `$04` case. An 11-move outdoor replay reached code `$04` at `($1E,$1F)` without leaving `OUT`; `E` then read that tile, saved the coordinates at `$7E73/$7E74`, and reached `$88FD` with A=`$10`. The selector copied `CAS`, the load returned with carry clear, and all 5,524 bytes matched at `$8956` entry. Codes `$05–$07` and the conditions for other transitions remain to trace.
 
 The `$88FD` selector is a strong boundary for tracing game transitions. For each module, identify the value placed in A before reaching it and record any shared state changes before the jump.

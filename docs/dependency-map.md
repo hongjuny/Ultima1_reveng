@@ -31,6 +31,7 @@ flowchart TD
 | `U1.INTRO` | `MI.U1` | Animation poll `$0B23` and later key loop `$1039` reach `$0B50`; non-`$9B` path calls `$B70C` at `$0B57`, inline name `$0B5A` | Runtime confirmed for ASCII `A` through `$7000`, full 6589-byte match; later loop pending |
 | `MI.U1` | `STUPH` | `$8975` calls `$B703`; inline name starts at `$8978` | Runtime confirmed; 6144-byte match at `$0800` after load |
 | `MI.U1` | `GEN` | `$8907` calls `$B703`; inline name at `$890A` | Runtime confirmed; 8932-byte match at `$8956` after load |
+| `MI.U1` | `CAS` | Outdoor tile code `$04` and E command select A=`$10` at `$88FD`; filename `CAS` at `$8920`, carry-clear return `$892B`, entry `$8956` | Runtime confirmed; 5524-byte match at entry |
 | `MI.U1` | six other gameplay modules | Name table at `$7E16`; selector at `$88FD–$893E` | High for names and selector, load API semantics pending |
 | `TWN` | `TCMAPS`, `MAPCHARS` | `$898B` and `$89A1` call `$B733`; inline names follow | High |
 | `CAS` | `TCMAPS`, `MAPCHARS` | `$898D` and `$89A3` call `$B733`; inline names follow | High |

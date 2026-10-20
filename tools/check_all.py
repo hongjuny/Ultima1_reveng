@@ -41,6 +41,7 @@ CHECKS = (
     ("OUT Space immediate effect", ["tools/verify_out_space_effect.py"]),
     ("OUT return after Space", ["tools/verify_out_after_space.py"]),
     ("OUT four direction keys", ["tools/verify_out_directions.py"]),
+    ("OUT terrain and CAS entry", ["tools/verify_out_terrain_entry.py"]),
 )
 
 

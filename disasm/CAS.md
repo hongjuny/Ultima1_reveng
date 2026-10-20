@@ -2,6 +2,8 @@
 
 Overlay range: `$8956–$9EE9`; entry `$8956`.
 
+Runtime entry confirmed from `OUT`: an 11-move route reached decoded tile `$04` at coordinates `($1E,$1F)`. The `E` command saved those coordinates at `$7E73/$7E74`, selected A=`$10`, copied filename `CAS`, and reached `$8956` after a carry-clear load. All 5,524 overlay bytes matched the local extraction at entry. The first castle initialization and input remain to trace.
+
 | Address | Disassembly / evidence | Interpretation |
 | --- | --- | --- |
 | `$898D` | `JSR $B733`; inline `TCMAPS` at `$8990` | Castle map file request |

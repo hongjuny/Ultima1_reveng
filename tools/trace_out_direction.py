@@ -21,14 +21,16 @@ def changes(before: bytes, after: bytes, base: int) -> dict:
             for offset, (old, new) in enumerate(zip(before, after)) if old != new}
 
 
-def main(key: int = 0x0B) -> int:
+def main(key: int = 0x0B, source_report: Path = SOURCE,
+         output: Path | None = None) -> int:
     if key not in DIRECTION_KEYS:
         raise ValueError(f"not one of the four direction keys: {key}")
-    output = ROOT / "build" / "traces" / f"out-direction-{key:02x}"
+    if output is None:
+        output = ROOT / "build" / "traces" / f"out-direction-{key:02x}"
     expected_index = DIRECTION_KEYS.index(key) * 2
-    prior = json.loads(SOURCE.read_text())
+    prior = json.loads(source_report.read_text())
     if prior["timeout"] is not None or cpu_pc(prior["final_cpu"]) != 0x8A6C:
-        raise RuntimeError("source trace is not at first outdoor input")
+        raise RuntimeError("source trace is not at outdoor input")
     source = prior["snapshot"]
     snapshot = Path(source["path"])
     disk_item = prior["working_game_disk"]
