@@ -30,6 +30,7 @@ FRAGMENTS = (
     ("GEN-save-confirm.s", "GEN", 0x8956, 0x8F0F, 0x8F31),
     ("OUT-location-dispatch.s", "OUT", 0x8956, 0x90FF, 0x913A),
     ("OUT-space-dispatch.s", "OUT", 0x8956, 0x8D6E, 0x8D73),
+    ("OUT-key-poll.s", "OUT", 0x8956, 0x8A6A, 0x8A76),
     ("TWN-map-copy.s", "TWN", 0x8956, 0x89B9, 0x89DE),
     ("CAS-map-copy.s", "CAS", 0x8956, 0x89BB, 0x89E0),
 )

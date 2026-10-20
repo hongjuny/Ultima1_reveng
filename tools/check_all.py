@@ -35,6 +35,7 @@ CHECKS = (
     ("OUT disk read stall", ["tools/verify_out_disk_attempt.py"]),
     ("OUT preserved-head load", ["tools/verify_out_head_position.py"]),
     ("OUT entry", ["tools/verify_out_entry.py"]),
+    ("OUT first input", ["tools/verify_out_first_input.py"]),
 )
 
 
