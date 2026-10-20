@@ -63,7 +63,7 @@ def main() -> int:
                     raise RuntimeError("snapshot is not at save-error branch")
                 client.ok("set-turbo 8")
                 points.append(wait_at(client, "player disk prompt", (0x8F9A,)))
-                client.ok("unmount 6 0")
+                client.ok("unmount kind=diskii 6 0")
                 client.ok(f"mount-disk 6 0 {working_player}")
                 client.ok_or_data("break-clear-all")
                 client.ok_or_data("break-exec $8EEE")
