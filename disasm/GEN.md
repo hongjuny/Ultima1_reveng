@@ -12,3 +12,5 @@ Overlay range: `$8956–$AC39`; entry `$8956`.
 The menu text describes new-character and previous-game options. The completion route from the new-character path, attribute generation rules, and save format remain to trace.
 
 The reviewed [menu choice fragment](GEN-menu.s) covers `$89FD–$8A0F` and reassembles byte-for-byte. It shows `A` (`$41`) jumping to `$8AC3`; `B` (`$42`) falls into the continuation code at `$8A10`. Other values repeat the input loop.
+
+The first runtime replay reached the key read at `$89FD` at cycle 32,493,298, before injecting a menu choice. The private snapshot confirms that the 19-byte dispatch still matches the extracted `GEN` file. `tools/verify_gen_menu.py` repeats this check locally; `tools/trace_gen_new_character.py` is prepared to test the `A` branch.
