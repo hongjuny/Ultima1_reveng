@@ -1,8 +1,8 @@
 # Startup and module loading
 
-Status: initial static analysis. The apparent runtime hit at `U1.SYSTEM` `$2088` was actually ProDOS code at the same address; game entry and later transitions still need runtime confirmation. Addresses refer to the local ProDOS extraction.
+Status: initial static analysis plus a memory-verified runtime entry into `U1.SYSTEM` at `$2088` from a block-equivalent ProDOS-order image. Later transitions still need runtime confirmation. Addresses refer to the local ProDOS extraction.
 
-The latest WOZ boot reaches ProDOS's `$21D4` error loop, preceded by its `RELOCATION / CONFIGURATION ERROR` message. A block-equivalent `.po` retry is prepared; its boot result is pending.
+The supplied WOZ reaches ProDOS's `$21D4` error loop after `GET_PREFIX` returns `A=$27`. The block-equivalent `.po` image boots through to `U1.SYSTEM`; the discrepancy needs investigation before claiming faithful WOZ emulation.
 
 ```mermaid
 flowchart TD
@@ -17,7 +17,7 @@ flowchart TD
 
 ## Confirmed observations
 
-- `U1.SYSTEM` begins with a jump to `$2088`. Its header names `U1.INTRO`. The extracted code at `$2088` begins `78 A9` (`SEI; LDA #$00`); the prior runtime snapshot contained `AC 0F`, matching the extracted ProDOS code at that address. The exact transfer from ProDOS into `U1.SYSTEM` still needs tracing.
+- `U1.SYSTEM` begins with a jump to `$2088`. Its header names `U1.INTRO`. The first runtime snapshot contained ProDOS code (`AC 0F`) at `$2088`; a later capture from the block-equivalent image reached `$2088` with the extracted `U1.SYSTEM` header and entry code (`78 A9`) in memory. The same bytes were confirmed after snapshot restore. Transfer into `U1.INTRO` still needs tracing.
 - `U1.INTRO` begins with jumps to `$0F23` and `$0F41`. At `$0F23`, a loader call uses the inline filename `MAKE.INDATA`. Another code path near `$0B50` uses the inline filename `MI.U1`.
 - `$0800` enters the `MAKE.INDATA` request path; `$0803` enters at `$0F41` after that request. The intro loop at `$1039–$1056` polls the keyboard and calls `$0B50` when a key arrives. `$0B50` requests `MI.U1` for key values other than `$9B`; `$9B` takes a separate wait-for-next-key path.
 - `MI.U1` starts with a jump to `$8956`. At `$7E16` it contains zero-terminated names `GEN`, `OUT`, `DNG`, `TWN`, `CAS`, `SPA`, and `TM` in that order. The routine near `$88FD` loads `GEN` and transfers control to `$8956`.

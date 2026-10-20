@@ -185,6 +185,20 @@ def verify() -> int:
             for field, value in describe(path).items():
                 if value != replay.get(field):
                     differences.append(f"input replay: {field} differs from baseline")
+            if snapshot:
+                try:
+                    scenario = json.loads(path.read_text())
+                    system = (ROOT / "extracted" / "U1.SYSTEM").read_bytes()
+                    expected = {"header_2000_hex": system[:16].hex(),
+                                "entry_2088_hex": system[0x88:0x98].hex()}
+                    if scenario.get("verified_memory") != expected:
+                        differences.append("boot scenario lacks matching U1.SYSTEM memory evidence")
+                    if scenario.get("snapshot") != snapshot:
+                        differences.append("boot scenario snapshot differs from baseline")
+                    if scenario.get("boot_media") != boot_media:
+                        differences.append("boot scenario media differs from baseline")
+                except (OSError, ValueError) as error:
+                    differences.append(f"boot scenario unreadable: {error}")
 
     for name in VERSION_TOOLS:
         try:
