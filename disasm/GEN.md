@@ -11,6 +11,7 @@ Overlay range: `$8956–$AC39`; entry `$8956`.
 | `$8C00–$8C80` | Attribute input loop, 129 reviewed bytes | Six values, remaining-point pool, navigation and acceptance |
 | `$8CD0–$8CE0` | Race key validation, 17 reviewed bytes | `A`–`D` stored as 1–4 at `$7ED6` |
 | `$8CFA–$8D3B` | Race bonus dispatch, 66 reviewed bytes | Modify attributes by selected race |
+| `$8D72–$8D82` | Sex choice, 17 reviewed bytes | `A`/`B` stored as 0/1 at `$7EB7` |
 | `$8AC0` | `JMP $88FB` | Observed continue path to `OUT` |
 
 The menu text describes new-character and previous-game options. The completion route from the new-character path, attribute generation rules, and save format remain to trace.
@@ -25,4 +26,6 @@ The input loop uses `$9041` as a 1–6 selection index and addresses the chosen 
 
 The upper-bound replay confirmed that a selected attribute stops at 25; one more `$15` leaves it at 25. Space with 15 points remaining returned to the allocation loop. After the remaining 15 points were assigned, Space reached the race input at `$8CD0` with values `[25, 25, 10, 10, 10, 10]` and `$903F=0`. The displayed choices are `A) Human`, `B) Elf`, `C) Dwarf`, and `D) Bobbit` in the extracted inline text.
 
-The reviewed [race choice](GEN-race-choice.s) and [race bonus](GEN-race-bonus.s) fragments reassemble byte-for-byte. The code stores `A`–`D` as 1–4 at `$7ED6`. It adds 5 to `$7ED2` for A, 5 to `$7ECA` for B, 5 to `$7EC8` for C, and for D adds 10 to `$7ED0` while subtracting 5 from `$7EC8`. These race effects are static findings; a runtime replay of A is prepared.
+The reviewed [race choice](GEN-race-choice.s) and [race bonus](GEN-race-bonus.s) fragments reassemble byte-for-byte. The code stores `A`–`D` as 1–4 at `$7ED6`. It adds 5 to `$7ED2` for A, 5 to `$7ECA` for B, 5 to `$7EC8` for C, and for D adds 10 to `$7ED0` while subtracting 5 from `$7EC8`. The A replay confirmed `$7ED6=1` and the sixth value 10→15, then reached **sex selection** at `$8D72`. The B–D bonus effects remain static findings.
+
+The sex menu displays `A) Male` and `B) Female`. Its reviewed [input fragment](GEN-sex-choice.s) stores A as 0 and B as 1 at `$7EB7`. The class menu follows at `$8DEA` with `A) Fighter`, `B) Cleric`, `C) Wizard`, and `D) Thief`. Sex choice A is the next prepared replay. An earlier trace label called `$8D72` a class input; the address is the sex input, and the label has been corrected.

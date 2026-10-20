@@ -73,7 +73,7 @@ def main() -> int:
                 if read_attributes(client) != [25, 25, 10, 10, 10, 15]:
                     raise RuntimeError(f"race A bonus differs: {read_attributes(client)}")
                 print(f"race A attributes: {read_attributes(client)}", flush=True)
-                points.append(wait_at(client, "class choice input", (0x8D72,)))
+                points.append(wait_at(client, "sex choice input", (0x8D72,)))
                 if read_attributes(client) != [25, 25, 10, 10, 10, 15]:
                     raise RuntimeError("race attributes changed before class input")
                 client.ok(f"save-state {pending}")
@@ -83,7 +83,7 @@ def main() -> int:
         finally:
             stop(process)
 
-    final = OUTPUT / "class-menu.a2state"
+    final = OUTPUT / "sex-menu.a2state"
     pending.replace(final)
     report = {"source_snapshot": source, "boot_media": media,
               "input": {"key_ascii": KEY, "at_pc": "0x8CD0"},
