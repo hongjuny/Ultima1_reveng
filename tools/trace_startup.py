@@ -68,13 +68,27 @@ def main() -> int:
     snapshot = OUTPUT / f"intro-entry.pending-{os.getpid()}.a2state"
     snapshot.unlink(missing_ok=True)
     with (OUTPUT / "a2m.log").open("w") as log:
-        process = launch(emulator, disk, boot_path, log)
+        process = launch(emulator, disk, None, log)
         try:
             client = connect(Ctl, process)
             try:
                 client.ok("hello")
                 client.ok("wait-paused 3000")
+                client.ok(f"load-state {boot_path}")
                 wait_for_pc(client)
+                state = client.ok("get-state")
+                if "state=paused" not in state:
+                    raise RuntimeError(f"snapshot load did not leave the CPU paused: {state}")
+                instruction = client.mem(0x2088, 2)
+                if instruction[0] != 0x78:
+                    raise RuntimeError(f"expected SEI at $2088 after restore, got {instruction.hex()}")
+                client.ok_or_data("break-clear-all")
+                client.ok("step-instruction")
+                client.ok("wait-paused 3000")
+                stepped = client.ok("get-cpu")
+                if cpu_pc(stepped) != 0x2089:
+                    raise RuntimeError(f"stepping SEI did not reach $2089: {stepped}")
+                print(f"restored and stepped $2088: {stepped}", flush=True)
                 checkpoints.append(wait_at(client, "U1.SYSTEM setup complete", (0x21A0,)))
                 branch = wait_at(client, "startup-file decision", (0x21D3, 0x21D6))
                 checkpoints.append(branch)
