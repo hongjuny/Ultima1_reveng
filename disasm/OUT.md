@@ -11,12 +11,12 @@ The `GEN`→`OUT` handoff loaded all 5230 bytes into `$8956–$9DC3`, confirmed 
 | `$89A1` | Main outdoor loop; calls `$836E`, then checks `$7EC6–$7EC7` and `$7EE5–$7EE6` | Health/food gate; reached at cycle 48,111,821 |
 | `$8A6A–$8A75` | 12-byte bounded poll: `X=$80`, call STUPH `$15C5` (`JMP $1DA3`), decrement X on zero, return A in X | First outdoor input call reached at `$8A6C`; health `$0096`, food `$00C8` |
 | `$89CB–$89DF` | Calls shared `$82A2` command lookup; carry set skips the selected handler | `P` (`$50`) took the skip branch at `$89DF`; health and food unchanged at that checkpoint |
-| `$8A76–$8A7C` | `LDY #$05`; `LDA #$50`; `JMP $82E2` | Space handler pointer selected by live lookup; update effects pending |
+| `$8A76–$8A7C` | `LDY #$05`; `LDA #$50`; `JMP $82E2` | Space handler: `$7EE4` `$95→$90`, `$7EDA` `$00→$50` at return; health and food unchanged |
 | `$8D6E` | `LDA #$14`; `JMP $8EFA` | Selects `SPA` |
 | `$8EFA` | Saves pointers, page-copies state, preserves A | Transition helper |
 | `$8F1C` | `JMP $88FD` | Common overlay selector |
 | `$90FF–$9137` | Sets A to `$10`, `$0C`, or `$08` before `$8EFA` | Selects `CAS`, `TWN`, or `DNG` |
 
-The first outdoor input call, unknown-key branch, and Space handler selection are confirmed. The handler's state effects and conditions behind module transitions remain to trace. This module is the hub for the game-state graph.
+The first outdoor input call, unknown-key branch, and immediate Space update are confirmed. The redraw/next-turn path and conditions behind module transitions remain to trace. This module is the hub for the game-state graph.
 
 Reviewed source: [bounded key poll](OUT-key-poll.s) at `$8A6A–$8A75`, [Space handler](OUT-space-handler.s) at `$8A76–$8A7C`, [space selector](OUT-space-dispatch.s) at `$8D6E–$8D72`, and [location selector](OUT-location-dispatch.s) at `$90FF–$9139`. All reassemble byte-for-byte. The location selector compares incoming A with `$04` and `$06`: `$04` selects `CAS`, `$06` selects `TWN` after updating `$7EB1–$7EB4`, and other values select `DNG`. The meaning of incoming A is still open.
