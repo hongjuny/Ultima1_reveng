@@ -17,6 +17,10 @@ PROMPT = TRACE / "twn-buy-prompt" / "handoff.json"
 BUY = TRACE / "twn-buy-one" / "handoff.json"
 BOUNDARIES = {coin: TRACE / f"twn-buy-boundary-{coin}" / "handoff.json"
               for coin in (4, 5)}
+PRICE_VALUES = (19, 20, 39, 40, 59, 60, 79, 80)
+PRICES = {attribute: TRACE / "twn-price-tiers" /
+          f"attribute-{attribute:03d}" / "handoff.json"
+          for attribute in PRICE_VALUES}
 
 
 def checked_ram(item: dict) -> bytes:
@@ -29,14 +33,16 @@ def checked_ram(item: dict) -> bytes:
 def main() -> int:
     paths = [TRACE / "twn-first-input" / "handoff.json"] + \
         [ROUTE / f"step-{step:02d}" / "handoff.json" for step in range(1, 11)] + \
-        [MENU, PROMPT, BUY, *BOUNDARIES.values()]
+        [MENU, PROMPT, BUY, *BOUNDARIES.values(), *PRICES.values()]
     if not all(path.is_file() for path in paths):
         print("PENDING town food-shop route and purchase traces")
         return 0
     initial, *tail = [json.loads(path.read_text()) for path in paths]
-    steps, menu, prompt, buy, poor, exact = tail[:10], *tail[10:]
+    steps = tail[:10]
+    menu, prompt, buy, poor, exact = tail[10:15]
+    tiers = tail[15:]
     require(all(item["timeout"] is None for item in
-                (initial, *steps, menu, prompt, buy, poor, exact)),
+                (initial, *steps, menu, prompt, buy, poor, exact, *tiers)),
             "food-shop trace contains a stopped run")
     prior = initial
     for step, report in enumerate(steps, 1):
@@ -115,8 +121,31 @@ def main() -> int:
         require(final[0x7ED4:0x7ED6] == bytes(expected["coin"]) and
                 final[0x7EE5:0x7EE7] == bytes(expected["food"]),
                 f"Coin={coin} final snapshot differs")
+    for attribute, report in zip(PRICE_VALUES, tiers):
+        expected_price = max(1, 5 - attribute // 20)
+        require(report["source_snapshot"] == menu["snapshot"] and
+                report["working_game_disk"] == initial["working_game_disk"] and
+                report["controlled_change"] ==
+                {"address": "0x7ED2", "before": 15, "after": attribute} and
+                [point["pc"] for point in report["checkpoints"]] ==
+                ["0x8A26", "0x9257", "0x926F"] and
+                report["price"] == expected_price and
+                report["prompt_digit"] == 0x30 + expected_price,
+                f"attribute={attribute} price-tier trace differs")
+        pre = checked_ram(report["intervention_snapshots"]["before"])
+        post = checked_ram(report["intervention_snapshots"]["after"])
+        require([(address, pre[address], post[address])
+                 for address in range(0x10000) if pre[address] != post[address]] ==
+                [(0x7ED2, 15, attribute)],
+                f"attribute={attribute} intervention changed more than one byte")
+        final = checked_ram(report["snapshot"])
+        require(final[0xAA6B] == expected_price and
+                final[0x928A] == 0x30 + expected_price and
+                final[0x7ED2] == attribute,
+                f"attribute={attribute} final price state differs")
     print("TWN food shop: $66 tile, T→B, attribute $7ED2=15 gives 5 Coin per pack")
     print("one pack: Coin 100→95, food 194→204; Coin 4 fails, Coin 5 succeeds")
+    print("price steps: 19/20→5/4, 39/40→4/3, 59/60→3/2, 79/80→2/1")
     return 0
 
 
