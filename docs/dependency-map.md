@@ -28,7 +28,7 @@ flowchart TD
 | --- | --- | --- | --- |
 | `U1.SYSTEM` | `U1.INTRO` | Live startup header; runtime `$2220 → $0136 → $0800 → $0F23`, intro entry bytes match extraction | Runtime confirmed on block-equivalent `.po` boot |
 | `U1.INTRO` | `MAKE.INDATA` | Runtime `$0F28 → $B70C → $0F37 → $0F41`; loader entry pointer `$BAF2=$1E00`; two copied payload ranges match file bytes | Runtime confirmed on block-equivalent `.po` boot |
-| `U1.INTRO` | `MI.U1` | Key loop calls `$0B50`; non-`$9B` path calls `$B70C` at `$0B57`, with inline name at `$0B5A` | High |
+| `U1.INTRO` | `MI.U1` | Animation poll `$0B23` and later key loop `$1039` reach `$0B50`; non-`$9B` path calls `$B70C` at `$0B57`, inline name `$0B5A` | High static evidence; runtime load pending |
 | `MI.U1` | `STUPH` | `$8975` calls `$B703`; inline name starts at `$8978` | High |
 | `MI.U1` | `GEN` | `$8907` calls `$B703`; inline name at `$890A` | High |
 | `MI.U1` | six other gameplay modules | Name table at `$7E16`; selector at `$88FD–$893E` | High for names and selector, load API semantics pending |

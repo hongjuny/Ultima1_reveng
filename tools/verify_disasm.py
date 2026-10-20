@@ -13,6 +13,7 @@ FRAGMENTS = (
     ("U1.INTRO-entry.s", "U1.INTRO", 0x0800, 0x0800, 0x0806),
     ("U1.INTRO-key-loop.s", "U1.INTRO", 0x0800, 0x1039, 0x1057),
     ("U1.INTRO-load-mi.s", "U1.INTRO", 0x0800, 0x0B50, 0x0B6A),
+    ("U1.INTRO-animation-key.s", "U1.INTRO", 0x0800, 0x0B23, 0x0B50),
     ("U1.INTRO-load-support.s", "U1.INTRO", 0x0800, 0x0F23, 0x0F41),
     ("MAKE.INDATA-copy-init.s", "MAKE.INDATA", 0x1E00, 0x1EFD, 0x1F42),
     ("GEN-menu.s", "GEN", 0x8956, 0x89FD, 0x8A10),
