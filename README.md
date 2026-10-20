@@ -19,10 +19,11 @@ The generated listings are **linear drafts**. They interpret embedded text, grap
 2. [Dependency map](docs/dependency-map.md)
 3. [File-by-file disassembly](disasm/README.md)
 4. [Porting fidelity and evidence](docs/porting-fidelity.md)
-5. [Startup and module loading](docs/startup.md)
-6. [Gameplay module dispatch](docs/module-dispatch.md)
-7. [Game structure map](docs/game-structure.md)
-8. [Analysis log](docs/analysis-log.md)
+5. [Roadmap to a faithful macOS port](docs/porting-roadmap.md)
+6. [Startup and module loading](docs/startup.md)
+7. [Gameplay module dispatch](docs/module-dispatch.md)
+8. [Game structure map](docs/game-structure.md)
+9. [Analysis log](docs/analysis-log.md)
 
 The `extracted/` and `build/` directories, disk images, and Ghidra project files are ignored. Review any future annotated assembly before publication: even text form can contain substantial original game material.
 
