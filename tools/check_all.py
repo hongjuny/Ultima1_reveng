@@ -18,6 +18,7 @@ CHECKS = (
     ("first gameplay overlay", ["tools/verify_engine_to_gen.py"]),
     ("GEN menu entry", ["tools/verify_gen_menu.py"]),
     ("GEN new-character choice", ["tools/verify_gen_new_character.py"]),
+    ("GEN state initialization", ["tools/verify_gen_first_input.py"]),
 )
 
 

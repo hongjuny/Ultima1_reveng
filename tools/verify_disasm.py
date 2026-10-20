@@ -17,6 +17,8 @@ FRAGMENTS = (
     ("U1.INTRO-load-support.s", "U1.INTRO", 0x0800, 0x0F23, 0x0F41),
     ("MAKE.INDATA-copy-init.s", "MAKE.INDATA", 0x1E00, 0x1EFD, 0x1F42),
     ("GEN-menu.s", "GEN", 0x8956, 0x89FD, 0x8A10),
+    ("GEN-initialize-state.s", "GEN", 0x8956, 0x8AEA, 0x8B25),
+    ("GEN-attribute-input.s", "GEN", 0x8956, 0x8C00, 0x8C81),
     ("OUT-location-dispatch.s", "OUT", 0x8956, 0x90FF, 0x913A),
     ("OUT-space-dispatch.s", "OUT", 0x8956, 0x8D6E, 0x8D73),
     ("TWN-map-copy.s", "TWN", 0x8956, 0x89B9, 0x89DE),
