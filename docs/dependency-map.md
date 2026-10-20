@@ -26,7 +26,7 @@ flowchart TD
 
 | From | To | Evidence | Confidence |
 | --- | --- | --- | --- |
-| `U1.SYSTEM` | `U1.INTRO` | Startup filename at `$2007` | High: name in startup header; handoff still to trace |
+| `U1.SYSTEM` | `U1.INTRO` | Live startup header; runtime `$2220 → $0136 → $0800 → $0F23`, intro entry bytes match extraction | Runtime confirmed on block-equivalent `.po` boot |
 | `U1.INTRO` | `MAKE.INDATA` | First entry `$0800` reaches `$0F28`, which calls `$B70C`; inline name at `$0F2B` | High |
 | `U1.INTRO` | `MI.U1` | Key loop calls `$0B50`; non-`$9B` path calls `$B70C` at `$0B57`, with inline name at `$0B5A` | High |
 | `MI.U1` | `STUPH` | `$8975` calls `$B703`; inline name starts at `$8978` | High |

@@ -56,4 +56,6 @@ python3 tools/check_all.py
 
 새 게임과 이어하기 경로의 스냅샷, 프레임 수가 포함된 입력 재생은 1단계 실행 추적 중 마련한다. 0단계의 전체 완료 표시는 그때 갱신한다.
 
-메모리 영상이 확인된 새 스냅샷을 만든 뒤 `python3 tools/trace_startup.py`로 `U1.SYSTEM`의 `$2220`, 저주소 전송점 `$0136`, `U1.INTRO`의 진입점을 확인한다. 로그·스냅샷은 `build/traces/startup/`에만 저장된다.
+`python3 tools/trace_startup.py`는 저장된 스냅샷에서 `$21A0`, 시작 파일 분기, `$2220`, `$0136`, `U1.INTRO`의 `$0800 → $0F23`을 확인했다. 분기는 `$21D6`으로 진행했고, 살아 있는 헤더는 `U1.INTRO`를 가리켰다. `$0800`의 메모리는 추출물과 일치했다. 추적과 스냅샷은 `build/traces/startup/`에만 저장된다.
+
+다음 로컬 실행은 `python3 tools/trace_intro_support.py`이다. 저장된 `$0F23` 상태에서 `$B70C` 요청, `$0F37` 반환 상태, `$1E00`의 `MAKE.INDATA` 영상과 `$0F41` 진행을 기록한다. 결과는 `build/traces/intro-support/`에만 남는다.
