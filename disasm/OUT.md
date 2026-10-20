@@ -2,6 +2,8 @@
 
 Overlay range: `$8956–$9DC3`; entry `$8956`.
 
+The `GEN`→`OUT` handoff has now loaded all 5230 bytes into `$8956–$9DC3`, confirmed against the extracted file in a paused runtime snapshot at selector `$892B`. The common post-load setup and jump into `$8956` remain to observe. This successful load required preserving the Disk II head position across the emulator's player-to-game disk swap; see [STUPH](STUPH.md).
+
 | Address | Disassembly / evidence | Interpretation |
 | --- | --- | --- |
 | `$8956` | Reads `$7E73–$7E74` into zero-page pointers | Module entry/state restore |
