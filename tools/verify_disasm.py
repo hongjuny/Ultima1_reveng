@@ -17,6 +17,8 @@ FRAGMENTS = (
     ("GEN-menu.s", "GEN", 0x8956, 0x89FD, 0x8A10),
     ("OUT-location-dispatch.s", "OUT", 0x8956, 0x90FF, 0x913A),
     ("OUT-space-dispatch.s", "OUT", 0x8956, 0x8D6E, 0x8D73),
+    ("TWN-map-copy.s", "TWN", 0x8956, 0x89B9, 0x89DE),
+    ("CAS-map-copy.s", "CAS", 0x8956, 0x89BB, 0x89E0),
 )
 
 

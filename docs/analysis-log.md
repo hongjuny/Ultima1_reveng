@@ -20,3 +20,9 @@ Unknowns: the precise ProDOS loader semantics used by these files, module select
 - Reconstructed the `MI.U1` selector at `$88F8–$893E` as ca65 source. Reassembly matches all 71 bytes of the supplied extraction.
 - Reconstructed four `U1.INTRO` fragments: two entry vectors, the key loop, and both inline file requests. Reassembly matches all 92 bytes across those ranges.
 - Reconstructed `GEN`'s 19-byte menu choice and `OUT`'s 64 bytes of space/location dispatch. Reassembly matches all three fragments; the known selector cases now have confirmed instruction boundaries.
+
+## 2026-10-20 — Porting fidelity and data extraction
+
+- Adopted byte, static, runtime, and hypothesis evidence levels for the eventual macOS port.
+- Decoded `TCMAPS`'s 20-byte pointer table into ten contiguous 764-byte packed slots and added a local extractor with checksums.
+- Reassembled the `TWN` and `CAS` self-modifying map copy loops. Each copies 768 bytes from a selected slot, overlapping the next slot by four bytes; the final loop reads four bytes past the file payload. The value and use of those last bytes remain to trace.

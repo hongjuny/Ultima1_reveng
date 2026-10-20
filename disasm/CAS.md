@@ -9,3 +9,5 @@ Overlay range: `$8956–$9EE9`; entry `$8956`.
 | `$8BFD` | `JMP $88FB` | Return to `OUT` |
 
 Visible text includes a princess sequence, shops, and combat. The state changes associated with these events remain to trace.
+
+The reviewed [map copy](CAS-map-copy.s) at `$89BB–$89DF` reassembles byte-for-byte. It reads the address table starting at entry 0, patches its own source operand, and copies 768 bytes to `$B400`. The packed pointer stride is only 764 bytes; see [TCMAPS](TCMAPS.md) for the overlap.

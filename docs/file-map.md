@@ -17,7 +17,7 @@ Load addresses come from the ProDOS `Aux` field in the disk catalog. The extract
 | `TM` | BIN | `$8956–$A910` | 8123 | time machine/finale module |
 | `MAPCHARS` | BIN | `$0800–$0BFF` | 1024 | graphic data candidate |
 | `STUPH` | BIN | `$0800–$1FFF` | 6144 | graphics and shared routine table |
-| `TCMAPS` | BIN | `$4000–$5DEB` | 7660 | map data candidate |
+| `TCMAPS` | BIN | `$4000–$5DEB` | 7660 | ten packed map slots behind a pointer table |
 | `NIF` | BIN | `$4000–$5DFF` | 7680 | data candidate |
 | `PRODOS` | SYS | `$2000–$59FF` | 14848 | Apple ProDOS, separate from game code |
 
