@@ -18,6 +18,10 @@ From the accepted right-step snapshot at `($01,$09)`, three `$0B` inputs moved t
 
 The byte-matched [actor lookup](CAS-actor-lookup.s) at `$9BFE–$9C22` scans 16 slots from index 15 down to 0 after the tile threshold passes. A matching x/y pair stores its index at `$9E36` and returns `$30 + type` with carry clear. With no matching actor, it restores the tile byte to A and returns carry set. The [collision wrapper](CAS-collision-wrapper.s) at `$9BC0–$9BD8` passes through a carry-clear failure and, on carry set, also compares the proposed coordinate with the current coordinate before accepting it. The occupied-tile replay confirms slot 2's match; the remaining actor types and their interactions require separate traces.
 
+From `(1,7)` facing the same actor, command `A` (`$41`) dispatched through pointer-table offset `$0C` to `$8C56`. Its direction prompt accepted Up (`$0B`), and the scan at `$8CC9` tested `(1,6)`. The collision result A=`$33` selected the actor branch at `$8D08` and retained actor index 2. The first hit roll was `$85`, below the threshold `$80 + $7ECA` = `$A3`, so execution reached `$8D27` and the damage path `$8D71`. Actor HP at `$B6DE/$B6EE` fell from `$01F4` to `$01DA` (26) by the handler return `$8A59`. Player HP was still `$0096` at that point, then was `$0087` at the next `$8A27` poll, a loss of 15 during post-handler processing. The actor remained at `(1,6)`, player at `(1,7)`, food and the watched turn bytes unchanged. The [attack verifier](../tools/verify_cas_attack.py) checks both private snapshots and the return checkpoint. The exact post-handler player-damage routine and alternative hit/miss outcomes remain to trace.
+
+Three attack fragments reassemble byte-for-byte: the [directional scan](CAS-attack-ray.s) at `$8CC9–$8CF6` advances by `$04/$05` and accepts actor result codes `$30–$35`; the [hit roll](CAS-attack-hit-roll.s) at `$8D08–$8D2B` compares a random byte with `$80 + $7ECA`; the [damage calculation](CAS-attack-damage.s) at `$8D46–$8D83` builds a bound with `$7EC8` and three successive `ADC $7E7A` operations, draws a nonzero byte below that bound, and subtracts it from the selected actor's HP. The ADC chain preserves carry between operations. In this replay the subtraction was 26; other weapon values and actor states still need testing.
+
 | Address | Disassembly / evidence | Interpretation |
 | --- | --- | --- |
 | `$898D` | `JSR $B733`; inline `TCMAPS` at `$8990` | Castle map file request |
@@ -30,6 +34,9 @@ The byte-matched [actor lookup](CAS-actor-lookup.s) at `$9BFE–$9C22` scans 16 
 | `$9BD9–$9BFD` | Row lookup, bounds, tile threshold, byte-matched | Tile `$40` returned carry clear at the wall; `$60` continued to occupant scan |
 | `$9BFE–$9C22` | 16-slot actor lookup, byte-matched | Slot 2/type 3 at `(1,6)` returned A=`$33`, carry clear |
 | `$9BC0–$9BD8` | Collision result wrapper, byte-matched | Carry-clear result blocks movement; carry-set result gets current-position check |
+| `$8CC9–$8CF6` | Directional attack scan, byte-matched | Up selected actor slot 2 at `(1,6)` |
+| `$8D08–$8D2B` | Actor type and hit roll, byte-matched | `$85 < $A3` selected hit path |
+| `$8D46–$8D83` | Damage roll and HP subtraction, byte-matched | Actor HP fell by 26 |
 | `$8C13–$8C28` | Collision-failure message and jump to `$8C3F` | Blocked movement still consumes a turn in this replay |
 
 Visible text includes a princess sequence, shops, and combat. The state changes associated with these events remain to trace.
