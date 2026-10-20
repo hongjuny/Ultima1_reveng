@@ -33,6 +33,7 @@ FRAGMENTS = (
     ("OUT-space-dispatch.s", "OUT", 0x8956, 0x8D6E, 0x8D73),
     ("OUT-key-poll.s", "OUT", 0x8956, 0x8A6A, 0x8A76),
     ("OUT-space-handler.s", "OUT", 0x8956, 0x8A76, 0x8A7D),
+    ("OUT-direction-entry.s", "OUT", 0x8956, 0x9351, 0x936D),
     ("TWN-map-copy.s", "TWN", 0x8956, 0x89B9, 0x89DE),
     ("CAS-map-copy.s", "CAS", 0x8956, 0x89BB, 0x89E0),
 )

@@ -30,7 +30,7 @@ python3 tools/check_all.py
 
 ### 반복 추적 자동 실행
 
-현재 에이전트 실행 환경은 TCP·Unix 주소의 `bind()`를 차단한다. `tools/run_runtime.py`는 고정된 a2m 소스를 `build/` 안의 별도 복사본으로 만들고, 제어 소켓 부분만 상속받은 `socketpair`를 사용하도록 패치해 빌드한다. 기존 기준점용 실행 파일과 로컬 매니페스트는 그대로 둔다. 추적 스크립트들은 기존 제어 명령을 그대로 사용한다.
+현재 에이전트 실행 환경은 TCP·Unix 주소의 `bind()`를 차단한다. `tools/run_runtime.py`는 고정된 a2m 소스를 `build/` 안의 별도 복사본으로 만들고, 제어 소켓 부분은 상속받은 `socketpair`를 사용하도록 패치해 빌드한다. 원본 a2m의 붙여넣기 경로는 `$0A`를 Return `$0D`로 바꾸므로, 별도 빌드에서는 제어 포트의 `$0A`와 `$0D` 입력을 구별한다. 기존 기준점용 실행 파일과 로컬 매니페스트는 그대로 둔다. 추적 스크립트들은 기존 제어 명령을 그대로 사용한다.
 
 ```sh
 python3 tools/run_runtime.py trace_out_after_space.py

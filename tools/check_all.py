@@ -40,6 +40,7 @@ CHECKS = (
     ("OUT Space dispatch", ["tools/verify_out_key_space.py"]),
     ("OUT Space immediate effect", ["tools/verify_out_space_effect.py"]),
     ("OUT return after Space", ["tools/verify_out_after_space.py"]),
+    ("OUT four direction keys", ["tools/verify_out_directions.py"]),
 )
 
 

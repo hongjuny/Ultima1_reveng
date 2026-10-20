@@ -15,6 +15,9 @@ PATCHED = ROOT / "build" / "emulator" / "a2m-socketpair-src"
 BUILD = ROOT / "build" / "emulator" / "a2m-socketpair-build"
 TARGET = PATCHED / "src" / "platform" / "platform_socket.c"
 MARKER = "A2M_CONTROL_FD"
+DISPATCH = PATCHED / "src" / "control" / "control_dispatch.c"
+APPLE2 = PATCHED / "src" / "machine" / "apple2.c"
+KEY_MARKER = "A2M_RAW_LF_KEY"
 
 
 def replace_once(source: str, old: str, new: str) -> str:
@@ -80,6 +83,34 @@ def patch_socket_source(source: str) -> str:
     return source
 
 
+def patch_key_dispatch(source: str) -> str:
+    return replace_once(
+        source,
+        "        if (req->args.key == 0x8Du || req->args.key == '\\r') {\n"
+        "            ch = '\\n';\n"
+        "        }",
+        "        /* A2M_RAW_LF_KEY: retain the distinction between $0A and Return. */\n"
+        "        if (req->args.key == 0x8Du) {\n"
+        "            ch = '\\r';\n"
+        "        }",
+    )
+
+
+def patch_paste_feed(source: str) -> str:
+    return replace_once(
+        source,
+        "        if (byte == '\\n') {\n"
+        "            apple2_set_key(m, (uint8_t)(0x0Du | 0x80u));\n"
+        "            return true;\n"
+        "        }",
+        "        if (byte == '\\n') {\n"
+        "            /* A2M_RAW_LF_KEY: allow the game's $0A direction key. */\n"
+        "            apple2_set_key(m, (uint8_t)(0x0Au | 0x80u));\n"
+        "            return true;\n"
+        "        }",
+    )
+
+
 def main() -> int:
     revision = subprocess.check_output(
         ["git", "-C", str(SOURCE), "rev-parse", "HEAD"], text=True).strip()
@@ -92,6 +123,12 @@ def main() -> int:
         TARGET.write_text(patch_socket_source(original))
     elif MARKER not in TARGET.read_text():
         raise ValueError(f"existing {PATCHED} is not the socketpair variant")
+    # a2m's paste path maps LF to Return. The game uses both $0A (direction)
+    # and $0D (Return), so the isolated control build must preserve each key.
+    if KEY_MARKER not in DISPATCH.read_text():
+        DISPATCH.write_text(patch_key_dispatch(DISPATCH.read_text()))
+    if KEY_MARKER not in APPLE2.read_text():
+        APPLE2.write_text(patch_paste_feed(APPLE2.read_text()))
 
     args = ["cmake", "-S", str(PATCHED), "-B", str(BUILD),
             "-DCMAKE_BUILD_TYPE=Release"]
