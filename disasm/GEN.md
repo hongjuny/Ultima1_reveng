@@ -12,6 +12,8 @@ Overlay range: `$8956–$AC39`; entry `$8956`.
 | `$8CD0–$8CE0` | Race key validation, 17 reviewed bytes | `A`–`D` stored as 1–4 at `$7ED6` |
 | `$8CFA–$8D3B` | Race bonus dispatch, 66 reviewed bytes | Modify attributes by selected race |
 | `$8D72–$8D82` | Sex choice, 17 reviewed bytes | `A`/`B` stored as 0/1 at `$7EB7` |
+| `$8DEA–$8DFA` | Class choice, 17 reviewed bytes | `A`–`D` stored as 1–4 at `$7ED8` |
+| `$8E12–$8E53` | Class bonus dispatch, 66 reviewed bytes | Modify attributes by selected class |
 | `$8AC0` | `JMP $88FB` | Observed continue path to `OUT` |
 
 The menu text describes new-character and previous-game options. The completion route from the new-character path, attribute generation rules, and save format remain to trace.
@@ -28,4 +30,6 @@ The upper-bound replay confirmed that a selected attribute stops at 25; one more
 
 The reviewed [race choice](GEN-race-choice.s) and [race bonus](GEN-race-bonus.s) fragments reassemble byte-for-byte. The code stores `A`–`D` as 1–4 at `$7ED6`. It adds 5 to `$7ED2` for A, 5 to `$7ECA` for B, 5 to `$7EC8` for C, and for D adds 10 to `$7ED0` while subtracting 5 from `$7EC8`. The A replay confirmed `$7ED6=1` and the sixth value 10→15, then reached **sex selection** at `$8D72`. The B–D bonus effects remain static findings.
 
-The sex menu displays `A) Male` and `B) Female`. Its reviewed [input fragment](GEN-sex-choice.s) stores A as 0 and B as 1 at `$7EB7`. The class menu follows at `$8DEA` with `A) Fighter`, `B) Cleric`, `C) Wizard`, and `D) Thief`. Sex choice A is the next prepared replay. An earlier trace label called `$8D72` a class input; the address is the sex input, and the label has been corrected.
+The sex menu displays `A) Male` and `B) Female`. Its reviewed [input fragment](GEN-sex-choice.s) stores A as 0 and B as 1 at `$7EB7`. The replay of A confirmed `$7EB7=0` and reached class input at `$8DEA`. The class menu displays `A) Fighter`, `B) Cleric`, `C) Wizard`, and `D) Thief`. An earlier trace label called `$8D72` a class input; the address is the sex input, and the label has been corrected.
+
+The reviewed [class choice](GEN-class-choice.s) and [class bonus](GEN-class-bonus.s) fragments reassemble byte-for-byte. Class IDs 1–4 are stored at `$7ED8`. Fighter adds 10 each to `$7EC8` and `$7ECA`; Cleric adds 10 to `$7ED0`; Wizard adds 10 to `$7ED2`; Thief adds 10 to `$7ECA`. These bonuses are static findings pending class-input replay. The following name input begins at `$8E83`.

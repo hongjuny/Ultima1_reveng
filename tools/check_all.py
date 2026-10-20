@@ -23,6 +23,7 @@ CHECKS = (
     ("GEN attribute bounds and navigation", ["tools/verify_gen_attribute_controls.py"]),
     ("GEN attribute completion", ["tools/verify_gen_attribute_completion.py"]),
     ("GEN race A", ["tools/verify_gen_race_a.py"]),
+    ("GEN sex A", ["tools/verify_gen_sex_a.py"]),
 )
 
 
