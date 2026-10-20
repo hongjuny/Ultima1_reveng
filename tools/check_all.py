@@ -13,6 +13,7 @@ CHECKS = (
     ("file sizes and addresses", ["tools/disassemble.py", "--check"]),
     ("reviewed assembly", ["tools/verify_disasm.py"]),
     ("TCMAPS records", ["tools/extract_data.py", "--check"]),
+    ("intro support relocation", ["tools/verify_intro_support.py"]),
 )
 
 

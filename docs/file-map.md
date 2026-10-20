@@ -25,4 +25,6 @@ The seven gameplay modules have identical load addresses and are mutually exclus
 
 `STUPH` needs special care: much of its early area looks like graphics, but `$1583–$15E5` is a 33-entry jump table used by `MI.U1` and gameplay modules. It is part of the executable game's shared support code.
 
+`MAKE.INDATA` is loaded at `$1E00` and executed before its loader call returns. Its entry copies `$2000–$27FF` to `$8700–$8EFF` and `$27BD–$4DBC` to `$6000–$85FF`. Both copies match the original bytes in the private runtime snapshot, while the original `$2000` range is reused. Thus the file's catalog load range is not its post-execution residence map.
+
 For Ghidra, import each raw file with the 6502 language and its listed base address. Keep modules in separate programs or separate overlay address spaces. Do not let automatic analysis turn the entire file into code; embedded data and inline strings need manual boundaries.

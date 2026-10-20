@@ -24,7 +24,7 @@ python3 tools/baseline.py capture \
 python3 tools/check_all.py
 ```
 
-`check_all.py`는 매니페스트의 SHA-256·버전, 디스크 재추출, 파일 크기·주소, 검토된 어셈블리, `TCMAPS`를 검사한다. 일치하지 않으면 실패한다. 매니페스트는 `build/baseline/manifest.json`에만 저장된다.
+`check_all.py`는 매니페스트의 SHA-256·버전, 디스크 재추출, 파일 크기·주소, 검토된 어셈블리, `TCMAPS`, 그리고 추적 스냅샷이 있을 때 `MAKE.INDATA`의 메모리 복사본을 검사한다. 일치하지 않으면 실패한다. 매니페스트는 `build/baseline/manifest.json`에만 저장된다.
 
 ## 에뮬레이터 빌드와 첫 실행 기록
 
@@ -59,3 +59,7 @@ python3 tools/check_all.py
 `python3 tools/trace_startup.py`는 저장된 스냅샷에서 `$21A0`, 시작 파일 분기, `$2220`, `$0136`, `U1.INTRO`의 `$0800 → $0F23`을 확인했다. 분기는 `$21D6`으로 진행했고, 살아 있는 헤더는 `U1.INTRO`를 가리켰다. `$0800`의 메모리는 추출물과 일치했다. 추적과 스냅샷은 `build/traces/startup/`에만 저장된다.
 
 다음 로컬 실행은 `python3 tools/trace_intro_support.py`이다. 저장된 `$0F23` 상태에서 `$B70C` 요청, `$0F37` 반환 상태, `$1E00`의 `MAKE.INDATA` 영상과 `$0F41` 진행을 기록한다. 결과는 `build/traces/intro-support/`에만 남는다.
+
+이 추적도 성공했다. `$B70C` 진입 후 `$0F37`에 carry clear로 돌아와 `$0F41`에 도달했다. `$1E00`부터 파일 전체와 메모리를 비교하면 첫 차이는 `$2000`이다. `MAKE.INDATA`가 실행 중 원본의 `$2000–$27FF`를 `$8700–$8EFF`로, `$27BD–$4DBC`를 `$6000–$85FF`로 복사하고 기존 위치를 재사용하기 때문이다. 두 복사본은 각각 2048·9728바이트 전부가 추출물과 일치한다. `python3 tools/verify_intro_support.py`로 비공개 스냅샷을 다시 검사할 수 있다.
+
+다음 추적 `python3 tools/trace_intro_to_engine.py`는 `$0F41` 스냅샷에서 키 대기 루프까지 진행하고 ASCII `A` 한 번을 입력한다. 입력 전 상태·키 경로·`MI.U1` 로드와 `$7000`/`$8956` 진입을 비공개 스냅샷에 기록한다. 이 경로의 실제 실행 결과는 아직 확인하지 않았다.
