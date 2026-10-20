@@ -1,5 +1,6 @@
 # Original game material and locally generated listings
 /extracted/
+/disk/
 /build/
 /.git-meta/
 *.woz

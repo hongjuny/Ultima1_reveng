@@ -26,3 +26,10 @@ Unknowns: the precise ProDOS loader semantics used by these files, module select
 - Adopted byte, static, runtime, and hypothesis evidence levels for the eventual macOS port.
 - Decoded `TCMAPS`'s 20-byte pointer table into ten contiguous 764-byte packed slots and added a local extractor with checksums.
 - Reassembled the `TWN` and `CAS` self-modifying map copy loops. Each copies 768 bytes from a selected slot, overlapping the next slot by four bytes; the final loop reads four bytes past the file payload. The value and use of those last bytes remain to trace.
+
+## 2026-10-20 — Stage 0 extraction baseline
+
+- Recorded the local WOZ image, all 16 extracted files, tool versions, and a pinned a2m build in an ignored baseline manifest.
+- Independently re-extracted the WOZ with CiderPress II and confirmed all 16 files match `extracted/` byte for byte.
+- Added one command for the available local checks and a boot-snapshot capture script.
+- Built a2m 3.0.0 at commit `d863ad98487639445db16134d260221839cb72e9`. Headless WOZ mounting starts, but the current agent sandbox denies localhost socket binding, so `$2088` runtime capture and replay remain pending in a normal local terminal.

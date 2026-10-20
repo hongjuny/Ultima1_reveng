@@ -5,8 +5,8 @@ This project studies the 1986 Apple II ProDOS release of *Ultima I*. The analysi
 ## Local setup
 
 1. Supply your own ProDOS extraction in `extracted/`, using the filenames in [the file map](docs/file-map.md).
-2. Install `cc65` so that `da65` is on `PATH`. Ghidra can be used for interactive analysis.
-3. Run `python3 tools/disassemble.py --check` to verify file sizes and load ranges.
+2. Keep the original disk at `disk/UltimaI.woz` for byte-for-byte extraction checks. Install `cc65` and CiderPress II; Ghidra can be used for interactive analysis.
+3. Follow [the local baseline setup](docs/baseline.md), then run `python3 tools/check_all.py` for the combined checks.
 4. Run `python3 tools/disassemble.py` for local listings in `build/disassembly/`.
 5. Run `python3 tools/verify_disasm.py` to reassemble reviewed fragments and compare them with the local extraction.
 6. Run `python3 tools/extract_data.py --check` to validate known data containers, or omit `--check` to extract records locally under `build/data/`.
@@ -20,11 +20,12 @@ The generated listings are **linear drafts**. They interpret embedded text, grap
 3. [File-by-file disassembly](disasm/README.md)
 4. [Porting fidelity and evidence](docs/porting-fidelity.md)
 5. [Roadmap to a faithful macOS port](docs/porting-roadmap.md)
-6. [Startup and module loading](docs/startup.md)
-7. [Gameplay module dispatch](docs/module-dispatch.md)
-8. [Game structure map](docs/game-structure.md)
-9. [Analysis log](docs/analysis-log.md)
+6. [Local disk and emulator baseline](docs/baseline.md)
+7. [Startup and module loading](docs/startup.md)
+8. [Gameplay module dispatch](docs/module-dispatch.md)
+9. [Game structure map](docs/game-structure.md)
+10. [Analysis log](docs/analysis-log.md)
 
-The `extracted/` and `build/` directories, disk images, and Ghidra project files are ignored. Review any future annotated assembly before publication: even text form can contain substantial original game material.
+The `extracted/`, `disk/`, and `build/` directories and Ghidra project files are ignored. Review any future annotated assembly before publication: even text form can contain substantial original game material.
 
 In the current workspace, `.git` cannot be created, so Git metadata lives in ignored `.git-meta/`. Use `sh tools/repo-git status`, `sh tools/repo-git log`, and similar commands here. A normal clone of the GitHub repository uses ordinary `git` commands.
