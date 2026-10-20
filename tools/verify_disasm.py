@@ -57,6 +57,7 @@ FRAGMENTS = (
     ("CAS-move-commit.s", "CAS", 0x8956, 0x8C29, 0x8C4C),
     ("TWN-map-copy.s", "TWN", 0x8956, 0x89B9, 0x89DE),
     ("TWN-food-purchase.s", "TWN", 0x8956, 0x932F, 0x9365),
+    ("TWN-food-price.s", "TWN", 0x8956, 0x9257, 0x926F),
     ("CAS-map-copy.s", "CAS", 0x8956, 0x89BB, 0x89E0),
 )
 
