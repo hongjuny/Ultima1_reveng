@@ -43,6 +43,29 @@ def wait_for_animation_key_poll(client):
                        f"{client.ok('get-state')}")
 
 
+def wait_after_key(client):
+    """The a2m key command resumes execution, so breakpoints must be armed first."""
+    candidates = (0x0B50, 0xB70C, 0x7000, 0x8956)
+    try:
+        client.ok("wait-paused 15000")
+    except RuntimeError as error:
+        try:
+            client.ok("pause")
+            client.ok("wait-paused 3000")
+        except RuntimeError:
+            pass
+        raise RuntimeError(f"after intro key: no transition breakpoint hit; "
+                           f"{client.ok('get-cpu')}; {client.ok('get-state')}") from error
+    cpu = client.ok("get-cpu")
+    address = cpu_pc(cpu)
+    if address not in candidates:
+        raise RuntimeError(f"after intro key: unexpected stop; {cpu}; {client.ok('get-state')}")
+    state = client.ok("get-state")
+    print(f"after intro key: ${address:04X} {cpu}", flush=True)
+    return {"label": "after intro key", "pc": f"0x{address:04X}",
+            "cpu": cpu, "state": state}
+
+
 def main() -> int:
     manifest = json.loads(MANIFEST.read_text())
     runtime = manifest["runtime"]
@@ -82,9 +105,18 @@ def main() -> int:
                 checkpoints.append(ready)
                 client.ok(f"save-state {prekey}")
                 wait_for_snapshot(prekey)
+                # CONTROL_COMMAND_KEY queues a paste command that also changes
+                # the runtime state to RUNNING. Arming afterward misses $0B50.
+                client.ok_or_data("break-clear-all")
+                for address in (0x0B50, 0xB70C, 0x7000, 0x8956):
+                    client.ok_or_data(f"break-exec ${address:04X}")
                 client.ok(f"key {KEY}")
-                key_path = wait_at(client, "intro key dispatch", (0x0B50,))
+                key_path = wait_after_key(client)
                 checkpoints.append(key_path)
+                if key_path["pc"] != "0x0B50":
+                    raise RuntimeError(
+                        f"expected intro key dispatch at $0B50, got {key_path['pc']}; "
+                        "the transition checkpoint is available above")
                 if "a=C1" not in key_path["cpu"]:
                     raise RuntimeError(f"unexpected intro key code: {key_path['cpu']}")
                 checkpoints.append(wait_at(client, "MI.U1 loader entry", (0xB70C,)))
