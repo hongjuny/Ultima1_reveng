@@ -31,6 +31,7 @@ CHECKS = (
     ("GEN after save", ["tools/verify_gen_after_save.py"]),
     ("GEN player reload", ["tools/verify_gen_load_player.py"]),
     ("OUT loader probe", ["tools/verify_out_loader_probe.py"]),
+    ("OUT RAM lookup and fallback", ["tools/verify_out_ram_attempt.py"]),
 )
 
 
