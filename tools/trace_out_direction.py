@@ -48,6 +48,7 @@ def main(key: int = 0x0B) -> int:
     timeout = None
     handler = None
     command_index = None
+    tile_lookup = None
     with (output / "a2m.log").open("w") as log:
         process = launch(emulator, disk, None, log)
         try:
@@ -88,6 +89,27 @@ def main(key: int = 0x0B) -> int:
                     if client.mem(0x89DC, 3) != bytes((0x20, *pointer)):
                         raise RuntimeError("handler call did not match pointer table")
                     points.append(wait_at(client, "direction handler", (handler,)))
+                    points.append(wait_at(client, "tile lookup", (0x99D1,)))
+                    points.append(wait_at(client, "tile byte ready", (0x99F6,)))
+                    cpu = points[-1]["cpu"]
+                    raw_tile = int(cpu.split(" a=")[1][:2], 16)
+                    tile_x = int(cpu.split(" x=")[1][:2], 16)
+                    tile_y = int(cpu.split(" y=")[1][:2], 16)
+                    pointer = client.mem(0x72, 2)
+                    tile_address = pointer[0] | pointer[1] << 8
+                    tile_address += tile_x
+                    if client.mem(tile_address, 1)[0] != raw_tile:
+                        raise RuntimeError("tile lookup did not read the computed map byte")
+                    client.ok("step-instruction")
+                    shifted_cpu = client.ok("get-cpu")
+                    if cpu_pc(shifted_cpu) != 0x99F7:
+                        raise RuntimeError(f"tile decode did not reach RTS: {shifted_cpu}")
+                    tile_code = int(shifted_cpu.split(" a=")[1][:2], 16)
+                    if tile_code != raw_tile >> 1:
+                        raise RuntimeError("tile decode was not a right shift")
+                    tile_lookup = {"x": tile_x, "y": tile_y,
+                                   "address": tile_address, "raw": raw_tile,
+                                   "code": tile_code}
                     points.append(wait_at(client, "handler return", (0x89DF,)))
                     points.append(wait_at(client, "next outdoor frame", (0x8995, 0x89E8)))
                     if points[-1]["pc"] == "0x8995":
@@ -111,6 +133,7 @@ def main(key: int = 0x0B) -> int:
     report = {"source_snapshot": source, "working_game_disk": disk_item,
               "input": {"key_ascii": key, "at_pc": "0x8A6C"},
               "command_index": command_index, "handler": handler,
+              "tile_lookup": tile_lookup,
               "checkpoints": points, "timeout": timeout,
               "state_changes": changes(before, after, 0x7E00),
               "zero_page_changes": changes(before_zp, after_zp, 0),
@@ -120,6 +143,8 @@ def main(key: int = 0x0B) -> int:
     path.write_text(json.dumps(report, indent=2) + "\n")
     if handler is not None:
         print(f"handler=${handler:04X} index={command_index} PC=${cpu_pc(final_cpu):04X}")
+    if tile_lookup is not None:
+        print(f"tile lookup: {tile_lookup}")
     print(f"state changes: {report['state_changes']}")
     print(f"private trace: {path}")
     return 0 if timeout is None else 1

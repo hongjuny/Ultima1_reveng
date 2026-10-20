@@ -15,7 +15,7 @@ KEYS = (0x0B, 0x0A, 0x15, 0x08)
 HANDLERS = (0x9357, 0x935D, 0x9363, 0x9369)
 EXPECTED_COORDS = ((0x27, 0x20), (0x27, 0x22), (0x28, 0x21), (0x26, 0x21))
 CHECKPOINTS = ("0x8A74", "0x89CB", "0x89CE", "0x89D0", "0x89DC",
-               None, "0x89DF", "0x8995", "0x89A1", "0x8A6C")
+               None, "0x99D1", "0x99F6", "0x89DF", "0x8995", "0x89A1", "0x8A6C")
 
 
 def main() -> int:
@@ -47,6 +47,12 @@ def main() -> int:
                 {"size": item["size"], "sha256": item["sha256"]},
                 f"${key:02X} snapshot hash differs")
         after = main_ram(snapshot)
+        lookup = report["tile_lookup"]
+        address = 0x6000 + coords[1] * 64 + coords[0]
+        require(lookup == {"x": coords[0], "y": coords[1],
+                           "address": address, "raw": before[address],
+                           "code": before[address] >> 1},
+                f"${key:02X} tile lookup differs from map")
         require((after[0], after[1]) == coords,
                 f"${key:02X} resulting coordinates differ")
         require((after[0x7EE4], after[0x7EDB]) == (0x45, 0x01),
