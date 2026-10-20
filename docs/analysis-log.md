@@ -33,3 +33,4 @@ Unknowns: the precise ProDOS loader semantics used by these files, module select
 - Independently re-extracted the WOZ with CiderPress II and confirmed all 16 files match `extracted/` byte for byte.
 - Added one command for the available local checks and a boot-snapshot capture script.
 - Built a2m 3.0.0 at commit `d863ad98487639445db16134d260221839cb72e9`. Headless WOZ mounting starts, but the current agent sandbox denies localhost socket binding, so `$2088` runtime capture and replay remain pending in a normal local terminal.
+- A first local-terminal run of `capture_boot.py` timed out. Source inspection showed a2m parses `--break=2088` as decimal; the script now installs `break-exec $2088` through the control port and preserves the primary failure when stopping a2m. Runtime confirmation still awaits a successful rerun.

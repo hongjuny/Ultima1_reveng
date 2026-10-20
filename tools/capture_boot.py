@@ -2,6 +2,7 @@
 """Capture a private a2m boot breakpoint and verify snapshot restoration."""
 
 import json
+import os
 from pathlib import Path
 import re
 import socket
@@ -14,7 +15,7 @@ from disassemble import ROOT
 
 
 BOOT_PC = "2088"
-PORT = 6510
+PORT = 20000 + os.getpid() % 30000
 OUTPUT = ROOT / "build" / "baseline"
 
 
@@ -43,11 +44,41 @@ def launch(executable: Path, disk: Path, snapshot: Path | None, log):
     command = [str(executable), "--headless", f"--control-port={PORT}",
                "--noini", "--nosaveini", "--model=enh",
                f"--disk={disk}", "--log-level=warn"]
-    if snapshot is None:
-        command.append(f"--break={BOOT_PC}")
-    else:
+    if snapshot is not None:
         command.append(f"--sna={snapshot}")
     return subprocess.Popen(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT)
+
+
+def stop(process):
+    if process.poll() is not None:
+        return
+    process.terminate()
+    try:
+        process.wait(timeout=2)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        process.wait(timeout=2)
+
+
+def wait_for_snapshot(path: Path):
+    deadline = time.monotonic() + 10
+    while time.monotonic() < deadline:
+        if path.is_file() and path.stat().st_size > 0:
+            return
+        time.sleep(0.1)
+    raise RuntimeError("a2m did not write the boot snapshot within 10 seconds")
+
+
+def wait_for_pc(client):
+    deadline = time.monotonic() + 10
+    last = None
+    while time.monotonic() < deadline:
+        last = client.cmd("get-cpu")
+        try:
+            return require_pc(last)
+        except RuntimeError:
+            time.sleep(0.1)
+    raise RuntimeError(f"snapshot restore did not reach PC=${BOOT_PC}: {last}")
 
 
 def main() -> int:
@@ -79,35 +110,29 @@ def main() -> int:
             client = connect(Ctl, process)
             try:
                 client.ok("hello")
+                client.ok("wait-paused 3000")  # consume headless startup pause
+                client.ok_or_data(f"break-exec ${BOOT_PC}")
                 client.ok("run")
-                for _ in range(3):
-                    client.ok("wait-paused 20000")
-                    try:
-                        cpu = require_pc(client.cmd("get-cpu"))
-                        break
-                    except RuntimeError:
-                        client.ok("run")
-                else:
-                    raise RuntimeError("boot did not reach U1.SYSTEM $2088")
+                client.ok("wait-paused 20000")
+                cpu = require_pc(client.cmd("get-cpu"))
                 state = client.ok("get-state")
                 client.ok(f"save-state {snapshot}")
+                wait_for_snapshot(snapshot)
             finally:
                 client.s.close()
         finally:
-            process.terminate()
-            process.wait(timeout=5)
+            stop(process)
 
         process = launch(emulator, disk, snapshot, log)
         try:
             client = connect(Ctl, process)
             try:
                 client.ok("hello")
-                restored_cpu = require_pc(client.cmd("get-cpu"))
+                restored_cpu = wait_for_pc(client)
             finally:
                 client.s.close()
         finally:
-            process.terminate()
-            process.wait(timeout=5)
+            stop(process)
 
     scenario = {
         "name": "cold boot to U1.SYSTEM entry",
