@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Buy one food pack and capture the two-byte payment and food credit."""
+"""Buy one or two food packs and capture the payment and food credit."""
 
 import json
 import os
@@ -23,7 +23,9 @@ def watched(client) -> dict:
             "cost_72": list(client.mem(0x72, 2))}
 
 
-def main() -> int:
+def main(quantity: int = 1, output: Path = OUTPUT) -> int:
+    if quantity not in range(1, 10):
+        raise ValueError("this replay accepts a one-digit quantity from 1 to 9")
     prior = json.loads(SOURCE.read_text())
     if prior["timeout"] is not None or cpu_pc(prior["final_cpu"]) != 0xA2F9:
         raise RuntimeError("source trace is not at quantity parser entry")
@@ -37,12 +39,12 @@ def main() -> int:
     sys.path.insert(0, str(ROOT / "build" / "emulator" / "a2m" / "tools"))
     from a2m_control_client import Ctl
 
-    OUTPUT.mkdir(parents=True, exist_ok=True)
-    pending = OUTPUT / f"buy.pending-{os.getpid()}.a2state"
+    output.mkdir(parents=True, exist_ok=True)
+    pending = output / f"buy.pending-{os.getpid()}.a2state"
     pending.unlink(missing_ok=True)
     points = []
     timeout = None
-    with (OUTPUT / "a2m.log").open("w") as log:
+    with (output / "a2m.log").open("w") as log:
         process = launch(emulator, disk, None, log)
         try:
             client = connect(Ctl, process)
@@ -56,11 +58,11 @@ def main() -> int:
                 client.ok("set-turbo 8")
                 client.ok_or_data("break-clear-all")
                 client.ok_or_data("break-exec $A392")
-                client.ok("key 49")  # ASCII '1'
+                client.ok(f"key {48 + quantity}")
                 try:
                     client.ok("wait-paused 15000")
                     if cpu_pc(client.ok("get-cpu")) != 0xA392:
-                        raise RuntimeError("digit 1 was not accepted")
+                        raise RuntimeError(f"digit {quantity} was not accepted")
                     points.append({"label": "digit accepted", "pc": "0xA392",
                                    "cpu": client.ok("get-cpu"), "watched": watched(client)})
                     client.ok_or_data("break-clear-all")
@@ -89,14 +91,14 @@ def main() -> int:
                 client.s.close()
         finally:
             stop(process)
-    final = OUTPUT / "buy-one.a2state"
+    final = output / f"buy-{quantity}.a2state"
     pending.replace(final)
     report = {"source_snapshot": source, "working_game_disk": disk_item,
-              "input": {"digits": "1", "terminator": 13},
+              "input": {"digits": str(quantity), "terminator": 13},
               "checkpoints": points, "timeout": timeout,
               "before": before, "after": after, "final_cpu": final_cpu,
               "snapshot": {"path": str(final), **describe(final)}}
-    path = OUTPUT / "handoff.json"
+    path = output / "handoff.json"
     path.write_text(json.dumps(report, indent=2) + "\n")
     for point in points:
         print(point["label"], point["pc"], point["watched"])
