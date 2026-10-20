@@ -17,6 +17,7 @@ CHECKS = (
     ("intro-to-engine handoff", ["tools/verify_intro_to_engine.py"]),
     ("first gameplay overlay", ["tools/verify_engine_to_gen.py"]),
     ("GEN menu entry", ["tools/verify_gen_menu.py"]),
+    ("GEN new-character choice", ["tools/verify_gen_new_character.py"]),
 )
 
 
