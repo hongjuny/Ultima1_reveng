@@ -2,7 +2,9 @@
 
 Overlay range: `$8956–$9EE9`; entry `$8956`.
 
-Runtime entry confirmed from `OUT`: an 11-move route reached decoded tile `$04` at coordinates `($1E,$1F)`. The `E` command saved those coordinates at `$7E73/$7E74`, selected A=`$10`, copied filename `CAS`, and reached `$8956` after a carry-clear load. All 5,524 overlay bytes matched the local extraction at entry. The first castle initialization and input remain to trace.
+Runtime entry confirmed from `OUT`: an 11-move route reached decoded tile `$04` at coordinates `($1E,$1F)`. The `E` command saved those coordinates at `$7E73/$7E74`, selected A=`$10`, copied filename `CAS`, and reached `$8956` after a carry-clear load. All 5,524 overlay bytes matched the local extraction at entry.
+
+The continuation reached the `TCMAPS` request at `$898D`, the `MAPCHARS` request at `$89A3`, the map-copy loop at `$89CE`, the main loop at `$8A31`, and the first key poll at `$8A27` (cycle 57,858,103). Both data files still match the extraction in their loaded memory ranges. The copy placed bytes `$4014–$4313` at `$B400–$B6FF`: 764 bytes of packed record 0 plus the first four bytes of record 1. [The snapshot verifier](../tools/verify_cas_first_input.py) checks the files, copy, and first input. The input commands and castle state changes remain to trace.
 
 | Address | Disassembly / evidence | Interpretation |
 | --- | --- | --- |

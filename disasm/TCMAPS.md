@@ -23,4 +23,6 @@ At `TWN` `$89BC/$89C2`, indexed reads use `$4004,X` and `$4005,X`, beginning wit
 
 Both loops copy **three 256-byte pages** from the selected pointer to `$B400`: 768 bytes in total. Therefore the runtime read windows for slots 0–8 include four bytes from the following packed slot. The last window reaches `$5DEF`, four bytes past the file's `$5DEB` end. What occupies `$5DEC–$5DEF` in memory after loading is unverified; a macOS port must not invent these bytes without tracing whether the game uses them. The legal slot index ranges and the internal map format remain open.
 
+Runtime confirmation for `CAS` slot 0: after loading `TCMAPS` and `MAPCHARS`, the first castle map copied `$4014–$4313` to `$B400–$B6FF` byte-for-byte before its `$8A27` input poll. The last four copied bytes are the first four bytes of packed slot 1. Other slot selections and the out-of-file read for the final slot remain unverified.
+
 Run `python3 tools/extract_data.py` at the repository root to write the ten **packed slots** and a checksum manifest under ignored `build/data/TCMAPS/`. `--check` validates addresses and lengths without writing data. The manifest records how many bytes of each 768-byte runtime copy are present in the source file. The public repository contains the extractor and this structural description, not the map bytes.

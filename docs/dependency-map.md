@@ -34,7 +34,7 @@ flowchart TD
 | `MI.U1` | `CAS` | Outdoor tile code `$04` and E command select A=`$10` at `$88FD`; filename `CAS` at `$8920`, carry-clear return `$892B`, entry `$8956` | Runtime confirmed; 5524-byte match at entry |
 | `MI.U1` | six other gameplay modules | Name table at `$7E16`; selector at `$88FD–$893E` | High for names and selector, load API semantics pending |
 | `TWN` | `TCMAPS`, `MAPCHARS` | `$898B` and `$89A1` call `$B733`; inline names follow | High |
-| `CAS` | `TCMAPS`, `MAPCHARS` | `$898D` and `$89A3` call `$B733`; inline names follow | High |
+| `CAS` | `TCMAPS`, `MAPCHARS` | Runtime `$898D → $89A3 → $89CE → $8A31 → $8A27`; both loaded files match extraction and first 768-byte map copy matches `$4014–$4313` | Runtime confirmed for first castle entry |
 | `TM` | `NIF` | `$9052` calls `$B703`; inline name at `$9055` | High |
 
 ## Resident code and overlays
