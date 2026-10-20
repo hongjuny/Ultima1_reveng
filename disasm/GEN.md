@@ -6,6 +6,8 @@ Overlay range: `$8956–$AC39`; entry `$8956`.
 | --- | --- | --- |
 | `$8956` | Initializes shared state and display | Module entry |
 | `$89FD` | Reads input and compares against `#$41` and `#$42` | `A`/`B` menu choice |
+| `$8A10–$8A2B` | Previous-character loader, 28 reviewed bytes | Load `/U1.PLAYER/U1.VARS` at `$6000`; check `$01CA` header |
+| `$8A5B–$8A7E` | Self-modifying copy, 36 reviewed bytes | Restore 458 bytes `$6000–$61C9` to `$7E6D–$8036` |
 | `$8AC3` | Target of the `A` branch | New-character path |
 | `$8AEA–$8B24` | Self-modifying loop, 59 reviewed bytes | Copy 136 template bytes from `$904F–$90D6` to `$7E6F–$7EF6` |
 | `$8C00–$8C80` | Attribute input loop, 129 reviewed bytes | Six values, remaining-point pool, navigation and acceptance |
@@ -18,7 +20,7 @@ Overlay range: `$8956–$AC39`; entry `$8956`.
 | `$8F0F–$8F30` | Confirmation dispatch, 34 reviewed bytes | `Y` calls `$B724`; `N` restarts character generation |
 | `$8AC0` | `JMP $88FB` | Observed continue path to `OUT` |
 
-The menu text describes new-character and previous-game options. The completion route from the new-character path, attribute generation rules, and save format remain to trace.
+The menu text describes new-character and previous-game options. Saving a new character returns to this menu. The later gameplay handoff, remaining attribute semantics, and full player-record layout remain to trace.
 
 The reviewed [menu choice fragment](GEN-menu.s) covers `$89FD–$8A0F` and reassembles byte-for-byte. It shows `A` (`$41`) jumping to `$8AC3`; `B` (`$42`) falls into the continuation code at `$8A10`. Other values repeat the input loop.
 
@@ -43,3 +45,5 @@ The reviewed [confirmation dispatch](GEN-save-confirm.s) matches all 34 bytes at
 The `Y` replay reached `$B724` and returned at `$8F2C` with `A=$06` and carry set, then branched to `$8F31`. The private game-disk copy remained byte-identical. The helper at `$B770` parses its six inline bytes as source `$7E6D`, length `$01CA` (458), and path pointer `$7E38`. RAM at `$7E38` contains `/U1.PLAYER/U1.VARS`; the helper copied that path to its ProDOS pathname buffer `$BA79`. The error handler prints a player-disk prompt for this error class. This establishes that character persistence uses a separate `U1.PLAYER` volume. `tools/create_player_disk.py` creates a private blank ProDOS volume with that name, and `tools/trace_gen_player_save.py` is prepared to swap it in and retry without changing the original game disk.
 
 The player-disk retry succeeded: `$B724` returned `A=$00` with carry clear at `$8F2C`, then execution reached `$895B`. The disposable `U1.PLAYER` disk gained `U1.VARS`, a 458-byte BIN file with auxiliary address `$7E6D`; its data matches RAM `$7E6D–$8036` byte-for-byte in the post-save snapshot. The blank disk template and original game disk remain unchanged. `tools/verify_gen_player_save.py` repeats the file extraction and comparison. `tools/trace_gen_after_save.py` is prepared to follow `$895B` to the next GEN input.
+
+The continuation reached the menu key read at `$89FD` with the character record unchanged. The reviewed [previous-character loader](GEN-load-player.s) and [record copy](GEN-reload-copy.s) match all 64 original bytes across their ranges. Menu `B` calls `$B721` with inline destination `$6000` and path pointer `$7E38`, tests the first two loaded bytes against `$CA,$01`, then copies 458 bytes into the live record. The load and copy are static findings until `tools/trace_gen_load_player.py` replays `B`. The later `$8AC0` jump to `$88FB` is the handoff toward the gameplay overlay.
