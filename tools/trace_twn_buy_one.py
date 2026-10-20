@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Buy one or two food packs and capture the payment and food credit."""
+"""Replay a numeric food-pack purchase and capture payment and food credit."""
 
 import json
 import os
@@ -24,8 +24,8 @@ def watched(client) -> dict:
 
 
 def main(quantity: int = 1, output: Path = OUTPUT) -> int:
-    if quantity not in range(1, 10):
-        raise ValueError("this replay accepts a one-digit quantity from 1 to 9")
+    if quantity not in range(1, 1000):
+        raise ValueError("this replay accepts a quantity from 1 to 999")
     prior = json.loads(SOURCE.read_text())
     if prior["timeout"] is not None or cpu_pc(prior["final_cpu"]) != 0xA2F9:
         raise RuntimeError("source trace is not at quantity parser entry")
@@ -56,15 +56,21 @@ def main(quantity: int = 1, output: Path = OUTPUT) -> int:
                     raise RuntimeError("restored quantity parser differs")
                 before = watched(client)
                 client.ok("set-turbo 8")
-                client.ok_or_data("break-clear-all")
-                client.ok_or_data("break-exec $A392")
-                client.ok(f"key {48 + quantity}")
                 try:
-                    client.ok("wait-paused 15000")
-                    if cpu_pc(client.ok("get-cpu")) != 0xA392:
-                        raise RuntimeError(f"digit {quantity} was not accepted")
-                    points.append({"label": "digit accepted", "pc": "0xA392",
-                                   "cpu": client.ok("get-cpu"), "watched": watched(client)})
+                    for index, digit in enumerate(str(quantity)):
+                        if index:
+                            point = wait_at(client, "next numeric poll", (0xA30A,))
+                            point["watched"] = watched(client)
+                            points.append(point)
+                        client.ok_or_data("break-clear-all")
+                        client.ok_or_data("break-exec $A392")
+                        client.ok(f"key {ord(digit)}")
+                        client.ok("wait-paused 15000")
+                        if cpu_pc(client.ok("get-cpu")) != 0xA392:
+                            raise RuntimeError(f"digit {digit} was not accepted")
+                        points.append({"label": "digit accepted", "pc": "0xA392",
+                                       "cpu": client.ok("get-cpu"),
+                                       "watched": watched(client)})
                     client.ok_or_data("break-clear-all")
                     client.ok_or_data("break-exec $92E0")
                     client.ok("key 13")
@@ -73,9 +79,15 @@ def main(quantity: int = 1, output: Path = OUTPUT) -> int:
                         raise RuntimeError("Return did not complete quantity input")
                     points.append({"label": "quantity accepted", "pc": "0x92E0",
                                    "cpu": client.ok("get-cpu"), "watched": watched(client)})
-                    for label, address in (("cost computed", 0x932F),
-                                           ("payment branch", 0x933E),
-                                           ("payment complete", 0x9362),
+                    for label, address in (("cost computed", 0x932F),):
+                        point = wait_at(client, label, (address,))
+                        point["watched"] = watched(client)
+                        points.append(point)
+                    point = wait_at(client, "funds decision", (0x933B, 0x933E))
+                    point["watched"] = watched(client)
+                    points.append(point)
+                    next_address = 0x9236 if point["pc"] == "0x933B" else 0x9362
+                    for label, address in (("branch outcome", next_address),
                                            ("next town input", 0x8A1E)):
                         point = wait_at(client, label, (address,))
                         point["watched"] = watched(client)
