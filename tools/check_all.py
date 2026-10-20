@@ -14,6 +14,7 @@ CHECKS = (
     ("reviewed assembly", ["tools/verify_disasm.py"]),
     ("TCMAPS records", ["tools/extract_data.py", "--check"]),
     ("intro support relocation", ["tools/verify_intro_support.py"]),
+    ("intro-to-engine handoff", ["tools/verify_intro_to_engine.py"]),
 )
 
 

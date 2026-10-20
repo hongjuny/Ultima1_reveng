@@ -1,6 +1,6 @@
 # Gameplay module dispatch
 
-Status: static trace of `MI.U1` and one exit path in `OUT`.
+Status: static trace of `MI.U1` and one exit path in `OUT`; runtime confirmed through `MI.U1` entry, with its `STUPH` and `GEN` loads pending.
 
 `MI.U1` stores null-terminated module names starting at `$7E16`. Their byte offsets are the likely selector values:
 

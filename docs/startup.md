@@ -1,6 +1,6 @@
 # Startup and module loading
 
-Status: initial static analysis plus runtime traces from `U1.SYSTEM` through the first `U1.INTRO` entry and `MAKE.INDATA` execution. `MI.U1` and later transitions still need runtime confirmation. Addresses refer to the local ProDOS extraction.
+Status: runtime traces from `U1.SYSTEM` through `U1.INTRO`, `MAKE.INDATA`, and `MI.U1` entry. `STUPH` and gameplay module loads still need runtime confirmation. Addresses refer to the local ProDOS extraction.
 
 The supplied WOZ reaches ProDOS's `$21D4` error loop after `GET_PREFIX` returns `A=$27`. The block-equivalent `.po` image boots through to `U1.SYSTEM`; the discrepancy needs investigation before claiming faithful WOZ emulation.
 
@@ -21,6 +21,7 @@ flowchart TD
 - `U1.INTRO` begins with jumps to `$0F23` and `$0F41`. At `$0F23`, a loader call uses the inline filename `MAKE.INDATA`. Another code path near `$0B50` uses the inline filename `MI.U1`.
 - The `$0F23` path called `$B70C` and returned to `$0F37` with carry clear, then reached `$0F41`. The loader's indirect entry was `$1E00`. The `MAKE.INDATA` entry copied `$2000–$27FF` to `$8700–$8EFF` and `$27BD–$4DBC` to `$6000–$85FF`; both destination ranges matched the file exactly in the private snapshot. The original `$2000` range had been reused before return.
 - `$0800` enters the `MAKE.INDATA` request path; `$0803` enters at `$0F41` after that request. During the animation, `$0B23–$0B4F` polls the keyboard and sends ordinary keys to `$0B50`. A later loop at `$1039–$1056` also polls and calls `$0B50`. That routine requests `MI.U1` for key values other than `$9B`; `$9B` takes a separate wait-for-next-key path.
+- In the private replay, ASCII `A` at `$0B23` appeared as `$C1` at `$0B50`. Execution reached `$B70C`, `MI.U1` `$7000`, then its first loader at `$8956`. All 6589 bytes at `$7000` matched the extracted file at entry, and the intro remained resident at `$0800`. The reproducible report and snapshots are kept under ignored `build/traces/intro-to-engine/`; `tools/verify_intro_to_engine.py` checks them locally.
 - `MI.U1` starts with a jump to `$8956`. At `$7E16` it contains zero-terminated names `GEN`, `OUT`, `DNG`, `TWN`, `CAS`, `SPA`, and `TM` in that order. The routine near `$88FD` loads `GEN` and transfers control to `$8956`.
 - The initial `MI.U1` loader at `$8956` loads `STUPH` by inline filename, then reaches the module selector at `$88FD` with accumulator value zero. `STUPH` has 33 three-byte jump stubs at `$1583–$15E5`; these are called throughout the common engine.
 - The original `MI.U1` bytes at `$8956` form startup/loader code. Each gameplay module is loaded at the same address and overwrites that code. Each module's first bytes are 6502 code; `TM` starts with a jump to `$8AD7`.
@@ -32,9 +33,9 @@ The common engine keeps shared state and utility routines below `$8956`, with ex
 
 ## Next trace targets
 
-1. `U1.INTRO` `$0F41`, `$0B23`, `$0B50`: confirm the early animation key path into `MI.U1` loading; later inspect `$1039` and the special key cases.
+1. `U1.INTRO` `$1039` and the special key cases: inspect the paths beyond the confirmed early animation key transition.
 2. `$B70C` and `MAKE.INDATA` `$1E03`, `$8700`: classify the loader's run contract, decoder, copied code, and display effects.
-3. `MI.U1` `$7E16`, `$88FD–$8955`: name the selection state, loader call, and module return convention; trace the `$1583–$15E5` stubs in `STUPH`.
+3. `MI.U1` `$8975`, `$88FD–$8955`: trace the `STUPH` and `GEN` loads, name the selection state and module return convention, and inspect the `$1583–$15E5` stubs in `STUPH`.
 4. `GEN` `$8956` and `OUT` `$8956`: follow character creation into outdoor play.
 
 The first pass through the module selector is documented in [Gameplay module dispatch](module-dispatch.md).
