@@ -39,7 +39,9 @@ def main() -> int:
 
     OUTPUT.mkdir(parents=True, exist_ok=True)
     pending = OUTPUT / f"attack.pending-{os.getpid()}.a2state"
+    return_pending = OUTPUT / f"handler-return.pending-{os.getpid()}.a2state"
     pending.unlink(missing_ok=True)
+    return_pending.unlink(missing_ok=True)
     points = []
     timeout = None
     with (OUTPUT / "a2m.log").open("w") as log:
@@ -60,6 +62,8 @@ def main() -> int:
                         points.append(wait_at(client, "damage or kill", (0x8D71, 0x8D84, 0x8D9A)))
                     points.append(wait_at(client, "attack handler return", (0x8A59,)))
                     at_handler_return = watched(client)
+                    client.ok(f"save-state {return_pending}")
+                    wait_for_snapshot(return_pending)
                     points.append(wait_at(client, "next key poll", (0x8A27,)))
                 except RuntimeError as error:
                     timeout = str(error)
@@ -74,10 +78,16 @@ def main() -> int:
             stop(process)
     final = OUTPUT / "effect.a2state"
     pending.replace(final)
+    return_snapshot = None
+    if timeout is None:
+        return_final = OUTPUT / "handler-return.a2state"
+        return_pending.replace(return_final)
+        return_snapshot = {"path": str(return_final), **describe(return_final)}
     report = {"source_snapshot": source, "working_game_disk": disk_item,
               "checkpoints": points, "timeout": timeout,
               "watched_before": before, "watched_at_handler_return":
               at_handler_return if timeout is None else None,
+              "handler_return_snapshot": return_snapshot,
               "watched_after": after,
               "final_cpu": final_cpu,
               "snapshot": {"path": str(final), **describe(final)}}
