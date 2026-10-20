@@ -24,6 +24,8 @@ The post-handler call at `$8A59` entered `$9804` with `$9E2A=$01`. This replay s
 
 The [guard hit-roll fragment](CAS-guard-hit-roll.s) at `$9951–$9980` computes a threshold from `$7ECC`, eight successive additions of `$7E7B`, and `$38`, preserving carry across ADC operations. The [damage-roll fragment](CAS-guard-damage-roll.s) at `$998F–$99A5` repeatedly draws a nonzero byte below `$14 + 4×$7EC7` in this code path. The [HP fragment](CAS-guard-player-hp.s) at `$99CB–$99E0` subtracts that byte from the player's two-byte HP and branches to the death path on borrow. All three fragments reassemble byte-for-byte.
 
+A controlled replay from the same `$8A59` snapshot changed only the shared random-state byte `$1E27` immediately before the guard roll at `$997A`: `$A6→$59`. The byte-matched [STUPH random routine](STUPH-random.s) predicts the original `$9D` and changed `$02`; runtime returned `$02` and reached the miss branch `$9981` because `$02 < $45`. It returned to `$8A27` with player HP `$0096`, actor HP `$01DA`, position `(1,7)`, and watched turn bytes unchanged. [The controlled-miss verifier](../tools/verify_cas_guard_miss.py) checks that only one RAM byte changed at the intervention point and that the alternate path preserved HP. This is an injected RNG-state comparison; it establishes branch behavior for this state, not the frequency of misses during ordinary play.
+
 Three attack fragments reassemble byte-for-byte: the [directional scan](CAS-attack-ray.s) at `$8CC9–$8CF6` advances by `$04/$05` and accepts actor result codes `$30–$35`; the [hit roll](CAS-attack-hit-roll.s) at `$8D08–$8D2B` compares a random byte with `$80 + $7ECA`; the [damage calculation](CAS-attack-damage.s) at `$8D46–$8D83` builds a bound with `$7EC8` and three successive `ADC $7E7A` operations, draws a nonzero byte below that bound, and subtracts it from the selected actor's HP. The ADC chain preserves carry between operations. In this replay the subtraction was 26; other weapon values and actor states still need testing.
 
 | Address | Disassembly / evidence | Interpretation |
@@ -44,6 +46,7 @@ Three attack fragments reassemble byte-for-byte: the [directional scan](CAS-atta
 | `$9951–$9980` | Guard hit threshold and roll, byte-matched | `$9D >= $45` selected hit path |
 | `$998F–$99A5` | Guard damage bound and nonzero roll, byte-matched | `$0F` selected below `$14` |
 | `$99CB–$99E0` | Player HP subtraction, byte-matched | `$99D1` stored `$96→$87` |
+| `$997A–$9981` | Shared random call and miss branch, observed in controlled replay | `$02 < $45` reached `$9981`; player HP remained `$96` |
 | `$8C13–$8C28` | Collision-failure message and jump to `$8C3F` | Blocked movement still consumes a turn in this replay |
 
 Visible text includes a princess sequence, shops, and combat. The state changes associated with these events remain to trace.

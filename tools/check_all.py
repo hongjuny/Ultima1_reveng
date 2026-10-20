@@ -49,6 +49,7 @@ CHECKS = (
     ("CAS actor collision", ["tools/verify_cas_occupied_tile.py"]),
     ("CAS attack", ["tools/verify_cas_attack.py"]),
     ("CAS guard retaliation", ["tools/verify_cas_guard_retaliation.py"]),
+    ("CAS controlled guard miss", ["tools/verify_cas_guard_miss.py"]),
 )
 
 

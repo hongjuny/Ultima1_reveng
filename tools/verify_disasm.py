@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 FRAGMENTS = (
     ("MI.U1-selector.s", "MI.U1", 0x7000, 0x88F8, 0x893F),
     ("MI.U1-turn-update.s", "MI.U1", 0x7000, 0x82E2, 0x8331),
+    ("STUPH-random.s", "STUPH", 0x0800, 0x1DF1, 0x1E18),
     ("U1.INTRO-entry.s", "U1.INTRO", 0x0800, 0x0800, 0x0806),
     ("U1.INTRO-key-loop.s", "U1.INTRO", 0x0800, 0x1039, 0x1057),
     ("U1.INTRO-load-mi.s", "U1.INTRO", 0x0800, 0x0B50, 0x0B6A),
