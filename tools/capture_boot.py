@@ -25,7 +25,7 @@ def connect(client_type, process):
         if process.poll() is not None:
             raise RuntimeError("a2m exited before its control port opened; see build/baseline/a2m.log")
         try:
-            return client_type(port=PORT, timeout=25)
+            return client_type(port=PORT, timeout=60)
         except (ConnectionRefusedError, TimeoutError):
             time.sleep(0.1)
     raise RuntimeError("a2m control port did not open; see build/baseline/a2m.log")
@@ -102,7 +102,8 @@ def main() -> int:
     from a2m_control_client import Ctl
 
     OUTPUT.mkdir(parents=True, exist_ok=True)
-    snapshot = OUTPUT / "boot-2088.a2state"
+    snapshot = OUTPUT / f"boot-2088.pending-{os.getpid()}.a2state"
+    snapshot.unlink(missing_ok=True)
     log_path = OUTPUT / "a2m.log"
     with log_path.open("w") as log:
         process = launch(emulator, disk, None, log)
@@ -134,6 +135,9 @@ def main() -> int:
         finally:
             stop(process)
 
+    final_snapshot = OUTPUT / "boot-2088.a2state"
+    snapshot.replace(final_snapshot)
+    snapshot = final_snapshot
     scenario = {
         "name": "cold boot to U1.SYSTEM entry",
         "emulator_revision": revision,
