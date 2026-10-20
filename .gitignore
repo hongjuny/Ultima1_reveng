@@ -1,0 +1,12 @@
+# Original game material and locally generated listings
+/extracted/
+/build/
+/.git-meta/
+*.woz
+*.dsk
+*.po
+*.2mg
+*.gpr
+*.rep/
+.DS_Store
+__pycache__/

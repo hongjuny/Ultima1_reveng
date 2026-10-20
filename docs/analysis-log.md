@@ -1,0 +1,14 @@
+# Analysis log
+
+## 2026-10-20 — Inventory and first control-flow pass
+
+- Checked all 16 extracted file sizes against the ProDOS catalog.
+- Verified that files contain their memory image directly, without a four-byte BIN header.
+- Located startup jumps and inline filenames with hex inspection and `da65`.
+- Identified the shared `$8956` load address for seven mutually exclusive gameplay modules.
+- Corrected `STUPH`'s classification after finding its 33-entry executable jump table at `$1583–$15E5` and the loader call that installs it.
+- Traced the `$88FD` selector's name table and its initial `GEN` path; identified an `OUT` exit that returns to it.
+- Mapped direct returns from `GEN`, `DNG`, `TWN`, `CAS`, and `SPA` into `OUT`, plus `OUT` selector values for space, castle, town, and dungeon transitions.
+- Added a local listing generator. Its output is an unreviewed aid, not a reconstructed source or a publication artifact.
+
+Unknowns: the precise ProDOS loader semantics used by these files, module selection rules, persistent state layout, and data encodings. Future entries should cite addresses and distinguish observations from inferences.

@@ -1,0 +1,5 @@
+#!/bin/sh
+# Run Git against this checkout's separate metadata directory.
+set -eu
+repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd -P)
+exec git --git-dir="$repo_root/.git-meta" --work-tree="$repo_root" "$@"
