@@ -19,6 +19,8 @@ FRAGMENTS = (
     ("GEN-menu.s", "GEN", 0x8956, 0x89FD, 0x8A10),
     ("GEN-initialize-state.s", "GEN", 0x8956, 0x8AEA, 0x8B25),
     ("GEN-attribute-input.s", "GEN", 0x8956, 0x8C00, 0x8C81),
+    ("GEN-race-choice.s", "GEN", 0x8956, 0x8CD0, 0x8CE1),
+    ("GEN-race-bonus.s", "GEN", 0x8956, 0x8CFA, 0x8D3C),
     ("OUT-location-dispatch.s", "OUT", 0x8956, 0x90FF, 0x913A),
     ("OUT-space-dispatch.s", "OUT", 0x8956, 0x8D6E, 0x8D73),
     ("TWN-map-copy.s", "TWN", 0x8956, 0x89B9, 0x89DE),

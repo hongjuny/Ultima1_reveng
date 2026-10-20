@@ -21,6 +21,7 @@ CHECKS = (
     ("GEN state initialization", ["tools/verify_gen_first_input.py"]),
     ("GEN first attribute increase", ["tools/verify_gen_attribute_increase.py"]),
     ("GEN attribute bounds and navigation", ["tools/verify_gen_attribute_controls.py"]),
+    ("GEN attribute completion", ["tools/verify_gen_attribute_completion.py"]),
 )
 
 

@@ -9,6 +9,8 @@ Overlay range: `$8956–$AC39`; entry `$8956`.
 | `$8AC3` | Target of the `A` branch | New-character path |
 | `$8AEA–$8B24` | Self-modifying loop, 59 reviewed bytes | Copy 136 template bytes from `$904F–$90D6` to `$7E6F–$7EF6` |
 | `$8C00–$8C80` | Attribute input loop, 129 reviewed bytes | Six values, remaining-point pool, navigation and acceptance |
+| `$8CD0–$8CE0` | Race key validation, 17 reviewed bytes | `A`–`D` stored as 1–4 at `$7ED6` |
+| `$8CFA–$8D3B` | Race bonus dispatch, 66 reviewed bytes | Modify attributes by selected race |
 | `$8AC0` | `JMP $88FB` | Observed continue path to `OUT` |
 
 The menu text describes new-character and previous-game options. The completion route from the new-character path, attribute generation rules, and save format remain to trace.
@@ -20,3 +22,7 @@ The first runtime replay reached the key read at `$89FD` at cycle 32,493,298, be
 The `A` replay reached `$8AC3` with `A=$41` at cycle 32,532,365. The next replay reached the first attribute key read at `$8C07` (cycle 33,025,684). At that point `$7EC8`, `$7ECA`, `$7ECC`, `$7ECE`, `$7ED0`, and `$7ED2` are all 10; `$903F` holds 30 unassigned points and `$9041` selects the first attribute. The private snapshots confirm the full 136-byte copy from `$904F–$90D6` to `$7E6F–$7EF6`. The reviewed [copy loop](GEN-initialize-state.s) and [attribute input loop](GEN-attribute-input.s) reassemble byte-for-byte.
 
 The input loop uses `$9041` as a 1–6 selection index and addresses the chosen value at `$7EC6 + 2 × index`. Code `$08` lowers it down to 10 and returns one point; `$15` raises it up to 25 when points remain. Codes `$2F`/`$0A` select the next value, `$0D`/`$0B` the previous one, and `$1B` returns to the main menu. Space proceeds only when the remaining-point count is zero. Replays confirm `$15` changes the first value 10→11 and the pool 30→29; `$08` reverses the change and cannot lower the value below 10. `$2F` and `$0B` move the selection 1→2→1. A replay for the upper bound and space gate is prepared. The meaning and on-screen labels of all six values still need to be tied to their rendering code and observed screen.
+
+The upper-bound replay confirmed that a selected attribute stops at 25; one more `$15` leaves it at 25. Space with 15 points remaining returned to the allocation loop. After the remaining 15 points were assigned, Space reached the race input at `$8CD0` with values `[25, 25, 10, 10, 10, 10]` and `$903F=0`. The displayed choices are `A) Human`, `B) Elf`, `C) Dwarf`, and `D) Bobbit` in the extracted inline text.
+
+The reviewed [race choice](GEN-race-choice.s) and [race bonus](GEN-race-bonus.s) fragments reassemble byte-for-byte. The code stores `A`–`D` as 1–4 at `$7ED6`. It adds 5 to `$7ED2` for A, 5 to `$7ECA` for B, 5 to `$7EC8` for C, and for D adds 10 to `$7ED0` while subtracting 5 from `$7EC8`. These race effects are static findings; a runtime replay of A is prepared.
