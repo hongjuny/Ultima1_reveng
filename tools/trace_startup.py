@@ -57,7 +57,10 @@ def main() -> int:
     boot_path = Path(boot["path"])
     if describe(boot_path)["sha256"] != boot["sha256"]:
         raise RuntimeError("boot snapshot differs from baseline")
-    disk = Path(manifest["disk_image"]["path"])
+    media = runtime.get("boot_media") or manifest["disk_image"]
+    disk = Path(media["path"])
+    if describe(disk)["sha256"] != media["sha256"]:
+        raise RuntimeError("boot media differs from the captured snapshot")
     emulator = Path(runtime["emulator"]["path"])
     source = ROOT / "build" / "emulator" / "a2m"
     system = (ROOT / "extracted" / "U1.SYSTEM").read_bytes()

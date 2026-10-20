@@ -2,6 +2,8 @@
 
 Status: initial static analysis. The apparent runtime hit at `U1.SYSTEM` `$2088` was actually ProDOS code at the same address; game entry and later transitions still need runtime confirmation. Addresses refer to the local ProDOS extraction.
 
+The latest WOZ boot reaches ProDOS's `$21D4` error loop, preceded by its `RELOCATION / CONFIGURATION ERROR` message. A block-equivalent `.po` retry is prepared; its boot result is pending.
+
 ```mermaid
 flowchart TD
   P[ProDOS] --> S[U1.SYSTEM at $2000]

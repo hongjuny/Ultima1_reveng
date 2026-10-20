@@ -159,6 +159,15 @@ def verify() -> int:
                 if value != emulator.get(field):
                     differences.append(f"emulator: {field} differs from baseline")
     snapshot = manifest.get("runtime", {}).get("boot_snapshot")
+    boot_media = manifest.get("runtime", {}).get("boot_media")
+    if boot_media:
+        path = Path(boot_media["path"])
+        if not path.is_file():
+            differences.append(f"boot media missing: {path}")
+        else:
+            for field, value in describe(path).items():
+                if value != boot_media.get(field):
+                    differences.append(f"boot media: {field} differs from baseline")
     if snapshot:
         path = Path(snapshot["path"])
         if not path.is_file():
