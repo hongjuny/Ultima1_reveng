@@ -8,6 +8,8 @@ Load range: `$7000–$89BC`. A gameplay overlay at `$8956` replaces the final `$
 | --- | --- | --- |
 | `$7000` | Entry jump | `JMP $8956` |
 | `$7E16–$7E31` | Null-terminated overlay filename table | `GEN`, `OUT`, `DNG`, `TWN`, `CAS`, `SPA`, `TM` |
+| `$7E53–$7E6C` | 26-byte shared command-key table | Four direction codes, Space, `$01`, and 20 letter keys; `P` absent |
+| `$82A2` | Shared command lookup | Normalizes input through `$827D`, scans `$7E53–$7E6C`; misses return carry set |
 | `$88F8–$893E` | Overlay selection and transfer | Decoded below |
 | `$8956–$89BC` | Initial loader tail | Loads `STUPH`, then enters selector with A = 0 |
 
@@ -28,6 +30,8 @@ Load range: `$7000–$89BC`. A gameplay overlay at `$8956` replaces the final `$
 | `$893C` | `JMP $8956` | Enter selected overlay |
 
 The valid names begin at byte offsets `$00`, `$04`, `$08`, `$0C`, `$10`, `$14`, and `$18`. The code accepts intermediate nonzero values too; whether they can arise during play remains open.
+
+The live `OUT` `P` input returned `$50` from its key poll, then `$82A2` returned with carry set and `X=$FF`; the caller skipped its handler call. The original 26-byte command table is `0B 0A 15 08 20 01 41 42 43 44 45 46 47 48 49 4B 4E 4F 51 52 53 54 55 56 58 5A`. Space (`$20`) is present at index 4, while `P` (`$50`) is absent. The meaning of each accepted key requires its handler to be traced.
 
 The initial loader at `$8975` calls `$B703` with inline filename `STUPH`. After installing shared support, it executes `LDA #$00` at `$89B8` and `JMP $88FD` at `$89BA`. Next: trace `$B703` and `$B736`, and label the common state at `$7E00`.
 

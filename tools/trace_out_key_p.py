@@ -17,7 +17,7 @@ OUTPUT = ROOT / "build" / "traces" / "out-key-p"
 KEY = 80  # P; semantic meaning is not assumed until dispatch is observed.
 
 
-def main() -> int:
+def run(key: int = KEY, output: Path = OUTPUT) -> int:
     prior = json.loads(SOURCE.read_text())
     if prior["timeout"] is not None or prior["final_cpu"].split()[0] != "pc=8A6C":
         raise RuntimeError("source trace did not reach OUT key poll")
@@ -34,12 +34,12 @@ def main() -> int:
     sys.path.insert(0, str(ROOT / "build" / "emulator" / "a2m" / "tools"))
     from a2m_control_client import Ctl
 
-    OUTPUT.mkdir(parents=True, exist_ok=True)
-    pending = OUTPUT / f"key-p.pending-{os.getpid()}.a2state"
+    output.mkdir(parents=True, exist_ok=True)
+    pending = output / f"key.pending-{os.getpid()}.a2state"
     pending.unlink(missing_ok=True)
     points = []
     timeout = None
-    with (OUTPUT / "a2m.log").open("w") as log:
+    with (output / "a2m.log").open("w") as log:
         process = launch(emulator, disk, None, log)
         try:
             client = connect(Ctl, process)
@@ -52,7 +52,7 @@ def main() -> int:
                 client.ok("set-turbo 8")
                 client.ok_or_data("break-clear-all")
                 client.ok_or_data("break-exec $8A74")
-                client.ok(f"key {KEY}")
+                client.ok(f"key {key}")
                 try:
                     client.ok("wait-paused 15000")
                     cpu = client.ok("get-cpu")
@@ -67,7 +67,7 @@ def main() -> int:
                         points.append(wait_at(client, "command decision", (0x89D0, 0x89DF)))
                 except RuntimeError as error:
                     timeout = str(error)
-                    print(f"OUT key P trace stopped: {timeout}", flush=True)
+                    print(f"OUT key ${key:02X} trace stopped: {timeout}", flush=True)
                 client.ok(f"save-state {pending}")
                 wait_for_snapshot(pending)
                 final_cpu = client.ok("get-cpu")
@@ -80,14 +80,14 @@ def main() -> int:
         finally:
             stop(process)
 
-    final = OUTPUT / "key-p.a2state"
+    final = output / ("key-p.a2state" if key == KEY else f"key-{key:02x}.a2state")
     pending.replace(final)
     report = {"source_snapshot": source, "working_game_disk": disk_item,
-              "input": {"key_ascii": KEY, "at_pc": "0x8A6C"},
+              "input": {"key_ascii": key, "at_pc": "0x8A6C"},
               "checkpoints": points, "timeout": timeout, "state": state,
               "final_cpu": final_cpu, "final_state": final_state,
               "snapshot": {"path": str(final), **describe(final)}}
-    path = OUTPUT / "handoff.json"
+    path = output / "handoff.json"
     path.write_text(json.dumps(report, indent=2) + "\n")
     print(f"private trace: {path}")
     return 0
@@ -95,7 +95,7 @@ def main() -> int:
 
 if __name__ == "__main__":
     try:
-        raise SystemExit(main())
+        raise SystemExit(run())
     except (OSError, RuntimeError, ValueError, KeyError) as error:
         print(f"OUT key-P trace failed: {error}", file=sys.stderr)
         raise SystemExit(1)
