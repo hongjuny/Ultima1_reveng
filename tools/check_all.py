@@ -44,6 +44,7 @@ CHECKS = (
     ("OUT terrain and CAS entry", ["tools/verify_out_terrain_entry.py"]),
     ("CAS first input", ["tools/verify_cas_first_input.py"]),
     ("CAS left-edge exit", ["tools/verify_cas_exit_left.py"]),
+    ("CAS right movement", ["tools/verify_cas_step_right.py"]),
 )
 
 
