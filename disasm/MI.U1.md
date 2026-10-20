@@ -11,6 +11,7 @@ Load range: `$7000–$89BC`. A gameplay overlay at `$8956` replaces the final `$
 | `$7E53–$7E6C` | 26-byte shared command-key table | Four direction codes, Space, `$01`, and 20 letter keys; `P` absent |
 | `$82A2` | Shared command lookup | Normalizes input through `$827D`, scans `$7E53–$7E6C`; misses return carry set |
 | `$82E2–$8330` | Decimal-mode state update | Uses `$7E4F/$7E50` as amount bytes, subtracts from `$7EE4`, conditionally reduces `$7EE5/$7EE6`, adds to `$7EDA` with carry into following bytes |
+| `$888D–$88A0` | [Death reset](MI.U1-death-reset.s) | Clears three two-byte player fields before `OUT` resurrection |
 | `$88F8–$893E` | Overlay selection and transfer | Decoded below |
 | `$8956–$89BC` | Initial loader tail | Loads `STUPH`, then enters selector with A = 0 |
 
@@ -18,7 +19,7 @@ Load range: `$7000–$89BC`. A gameplay overlay at `$8956` replaces the final `$
 
 | Address | Instruction or data | Effect |
 | --- | --- | --- |
-| `$88F8` | `JSR $8870` | Shared setup; effect still under study |
+| `$88F8` | `JSR $8870` | Shared death/setup path; the traced lethal branch clears HP, food, and `$7ED4/$7ED5` |
 | `$88FB` | `LDA #$04` | Selects `OUT` when entering here |
 | `$88FD` | `LDX #$FF`; `TXS` | Resets stack |
 | `$8900` | `CMP #$19`; `BCS $8907` | Out-of-range value takes `GEN` path |
@@ -38,4 +39,6 @@ The separate Space replay returned from `$82A2` with carry clear and `X=$08`, tw
 
 The initial loader at `$8975` calls `$B703` with inline filename `STUPH`. After installing shared support, it executes `LDA #$00` at `$89B8` and `JMP $88FD` at `$89BA`. Next: trace `$B703` and `$B736`, and label the common state at `$7E00`.
 
-Reviewed source: [module selector](MI.U1-selector.s) at `$88F8–$893E` and [decimal update](MI.U1-turn-update.s) at `$82E2–$8330`. Run `python3 tools/verify_disasm.py` from the repository root to reassemble both against the local `MI.U1` extraction.
+The [controlled death record comparison](../docs/player-state.md) tracks all 458 live `U1.VARS` bytes across selector entry and the first resurrected `OUT` input. It found six changed bytes for that path; the other 452 matched.
+
+Reviewed source: [module selector](MI.U1-selector.s) at `$88F8–$893E`, [death reset](MI.U1-death-reset.s) at `$888D–$88A0`, and [decimal update](MI.U1-turn-update.s) at `$82E2–$8330`. Run `python3 tools/verify_disasm.py` from the repository root to reassemble these against the local `MI.U1` extraction.

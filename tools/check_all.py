@@ -51,6 +51,7 @@ CHECKS = (
     ("CAS guard retaliation", ["tools/verify_cas_guard_retaliation.py"]),
     ("CAS controlled guard miss", ["tools/verify_cas_guard_miss.py"]),
     ("CAS controlled death and resurrection", ["tools/verify_cas_guard_death.py"]),
+    ("controlled resurrection player record", ["tools/verify_resurrection_record.py"]),
 )
 
 
