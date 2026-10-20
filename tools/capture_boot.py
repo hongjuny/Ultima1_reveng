@@ -21,9 +21,22 @@ PRODOS_RETURNS = {0x2173: "GET_PREFIX", 0x218C: "SET_PREFIX", 0x21A6: "READ_BLOC
 PRODOS_ERROR = 0x21C3
 PORT = 20000 + os.getpid() % 30000
 OUTPUT = ROOT / "build" / "baseline"
+SOCKETPAIR_EMULATOR = ROOT / "build" / "emulator" / "a2m-socketpair-build" / "a2m"
+SOCKETPAIR_CLIENTS = {}
 
 
 def connect(client_type, process):
+    inherited = SOCKETPAIR_CLIENTS.pop(process.pid, None)
+    if inherited is not None:
+        # a2m_control_client.Ctl only needs these four fields after its TCP
+        # constructor. Use the already-connected socketpair endpoint instead.
+        inherited.settimeout(60)
+        client = client_type.__new__(client_type)
+        client.s = inherited
+        client.buf = b""
+        client.id = 0
+        client.events = []
+        return client
     deadline = time.monotonic() + 8
     while time.monotonic() < deadline:
         if process.poll() is not None:
@@ -45,15 +58,40 @@ def require_pc(reply):
 
 
 def launch(executable: Path, disk: Path, snapshot: Path | None, log):
+    socketpair_mode = os.environ.get("ULTIMA_A2M_SOCKETPAIR") == "1"
+    if socketpair_mode:
+        if not SOCKETPAIR_EMULATOR.is_file():
+            raise RuntimeError(
+                "socketpair a2m missing; run python3 tools/build_socketpair_a2m.py"
+            )
+        executable = SOCKETPAIR_EMULATOR
     command = [str(executable), "--headless", f"--control-port={PORT}",
                "--noini", "--nosaveini", "--model=enh",
                f"--disk={disk}", "--log-level=warn"]
     if snapshot is not None:
         command.append(f"--sna={snapshot}")
-    return subprocess.Popen(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT)
+    if not socketpair_mode:
+        return subprocess.Popen(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT)
+    parent, child = socket.socketpair()
+    try:
+        environment = os.environ.copy()
+        environment["A2M_CONTROL_FD"] = str(child.fileno())
+        process = subprocess.Popen(command, cwd=ROOT, stdout=log,
+                                   stderr=subprocess.STDOUT, env=environment,
+                                   pass_fds=(child.fileno(),))
+        SOCKETPAIR_CLIENTS[process.pid] = parent
+        return process
+    except BaseException:
+        parent.close()
+        raise
+    finally:
+        child.close()
 
 
 def stop(process):
+    unused = SOCKETPAIR_CLIENTS.pop(process.pid, None)
+    if unused is not None:
+        unused.close()
     if process.poll() is not None:
         return
     process.terminate()

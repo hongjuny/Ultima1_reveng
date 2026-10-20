@@ -10,6 +10,7 @@ This project studies the 1986 Apple II ProDOS release of *Ultima I*. The analysi
 4. Run `python3 tools/disassemble.py` for local listings in `build/disassembly/`.
 5. Run `python3 tools/verify_disasm.py` to reassemble reviewed fragments and compare them with the local extraction.
 6. Run `python3 tools/extract_data.py --check` to validate known data containers, or omit `--check` to extract records locally under `build/data/`.
+7. Run private emulator traces with `python3 tools/run_runtime.py trace_out_after_space.py`. The runner builds an isolated a2m control variant, runs the named trace scripts in order, and then runs `check_all.py`.
 
 The generated listings are **linear drafts**. They interpret embedded text, graphics, inline filenames, and tables as instructions. Review each code range against control flow before treating it as an assembly source. The listings also reproduce original bytes and are ignored by Git.
 

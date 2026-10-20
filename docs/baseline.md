@@ -28,6 +28,18 @@ python3 tools/check_all.py
 
 ## 에뮬레이터 빌드와 첫 실행 기록
 
+### 반복 추적 자동 실행
+
+현재 에이전트 실행 환경은 TCP·Unix 주소의 `bind()`를 차단한다. `tools/run_runtime.py`는 고정된 a2m 소스를 `build/` 안의 별도 복사본으로 만들고, 제어 소켓 부분만 상속받은 `socketpair`를 사용하도록 패치해 빌드한다. 기존 기준점용 실행 파일과 로컬 매니페스트는 그대로 둔다. 추적 스크립트들은 기존 제어 명령을 그대로 사용한다.
+
+```sh
+python3 tools/run_runtime.py trace_out_after_space.py
+# 여러 스크립트도 지정한 순서대로 실행한다.
+python3 tools/run_runtime.py trace_out_key_space.py trace_out_space_effect.py trace_out_after_space.py
+```
+
+실행기는 마지막에 `tools/check_all.py`를 호출하고, 첫 실패에서 중단한다. 비공개 디스크·스냅샷·에뮬레이터 빌드는 계속 `build/`에만 저장한다. 입력으로 지정한 추적의 선행 스냅샷은 이미 있어야 한다. 새 환경에서 첫 캡처부터 시작할 때도 `python3 tools/run_runtime.py capture_boot.py`를 쓸 수 있다. `--no-check`는 전체 검증을 생략하고 해당 추적만 실행한다.
+
 이 저장소에서는 WOZ 읽기, Apple //e Enhanced, 디버거, 로컬 제어 포트와 스냅샷을 제공하는 [a2m의 고정 버전](https://github.com/StewBC/a2m/tree/d863ad98487639445db16134d260221839cb72e9)을 첫 추적 도구로 선택했다. 이 프로젝트는 현재 보관 상태이므로 커밋을 고정한다. 다른 에뮬레이터와의 교차 검증은 이후 표현·타이밍 단계에서 수행한다.
 
 ```sh
