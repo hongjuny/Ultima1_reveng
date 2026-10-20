@@ -36,6 +36,8 @@ FRAGMENTS = (
     ("OUT-enter-gate.s", "OUT", 0x8956, 0x90C8, 0x90DD),
     ("OUT-direction-entry.s", "OUT", 0x8956, 0x9351, 0x936D),
     ("OUT-tile-lookup.s", "OUT", 0x8956, 0x99D1, 0x99F8),
+    ("CAS-key-poll.s", "CAS", 0x8956, 0x8A25, 0x8A31),
+    ("CAS-left-edge.s", "CAS", 0x8956, 0x8AA8, 0x8AC1),
     ("TWN-map-copy.s", "TWN", 0x8956, 0x89B9, 0x89DE),
     ("CAS-map-copy.s", "CAS", 0x8956, 0x89BB, 0x89E0),
 )

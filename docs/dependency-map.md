@@ -13,6 +13,7 @@ flowchart TD
   MI -->|module selector| DNG[DNG]
   MI -->|module selector| TWN[TWN]
   MI -->|module selector| CAS[CAS]
+  CAS -->|left-edge exit| OUT
   MI -->|module selector| SPA[SPA]
   MI -->|module selector| TM[TM]
   TWN -->|file request| MAPS[TCMAPS]
@@ -42,5 +43,7 @@ flowchart TD
 `MI.U1` holds the common engine at `$7000–$8955`; `STUPH` provides callable stubs at `$1583–$15E5`. A selected gameplay module occupies `$8956` upward, replacing the original `MI.U1` loader tail. This makes the dependency graph **time-dependent**: the original loader and a gameplay module cannot be treated as simultaneously resident at `$8956`.
 
 `OUT` selects `DNG`, `TWN`, `CAS`, or `SPA` through the common selector. Direct return jumps from `GEN`, `DNG`, `TWN`, `CAS`, and `SPA` choose `OUT`. The `TM` transition remains untraced. See [module dispatch](module-dispatch.md) for the selector values and addresses.
+
+The `OUT`→`CAS`→`OUT` round trip is runtime confirmed for one castle: tile code `$04` plus `E` loaded `CAS`; left key `$08` at its initial x=0 loaded `OUT` again. The outdoor coordinates, health, and food matched the state before castle entry at the returned input poll.
 
 The data files `MAPCHARS`, `STUPH`, and `U1.INTRO` share `$0800` as a load base at different times. `TCMAPS` and `NIF` share `$4000`. These are lifecycle relationships, not independent simultaneous imports.

@@ -20,7 +20,7 @@ The initial `MI.U1` entry at `$7000` jumps to `$8956`. This first version of `$8
 
 The first replay confirmed this sequence at `$8975 → $B703 → $897E` and `$88FD (A=$00) → $8907 → $B703 → $890E → $8956`. Both loader returns had carry clear. At their respective return points, `STUPH` and `GEN` matched the entire extracted files. The `GEN` entry snapshot keeps the shared engine at `$7000–$8953` and shows three altered bytes in `STUPH` at `$172A`, `$172D`, and `$175C`; their roles are still open.
 
-The shared entry at `$88F8` performs setup, while `$88FB` sets A to `$04` and selects `OUT` at `$88FD`. Direct jumps to `$88FB` appear in `GEN` (`$8AC0`), `DNG` (`$9725`), `TWN` (`$8ABF`), `CAS` (`$8BFD`), and `SPA` (`$8FAA`). These are observed routes back to outdoor play. The conditions that reach each jump still need tracing.
+The shared entry at `$88F8` performs setup, while `$88FB` sets A to `$04` and selects `OUT` at `$88FD`. Direct jumps to `$88FB` appear in `GEN` (`$8AC0`), `DNG` (`$9725`), `TWN` (`$8ABF`), `CAS` (`$8BFD`), and `SPA` (`$8FAA`). `CAS`'s first-entry left-edge path is now runtime confirmed: `$08` at castle x=0 with `$B6BD=$23` reached `$8BFD`, selected `OUT`, reloaded its 5,230 bytes, and restored outdoor coordinates `($1E,$1F)` at the next input. Other return conditions remain to trace.
 
 `OUT` uses its own transition routine at `$8EFA`. It saves two zero-page bytes at `$7E73–$7E74`, performs a page-copy loop using modified operands, restores A, and jumps to `$88FD` at `$8F1C`. Two callers make the next state visible:
 

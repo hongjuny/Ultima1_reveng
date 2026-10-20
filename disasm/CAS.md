@@ -4,14 +4,18 @@ Overlay range: `$8956–$9EE9`; entry `$8956`.
 
 Runtime entry confirmed from `OUT`: an 11-move route reached decoded tile `$04` at coordinates `($1E,$1F)`. The `E` command saved those coordinates at `$7E73/$7E74`, selected A=`$10`, copied filename `CAS`, and reached `$8956` after a carry-clear load. All 5,524 overlay bytes matched the local extraction at entry.
 
-The continuation reached the `TCMAPS` request at `$898D`, the `MAPCHARS` request at `$89A3`, the map-copy loop at `$89CE`, the main loop at `$8A31`, and the first key poll at `$8A27` (cycle 57,858,103). Both data files still match the extraction in their loaded memory ranges. The copy placed bytes `$4014–$4313` at `$B400–$B6FF`: 764 bytes of packed record 0 plus the first four bytes of record 1. [The snapshot verifier](../tools/verify_cas_first_input.py) checks the files, copy, and first input. The input commands and castle state changes remain to trace.
+The continuation reached the `TCMAPS` request at `$898D`, the `MAPCHARS` request at `$89A3`, the map-copy loop at `$89CE`, the main loop at `$8A31`, and the first key poll at `$8A27` (cycle 57,858,103). Both data files still match the extraction in their loaded memory ranges. The copy placed bytes `$4014–$4313` at `$B400–$B6FF`: 764 bytes of packed record 0 plus the first four bytes of record 1. [The snapshot verifier](../tools/verify_cas_first_input.py) checks the files, copy, and first input.
+
+At that first poll, left key `$08` returned through the command lookup with X=`$06` and called `$8AA8`. The player was at castle coordinate `($00,$09)`; the shared left-edge test at `$8AB3` read `$B6BD=$23`, passed its `>= $05` check, and jumped through `$8BFD → $88FB` to select `OUT` (A=`$04`). The `OUT` loader returned with carry clear and all 5,230 overlay bytes matched before entry. At its next `$8A6C` poll, outdoor coordinates were restored to `($1E,$1F)` and health/food matched the pre-castle snapshot. [The return verifier](../tools/verify_cas_exit_left.py) checks the complete ancestry and state. Other castle commands and left-edge conditions remain to trace.
 
 | Address | Disassembly / evidence | Interpretation |
 | --- | --- | --- |
 | `$898D` | `JSR $B733`; inline `TCMAPS` at `$8990` | Castle map file request |
 | `$89A3` | `JSR $B733`; inline `MAPCHARS` at `$89A6` | Character graphic file request |
 | `$8BFD` | `JMP $88FB` | Return to `OUT` |
+| `$8A25–$8A30` | Bounded key poll, byte-matched | First input reached at `$8A27` |
+| `$8AA8–$8AC0` | Left-key entry and x=0 edge test, byte-matched | `$B6BD=$23` selected `$8BFD` in first-entry replay |
 
 Visible text includes a princess sequence, shops, and combat. The state changes associated with these events remain to trace.
 
-The reviewed [map copy](CAS-map-copy.s) at `$89BB–$89DF` reassembles byte-for-byte. It reads the address table starting at entry 0, patches its own source operand, and copies 768 bytes to `$B400`. The packed pointer stride is only 764 bytes; see [TCMAPS](TCMAPS.md) for the overlap.
+The reviewed [map copy](CAS-map-copy.s) at `$89BB–$89DF` reassembles byte-for-byte. It reads the address table starting at entry 0, patches its own source operand, and copies 768 bytes to `$B400`. The packed pointer stride is only 764 bytes; see [TCMAPS](TCMAPS.md) for the overlap. The [key poll](CAS-key-poll.s) and [left-edge exit](CAS-left-edge.s) also reassemble byte-for-byte.
