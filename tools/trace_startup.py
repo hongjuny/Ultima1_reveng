@@ -75,6 +75,20 @@ def main() -> int:
                 client.ok("hello")
                 client.ok("wait-paused 3000")
                 wait_for_pc(client)
+                checkpoints.append(wait_at(client, "U1.SYSTEM setup complete", (0x21A0,)))
+                branch = wait_at(client, "startup-file decision", (0x21D3, 0x21D6))
+                checkpoints.append(branch)
+                header = client.mem(0x2000, 16)
+                low_memory = client.mem(0x0100, 0x40)
+                branch["header_2000_200F_hex"] = header.hex()
+                branch["low_memory_0100_013F_hex"] = low_memory.hex()
+                print(f"$2000 header: {header.hex(' ')}", flush=True)
+                print(f"$0100-$013F: {low_memory.hex(' ')}", flush=True)
+                if branch["pc"] == "0x21D3":
+                    raise RuntimeError(
+                        f"U1.SYSTEM took the no-startup-file branch at $21D3; "
+                        f"$2006=${header[6]:02X}, header={header.hex()}"
+                    )
                 checkpoints.append(wait_at(client, "U1.SYSTEM exit", (0x2220,)))
                 checkpoints.append(wait_at(client, "low-memory transfer", (0x0136,)))
                 entry = wait_at(client, "U1.INTRO entry", (0x0800, 0x0803))
