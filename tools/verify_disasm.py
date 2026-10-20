@@ -39,6 +39,7 @@ FRAGMENTS = (
     ("CAS-key-poll.s", "CAS", 0x8956, 0x8A25, 0x8A31),
     ("CAS-left-edge.s", "CAS", 0x8956, 0x8AA8, 0x8AC1),
     ("CAS-move-check.s", "CAS", 0x8956, 0x8C00, 0x8C13),
+    ("CAS-map-tile-check.s", "CAS", 0x8956, 0x9BD9, 0x9BFE),
     ("CAS-move-commit.s", "CAS", 0x8956, 0x8C29, 0x8C4C),
     ("TWN-map-copy.s", "TWN", 0x8956, 0x89B9, 0x89DE),
     ("CAS-map-copy.s", "CAS", 0x8956, 0x89BB, 0x89E0),

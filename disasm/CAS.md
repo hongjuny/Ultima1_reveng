@@ -8,7 +8,11 @@ The continuation reached the `TCMAPS` request at `$898D`, the `MAPCHARS` request
 
 At that first poll, left key `$08` returned through the command lookup with X=`$06` and called `$8AA8`. The player was at castle coordinate `($00,$09)`; the shared left-edge test at `$8AB3` read `$B6BD=$23`, passed its `>= $05` check, and jumped through `$8BFD → $88FB` to select `OUT` (A=`$04`). The `OUT` loader returned with carry clear and all 5,230 overlay bytes matched before entry. At its next `$8A6C` poll, outdoor coordinates were restored to `($1E,$1F)` and health/food matched the pre-castle snapshot. [The return verifier](../tools/verify_cas_exit_left.py) checks the complete ancestry and state. Other castle commands and left-edge conditions remain to trace.
 
-From the same first poll, right key `$15` dispatched to `$8AA1` and proposed `($01,$09)` at `$8C00`. Collision routine `$9BC0` returned A=`$60`, carry set at `$8C11`, so `$8C29` committed the new x coordinate. The update at `$8C3F` changed `$7EE4` `$45→$44` and `$7EDA` `$00→$10`. Health and food did not change before the next `$8A27` poll. The [right-step verifier](../tools/verify_cas_step_right.py) checks this path. Blocked movement and other castle interactions remain open.
+From the same first poll, right key `$15` dispatched to `$8AA1` and proposed `($01,$09)` at `$8C00`. Collision routine `$9BC0` returned A=`$60`, carry set at `$8C11`, so `$8C29` committed the new x coordinate. The update at `$8C3F` changed `$7EE4` `$45→$44` and `$7EDA` `$00→$10`. Health and food did not change before the next `$8A27` poll. The [right-step verifier](../tools/verify_cas_step_right.py) checks this path.
+
+Two `$0A` keys from the first poll tested both sides of a wall. The first reached `($00,$0A)` on tile `$60`: `$9BC0` returned A=`$60`, carry set, and `$8C29` committed the step. The second proposed `($00,$0B)` on tile `$40`: `$9BC0` returned A=`$40`, carry clear, and the branch at `$8C13` kept the player at `($00,$0A)`. Both paths reached the common turn update `$8C3F`. For the blocked input, `$7EE4` changed `$44→$43` and `$7EDA` `$10→$20`; health and food remained stable through the next poll. The [two-step verifier](../tools/verify_cas_blocked_down.py) checks the snapshots, branch path, map bytes, and state. Other castle interactions and occupant collision outcomes remain open.
+
+The [tile check](CAS-map-tile-check.s) at `$9BD9–$9BFD` bounds x to 0–37 and y to 0–17, patches a row address from tables `$9EA8/$9EBA`, and compares the map byte with `$60`. A byte below `$60` returns with carry clear; a byte at least `$60` continues to the later occupant scan at `$9BFE`. The two observed tiles follow these paths. The `$40` result alone does not describe all possible collision causes.
 
 | Address | Disassembly / evidence | Interpretation |
 | --- | --- | --- |
@@ -19,7 +23,9 @@ From the same first poll, right key `$15` dispatched to `$8AA1` and proposed `($
 | `$8AA8–$8AC0` | Left-key entry and x=0 edge test, byte-matched | `$B6BD=$23` selected `$8BFD` in first-entry replay |
 | `$8C00–$8C12` | Candidate coordinates and `$9BC0` collision call, byte-matched | `$15` proposed `($01,$09)`; carry set accepted it |
 | `$8C29–$8C4B` | Coordinate commit, screen update, shared turn update, byte-matched | `$00/$01=($01,$09)` and `$7EE4/$7EDA` changed |
+| `$9BD9–$9BFD` | Row lookup, bounds, tile threshold, byte-matched | Tile `$40` returned carry clear at the wall; `$60` continued to occupant scan |
+| `$8C13–$8C28` | Collision-failure message and jump to `$8C3F` | Blocked movement still consumes a turn in this replay |
 
 Visible text includes a princess sequence, shops, and combat. The state changes associated with these events remain to trace.
 
-The reviewed [map copy](CAS-map-copy.s) at `$89BB–$89DF` reassembles byte-for-byte. It reads the address table starting at entry 0, patches its own source operand, and copies 768 bytes to `$B400`. The packed pointer stride is only 764 bytes; see [TCMAPS](TCMAPS.md) for the overlap. The [key poll](CAS-key-poll.s), [left-edge exit](CAS-left-edge.s), [movement check](CAS-move-check.s), and [movement commit](CAS-move-commit.s) also reassemble byte-for-byte.
+The reviewed [map copy](CAS-map-copy.s) at `$89BB–$89DF` reassembles byte-for-byte. It reads the address table starting at entry 0, patches its own source operand, and copies 768 bytes to `$B400`. The packed pointer stride is only 764 bytes; see [TCMAPS](TCMAPS.md) for the overlap. The [key poll](CAS-key-poll.s), [left-edge exit](CAS-left-edge.s), [movement check](CAS-move-check.s), [tile check](CAS-map-tile-check.s), and [movement commit](CAS-move-commit.s) also reassemble byte-for-byte.

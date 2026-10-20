@@ -45,6 +45,7 @@ CHECKS = (
     ("CAS first input", ["tools/verify_cas_first_input.py"]),
     ("CAS left-edge exit", ["tools/verify_cas_exit_left.py"]),
     ("CAS right movement", ["tools/verify_cas_step_right.py"]),
+    ("CAS blocked movement", ["tools/verify_cas_blocked_down.py"]),
 )
 
 
