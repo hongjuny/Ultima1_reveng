@@ -15,6 +15,7 @@ Overlay range: `$8956–$AC39`; entry `$8956`.
 | `$8DEA–$8DFA` | Class choice, 17 reviewed bytes | `A`–`D` stored as 1–4 at `$7ED8` |
 | `$8E12–$8E53` | Class bonus dispatch, 66 reviewed bytes | Modify attributes by selected class |
 | `$8E83–$8EED` | Name input, 107 reviewed bytes | Validate, edit, and store a name before confirmation |
+| `$8F0F–$8F30` | Confirmation dispatch, 34 reviewed bytes | `Y` calls `$B724`; `N` restarts character generation |
 | `$8AC0` | `JMP $88FB` | Observed continue path to `OUT` |
 
 The menu text describes new-character and previous-game options. The completion route from the new-character path, attribute generation rules, and save format remain to trace.
@@ -35,4 +36,6 @@ The sex menu displays `A) Male` and `B) Female`. Its reviewed [input fragment](G
 
 The reviewed [class choice](GEN-class-choice.s) and [class bonus](GEN-class-bonus.s) fragments reassemble byte-for-byte. Class IDs 1–4 are stored at `$7ED8`. Fighter adds 10 each to `$7EC8` and `$7ECA`; Cleric adds 10 to `$7ED0`; Wizard adds 10 to `$7ED2`; Thief adds 10 to `$7ECA`. The class-A replay confirmed `$7ED8=1` and `[25,25,10,10,10,15]→[35,35,10,10,10,15]`, then reached name input `$8E83`. The other class effects remain static findings.
 
-The reviewed [name input](GEN-name-input.s) fragment reassembles all 107 bytes at `$8E83–$8EED`. `$9042` counts name characters; `$7EB8–$7EC4` holds at most 13. The first character must be `A`–`Z`; later characters must have code `$20` or higher. Later uppercase letters become lowercase unless the preceding character is a space. `$08` and `$7F` delete the last character; Return is ignored for an empty name and otherwise branches to the confirmation prompt at `$8EEE`. These name rules are static findings; `tools/trace_gen_name_a.py` is prepared to replay one character and Return.
+The reviewed [name input](GEN-name-input.s) fragment reassembles all 107 bytes at `$8E83–$8EED`. `$9042` counts name characters; `$7EB8–$7EC4` holds at most 13. The first character must be `A`–`Z`; later characters must have code `$20` or higher. Later uppercase letters become lowercase unless the preceding character is a space. `$08` and `$7F` delete the last character; Return is ignored for an empty name and otherwise branches to the confirmation prompt at `$8EEE`. Runtime replay confirmed that `A` raises the length to one, stores `$41` at `$7EB8`, and Return reaches `$8EEE`.
+
+The reviewed [confirmation dispatch](GEN-save-confirm.s) matches all 34 bytes at `$8F0F–$8F30`. It accepts `Y` to call `$B724` with six inline parameter bytes, or `N` to restart character generation at `$8AC3`; other keys repeat the prompt. Carry set after `$B724` branches to `$8F31`; carry clear jumps to `$895B`. The meaning of the inline parameter bytes and the resulting disk changes remain to verify. `tools/trace_gen_confirm_yes.py` replays `Y` with a private copy of the boot disk because a successful call may write to it.

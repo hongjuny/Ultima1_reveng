@@ -25,6 +25,7 @@ CHECKS = (
     ("GEN race A", ["tools/verify_gen_race_a.py"]),
     ("GEN sex A", ["tools/verify_gen_sex_a.py"]),
     ("GEN class A", ["tools/verify_gen_class_a.py"]),
+    ("GEN name A", ["tools/verify_gen_name_a.py"]),
 )
 
 
