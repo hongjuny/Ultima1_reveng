@@ -27,6 +27,7 @@ CHECKS = (
     ("GEN class A", ["tools/verify_gen_class_a.py"]),
     ("GEN name A", ["tools/verify_gen_name_a.py"]),
     ("GEN confirmation Y", ["tools/verify_gen_confirm_yes.py"]),
+    ("GEN player save", ["tools/verify_gen_player_save.py"]),
 )
 
 
