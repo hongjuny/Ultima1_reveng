@@ -29,8 +29,8 @@ flowchart TD
 | `U1.SYSTEM` | `U1.INTRO` | Live startup header; runtime `$2220 → $0136 → $0800 → $0F23`, intro entry bytes match extraction | Runtime confirmed on block-equivalent `.po` boot |
 | `U1.INTRO` | `MAKE.INDATA` | Runtime `$0F28 → $B70C → $0F37 → $0F41`; loader entry pointer `$BAF2=$1E00`; two copied payload ranges match file bytes | Runtime confirmed on block-equivalent `.po` boot |
 | `U1.INTRO` | `MI.U1` | Animation poll `$0B23` and later key loop `$1039` reach `$0B50`; non-`$9B` path calls `$B70C` at `$0B57`, inline name `$0B5A` | Runtime confirmed for ASCII `A` through `$7000`, full 6589-byte match; later loop pending |
-| `MI.U1` | `STUPH` | `$8975` calls `$B703`; inline name starts at `$8978` | High |
-| `MI.U1` | `GEN` | `$8907` calls `$B703`; inline name at `$890A` | High |
+| `MI.U1` | `STUPH` | `$8975` calls `$B703`; inline name starts at `$8978` | Runtime confirmed; 6144-byte match at `$0800` after load |
+| `MI.U1` | `GEN` | `$8907` calls `$B703`; inline name at `$890A` | Runtime confirmed; 8932-byte match at `$8956` after load |
 | `MI.U1` | six other gameplay modules | Name table at `$7E16`; selector at `$88FD–$893E` | High for names and selector, load API semantics pending |
 | `TWN` | `TCMAPS`, `MAPCHARS` | `$898B` and `$89A1` call `$B733`; inline names follow | High |
 | `CAS` | `TCMAPS`, `MAPCHARS` | `$898D` and `$89A3` call `$B733`; inline names follow | High |

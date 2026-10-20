@@ -1,6 +1,6 @@
 # Gameplay module dispatch
 
-Status: static trace of `MI.U1` and one exit path in `OUT`; runtime confirmed through `MI.U1` entry, with its `STUPH` and `GEN` loads pending.
+Status: static trace of `MI.U1` and one exit path in `OUT`; runtime confirmed through the first `STUPH` and `GEN` loads. Later selector values remain untraced.
 
 `MI.U1` stores null-terminated module names starting at `$7E16`. Their byte offsets are the likely selector values:
 
@@ -17,6 +17,8 @@ Status: static trace of `MI.U1` and one exit path in `OUT`; runtime confirmed th
 At `$88FD`, `MI.U1` resets the stack pointer. A value of zero or at least `$19` takes the `GEN` load path. For values from `$01` through `$18`, the routine treats A as a byte offset into the name table, copies the selected null-terminated name to `$7E16`, and invokes the file loader with that address. After several shared setup calls it jumps to `$8956`. The named offsets above align exactly with the table; whether all intermediate values can occur needs runtime verification.
 
 The initial `MI.U1` entry at `$7000` jumps to `$8956`. This first version of `$8956` loads `STUPH`, sets up shared support state, and reaches `$88FD` with A = 0, selecting `GEN`. The loaded `GEN` file then replaces this loader code at `$8956`.
+
+The first replay confirmed this sequence at `$8975 → $B703 → $897E` and `$88FD (A=$00) → $8907 → $B703 → $890E → $8956`. Both loader returns had carry clear. At their respective return points, `STUPH` and `GEN` matched the entire extracted files. The `GEN` entry snapshot keeps the shared engine at `$7000–$8953` and shows three altered bytes in `STUPH` at `$172A`, `$172D`, and `$175C`; their roles are still open.
 
 The shared entry at `$88F8` performs setup, while `$88FB` sets A to `$04` and selects `OUT` at `$88FD`. Direct jumps to `$88FB` appear in `GEN` (`$8AC0`), `DNG` (`$9725`), `TWN` (`$8ABF`), `CAS` (`$8BFD`), and `SPA` (`$8FAA`). These are observed routes back to outdoor play. The conditions that reach each jump still need tracing.
 
