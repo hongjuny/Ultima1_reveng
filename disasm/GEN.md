@@ -10,3 +10,5 @@ Overlay range: `$8956–$AC39`; entry `$8956`.
 | `$8AC0` | `JMP $88FB` | Observed continue path to `OUT` |
 
 The menu text describes new-character and previous-game options. The completion route from the new-character path, attribute generation rules, and save format remain to trace.
+
+The reviewed [menu choice fragment](GEN-menu.s) covers `$89FD–$8A0F` and reassembles byte-for-byte. It shows `A` (`$41`) jumping to `$8AC3`; `B` (`$42`) falls into the continuation code at `$8A10`. Other values repeat the input loop.

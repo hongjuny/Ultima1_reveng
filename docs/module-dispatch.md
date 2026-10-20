@@ -27,6 +27,6 @@ The shared entry at `$88F8` performs setup, while `$88FB` sets A to `$04` and se
 | `$8D6E` | `$14` | `SPA` |
 | `$90FF–$9137` | `$10`, `$0C`, or `$08` | `CAS`, `TWN`, or `DNG` |
 
-The meaning of the saved bytes and the gameplay conditions behind these selections remain open. The `$90FF` routine tests A against `$04` and `$06` before setting a selector, so its incoming A likely encodes a location type; that interpretation needs confirmation.
+The meaning of the saved bytes and the gameplay conditions behind these selections remain open. The reviewed `$90FF–$9139` source confirms the exact cases: incoming A = `$04` selects `CAS`; A = `$06` updates `$7EB1–$7EB4` and selects `TWN`; all other values select `DNG`. Incoming A likely encodes a location type, but that interpretation needs confirmation.
 
 The `$88FD` selector is a strong boundary for tracing game transitions. For each module, identify the value placed in A before reaching it and record any shared state changes before the jump.

@@ -6,7 +6,7 @@ Each page records **verified instruction ranges and evidence**, using the origin
 | --- | --- | --- |
 | Startup | [U1.SYSTEM](U1.SYSTEM.md), [U1.INTRO](U1.INTRO.md), [MAKE.INDATA](MAKE.INDATA.md) | `U1.INTRO` entry, key loop, and two file requests reassembled |
 | Shared engine | [MI.U1](MI.U1.md), [STUPH](STUPH.md) | Module selector and support jump table identified |
-| Gameplay | [GEN](GEN.md), [OUT](OUT.md), [DNG](DNG.md), [TWN](TWN.md), [CAS](CAS.md), [SPA](SPA.md), [TM](TM.md) | Entry/transition evidence; most routines pending |
+| Gameplay | [GEN](GEN.md), [OUT](OUT.md), [DNG](DNG.md), [TWN](TWN.md), [CAS](CAS.md), [SPA](SPA.md), [TM](TM.md) | `GEN` menu and `OUT` transition decisions reassembled; most routines pending |
 | Data | `MAPCHARS`, `TCMAPS`, `NIF` | Format analysis pending |
 | Operating system | `PRODOS` | External dependency, not game disassembly |
 

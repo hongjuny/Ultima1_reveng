@@ -14,6 +14,9 @@ FRAGMENTS = (
     ("U1.INTRO-key-loop.s", "U1.INTRO", 0x0800, 0x1039, 0x1057),
     ("U1.INTRO-load-mi.s", "U1.INTRO", 0x0800, 0x0B50, 0x0B6A),
     ("U1.INTRO-load-support.s", "U1.INTRO", 0x0800, 0x0F23, 0x0F41),
+    ("GEN-menu.s", "GEN", 0x8956, 0x89FD, 0x8A10),
+    ("OUT-location-dispatch.s", "OUT", 0x8956, 0x90FF, 0x913A),
+    ("OUT-space-dispatch.s", "OUT", 0x8956, 0x8D6E, 0x8D73),
 )
 
 
