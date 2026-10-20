@@ -22,6 +22,11 @@ EXTRA_BUYS = {2: TRACE / "twn-buy-two" / "handoff.json",
               7: TRACE / "twn-buy-7" / "handoff.json"}
 MULTI_BUYS = {quantity: TRACE / f"twn-buy-{quantity}" / "handoff.json"
               for quantity in (10, 20, 21)}
+HUNDRED_BUYS = {coin: TRACE / name / "handoff.json"
+                for coin, name in ((100, "twn-buy-100"),
+                                   (499, "twn-buy-100-coin-499"),
+                                   (500, "twn-buy-100-coin-500"),
+                                   (512, "twn-buy-100-coin-512"))}
 PRICE_VALUES = (19, 20, 39, 40, 59, 60, 79, 80)
 PRICES = {attribute: TRACE / "twn-price-tiers" /
           f"attribute-{attribute:03d}" / "handoff.json"
@@ -39,7 +44,7 @@ def main() -> int:
     paths = [TRACE / "twn-first-input" / "handoff.json"] + \
         [ROUTE / f"step-{step:02d}" / "handoff.json" for step in range(1, 11)] + \
         [MENU, PROMPT, BUY, *BOUNDARIES.values(), *EXTRA_BUYS.values(),
-         *MULTI_BUYS.values(), *PRICES.values()]
+         *MULTI_BUYS.values(), *HUNDRED_BUYS.values(), *PRICES.values()]
     if not all(path.is_file() for path in paths):
         print("PENDING town food-shop route and purchase traces")
         return 0
@@ -48,10 +53,11 @@ def main() -> int:
     menu, prompt, buy, poor, exact = tail[10:15]
     other_buys = tail[15:18]
     multi_buys = tail[18:21]
-    tiers = tail[21:]
+    hundred_buys = tail[21:25]
+    tiers = tail[25:]
     require(all(item["timeout"] is None for item in
                 (initial, *steps, menu, prompt, buy, poor, exact,
-                 *other_buys, *multi_buys, *tiers)),
+                 *other_buys, *multi_buys, *hundred_buys, *tiers)),
             "food-shop trace contains a stopped run")
     prior = initial
     for step, report in enumerate(steps, 1):
@@ -152,6 +158,45 @@ def main() -> int:
                 final[0x7EE5:0x7EE7] == bytes((expected_food & 0xFF,
                                               expected_food >> 8)),
                 f"quantity={quantity} final purchase state differs")
+    for coin, report in zip(HUNDRED_BUYS, hundred_buys):
+        success = coin >= 500
+        expected_coin = coin - 500 if success else coin
+        expected_food = 1194 if success else 194
+        decision = "0x933E" if success else "0x933B"
+        outcome = "0x9362" if success else "0x9236"
+        require(report["source_snapshot"] == prompt["snapshot"] and
+                report["working_game_disk"] == initial["working_game_disk"] and
+                report["input"] == {"digits": "100", "terminator": 13} and
+                [point["pc"] for point in report["checkpoints"]] ==
+                ["0xA392", "0xA30A", "0xA392", "0xA30A", "0xA392",
+                 "0x92E0", "0x932F", decision, outcome, "0x8A1E"] and
+                report["checkpoints"][4]["watched"]["quantity_aa69"] ==
+                [100, 0] and
+                report["checkpoints"][6]["watched"]["cost_72"] ==
+                [0xF4, 0x01] and
+                report["checkpoints"][6]["watched"]["quantity_aa69"] ==
+                [0xE8, 0x03] and
+                report["after"]["coin"] ==
+                [expected_coin & 0xFF, expected_coin >> 8] and
+                report["after"]["food"] ==
+                [expected_food & 0xFF, expected_food >> 8],
+                f"quantity=100, Coin={coin} purchase differs")
+        if coin != 100:
+            require(report["controlled_change"] ==
+                    {"address": "0x7ED4", "before": 100, "after": coin},
+                    f"Coin={coin} intervention metadata differs")
+            pre = checked_ram(report["intervention_snapshots"]["before"])
+            post = checked_ram(report["intervention_snapshots"]["after"])
+            require([(address, pre[address], post[address])
+                     for address in range(0x10000) if pre[address] != post[address]] ==
+                    [(0x7ED4, 100, coin & 0xFF), (0x7ED5, 0, coin >> 8)],
+                    f"Coin={coin} intervention changed unexpected memory")
+        final = checked_ram(report["snapshot"])
+        require(final[0x7ED4:0x7ED6] ==
+                bytes((expected_coin & 0xFF, expected_coin >> 8)) and
+                final[0x7EE5:0x7EE7] ==
+                bytes((expected_food & 0xFF, expected_food >> 8)),
+                f"quantity=100, Coin={coin} final state differs")
     for coin, report in ((4, poor), (5, exact)):
         require(report["source_snapshot"] == prompt["snapshot"] and
                 report["controlled_change"] ==
@@ -204,6 +249,7 @@ def main() -> int:
     print("one pack: Coin 100→95, food 194→204; Coin 4 fails, Coin 5 succeeds")
     print("2/6/7 packs: food 214/254/264, including low-byte carry to high byte")
     print("10/20/21 packs: Coin 50/0/100; quantity 21 rejected at cost 105")
+    print("100 packs: cost 500, food credit 1000; Coin 499 fails, 500/512 succeed")
     print("price steps: 19/20→5/4, 39/40→4/3, 59/60→3/2, 79/80→2/1")
     return 0
 

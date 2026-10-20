@@ -23,9 +23,12 @@ def watched(client) -> dict:
             "cost_72": list(client.mem(0x72, 2))}
 
 
-def main(quantity: int = 1, output: Path = OUTPUT) -> int:
+def main(quantity: int = 1, output: Path = OUTPUT,
+         coin_override: int | None = None) -> int:
     if quantity not in range(1, 1000):
         raise ValueError("this replay accepts a quantity from 1 to 999")
+    if coin_override is not None and not 0 <= coin_override <= 0xFFFF:
+        raise ValueError("Coin override must fit in two bytes")
     prior = json.loads(SOURCE.read_text())
     if prior["timeout"] is not None or cpu_pc(prior["final_cpu"]) != 0xA2F9:
         raise RuntimeError("source trace is not at quantity parser entry")
@@ -42,6 +45,11 @@ def main(quantity: int = 1, output: Path = OUTPUT) -> int:
     output.mkdir(parents=True, exist_ok=True)
     pending = output / f"buy.pending-{os.getpid()}.a2state"
     pending.unlink(missing_ok=True)
+    pre_pending = output / f"before.pending-{os.getpid()}.a2state"
+    post_pending = output / f"after.pending-{os.getpid()}.a2state"
+    if coin_override is not None:
+        pre_pending.unlink(missing_ok=True)
+        post_pending.unlink(missing_ok=True)
     points = []
     timeout = None
     with (output / "a2m.log").open("w") as log:
@@ -54,6 +62,12 @@ def main(quantity: int = 1, output: Path = OUTPUT) -> int:
                 client.ok(f"load-state {snapshot}")
                 if cpu_pc(client.ok("get-cpu")) != 0xA2F9:
                     raise RuntimeError("restored quantity parser differs")
+                if coin_override is not None:
+                    client.ok(f"save-state {pre_pending}")
+                    wait_for_snapshot(pre_pending)
+                    client.set_mem(0x7ED4, coin_override.to_bytes(2, "little"))
+                    client.ok(f"save-state {post_pending}")
+                    wait_for_snapshot(post_pending)
                 before = watched(client)
                 client.ok("set-turbo 8")
                 try:
@@ -105,9 +119,22 @@ def main(quantity: int = 1, output: Path = OUTPUT) -> int:
             stop(process)
     final = output / f"buy-{quantity}.a2state"
     pending.replace(final)
+    intervention = None
+    controlled_change = None
+    if coin_override is not None:
+        pre = output / "before.a2state"
+        post = output / "after.a2state"
+        pre_pending.replace(pre)
+        post_pending.replace(post)
+        intervention = {"before": {"path": str(pre), **describe(pre)},
+                        "after": {"path": str(post), **describe(post)}}
+        controlled_change = {"address": "0x7ED4", "before": 100,
+                             "after": coin_override}
     report = {"source_snapshot": source, "working_game_disk": disk_item,
               "input": {"digits": str(quantity), "terminator": 13},
               "checkpoints": points, "timeout": timeout,
+              "controlled_change": controlled_change,
+              "intervention_snapshots": intervention,
               "before": before, "after": after, "final_cpu": final_cpu,
               "snapshot": {"path": str(final), **describe(final)}}
     path = output / "handoff.json"

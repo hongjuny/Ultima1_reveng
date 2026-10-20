@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Replay 10, 20, and 21 food packs across the 100-Coin boundary."""
+"""Replay 10, 20, 21, and 100 food packs from the same shop prompt."""
 
 import sys
 
@@ -9,7 +9,7 @@ from trace_twn_buy_one import main as replay
 
 if __name__ == "__main__":
     try:
-        for quantity in (10, 20, 21):
+        for quantity in (10, 20, 21, 100):
             output = ROOT / "build" / "traces" / f"twn-buy-{quantity}"
             if replay(quantity, output):
                 raise SystemExit(1)
