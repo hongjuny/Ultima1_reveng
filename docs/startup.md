@@ -17,6 +17,7 @@ flowchart TD
 
 - `U1.SYSTEM` begins with a jump to `$2088`. Its header names `U1.INTRO`. Code at `$2088` initializes display and ProDOS state; the exact transfer into `U1.INTRO` still needs tracing.
 - `U1.INTRO` begins with jumps to `$0F23` and `$0F41`. At `$0F23`, a loader call uses the inline filename `MAKE.INDATA`. Another code path near `$0B50` uses the inline filename `MI.U1`.
+- `$0800` enters the `MAKE.INDATA` request path; `$0803` enters at `$0F41` after that request. The intro loop at `$1039–$1056` polls the keyboard and calls `$0B50` when a key arrives. `$0B50` requests `MI.U1` for key values other than `$9B`; `$9B` takes a separate wait-for-next-key path.
 - `MI.U1` starts with a jump to `$8956`. At `$7E16` it contains zero-terminated names `GEN`, `OUT`, `DNG`, `TWN`, `CAS`, `SPA`, and `TM` in that order. The routine near `$88FD` loads `GEN` and transfers control to `$8956`.
 - The initial `MI.U1` loader at `$8956` loads `STUPH` by inline filename, then reaches the module selector at `$88FD` with accumulator value zero. `STUPH` has 33 three-byte jump stubs at `$1583–$15E5`; these are called throughout the common engine.
 - The original `MI.U1` bytes at `$8956` form startup/loader code. Each gameplay module is loaded at the same address and overwrites that code. Each module's first bytes are 6502 code; `TM` starts with a jump to `$8AD7`.

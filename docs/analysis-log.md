@@ -18,3 +18,4 @@ Unknowns: the precise ProDOS loader semantics used by these files, module select
 - Added a page for each executable game file, with known entry/transition addresses and explicit open ranges.
 - Separated file requests, callable shared routines, and mutually exclusive overlays in the dependency map.
 - Reconstructed the `MI.U1` selector at `$88F8–$893E` as ca65 source. Reassembly matches all 71 bytes of the supplied extraction.
+- Reconstructed four `U1.INTRO` fragments: two entry vectors, the key loop, and both inline file requests. Reassembly matches all 92 bytes across those ranges.
