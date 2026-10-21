@@ -110,6 +110,7 @@ CHECKS = (
     ("DNG lethal actor removal and respawn", ["tools/verify_dng_actor_kill_respawn.py"]),
     ("SPA four-direction movement and Fuel", ["tools/verify_spa_direction_controls.py"]),
     ("SPA Fuel boundary at zero and cost five", ["tools/verify_spa_fuel_bounds.py"]),
+    ("SPA Fire hit, reward, and Space Ace count", ["tools/verify_spa_kill_counter.py"]),
     ("SPA distinct command targets", ["tools/verify_spa_command_survey.py"]),
     ("SPA nested view movement and HyperJump", ["tools/verify_spa_view_controls.py"]),
     ("SPA nested view command survey", ["tools/verify_spa_view_survey.py"]),
