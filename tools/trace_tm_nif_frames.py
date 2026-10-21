@@ -4,6 +4,7 @@
 import hashlib
 import json
 from pathlib import Path
+import re
 import sys
 
 from baseline import MANIFEST, describe
@@ -24,6 +25,13 @@ def matching_rows(page, packed, consumed):
         == packed[40 * i:40 * (i + 1)]
         for i in range(consumed)
     )
+
+
+def cpu_cycles(cpu):
+    match = re.search(r"\bcycles=(\d+)\b", cpu)
+    if not match:
+        raise RuntimeError(f"a2m did not report cycles: {cpu}")
+    return int(match.group(1))
 
 
 def main():
@@ -55,12 +63,14 @@ def main():
                 client.ok_or_data("break-clear-all")
                 client.ok_or_data("break-exec $90FE")
                 samples = []
+                row_cycles = []
                 for consumed in range(1, 193):
                     client.ok("run")
                     client.ok("wait-paused 15000")
                     cpu = client.ok("get-cpu")
                     if cpu_pc(cpu) != 0x90FE:
                         raise RuntimeError(f"row {consumed}: unexpected stop {cpu}")
+                    row_cycles.append(cpu_cycles(cpu))
                     if consumed not in SAMPLE_ROWS:
                         continue
                     pages = {f"${base:04X}": matching_rows(client.mem(base, 8192), packed, consumed)
@@ -95,13 +105,17 @@ def main():
                 report = {"source_snapshot": source, "working_game_disk": disk_item,
                           "nif_sha256": hashlib.sha256(packed).hexdigest(),
                           "sample_rows": sorted(SAMPLE_ROWS), "samples": samples,
-                          "row_copy_hits": 192, "final_cpu": client.ok("get-cpu")}
+                          "row_copy_hits": 192, "row_copy_cycles": row_cycles,
+                          "final_cpu": client.ok("get-cpu")}
             finally:
                 client.s.close()
         finally:
             stop(process)
     path = OUTPUT / "handoff.json"
     path.write_text(json.dumps(report, indent=2) + "\n")
+    deltas = [b - a for a, b in zip(row_cycles, row_cycles[1:])]
+    print(f"NIF row intervals: min={min(deltas)} max={max(deltas)} "
+          f"mean={sum(deltas) / len(deltas):.1f} CPU cycles", flush=True)
     print("private trace:", path)
 
 

@@ -39,6 +39,15 @@ def main():
             len(report["samples"]) == len(SAMPLE_ROWS) and
             report["final_cpu"].startswith("pc=9101"),
             "NIF frame sample coverage changed")
+    cycles = report["row_copy_cycles"]
+    require(len(cycles) == 192 and all(isinstance(item, int) for item in cycles),
+            "NIF row cycle capture incomplete")
+    intervals = [b - a for a, b in zip(cycles, cycles[1:])]
+    require(intervals[0] == 116977 and
+            min(intervals[1:]) == 119167 and
+            max(intervals[1:]) == 119254 and
+            cycles[-1] - cycles[0] == 22766880,
+            "NIF animation cycle profile differs")
     for sample, consumed in zip(report["samples"], sorted(SAMPLE_ROWS)):
         target = "$4000" if consumed & 1 else "$2000"
         address = "$5FD0" if consumed & 1 else "$3FD0"
@@ -57,7 +66,8 @@ def main():
                                                "HIRES": 1},
                 f"NIF row {consumed} frame or page differs")
     print("TM NIF frames: nine sampled row counts across 192 copies; "
-          "alternating HGR writes precede the video page flip")
+          "alternating HGR writes precede the video page flip; "
+          "steady row intervals 119167–119254 CPU cycles")
     return 0
 
 
