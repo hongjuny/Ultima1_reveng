@@ -10,6 +10,8 @@ Load range: `$7000–$89BC`. A gameplay overlay at `$8956` replaces the final `$
 | `$7E16–$7E31` | Null-terminated overlay filename table | `GEN`, `OUT`, `DNG`, `TWN`, `CAS`, `SPA`, `TM` |
 | `$7E53–$7E6C` | 26-byte shared command-key table | Four direction codes, Space, `$01`, and 20 letter keys; `P` absent |
 | `$82A2` | Shared command lookup | Normalizes input through `$827D`, scans `$7E53–$7E6C`; misses return carry set |
+| `$8037–$8042` / `$8119–$8143` | Inline text byte reader and interpreter | Pops caller return address, reads bytes after `JSR $8119` until zero, then resumes after the inline bytes |
+| `$8062–$8085` | Character/layout control dispatcher | Ordinary bytes call `STUPH` `$15B0`; `$7C–$7F` are handled as layout controls |
 | `$82E2–$8330` | Decimal-mode state update | Uses `$7E4F/$7E50` as amount bytes, subtracts from `$7EE4`, conditionally reduces `$7EE5/$7EE6`, adds to `$7EDA` with carry into following bytes |
 | `$837F–$83A8` | [Status values](MI.U1-status-values.s) | Renders HP, food, experience, and `Coin` from paired bytes |
 | `$888D–$88A0` | [Death reset](MI.U1-death-reset.s) | Clears three two-byte player fields before `OUT` resurrection |
@@ -40,6 +42,8 @@ The separate Space replay returned from `$82A2` with carry clear and `X=$08`, tw
 
 The initial loader at `$8975` calls `$B703` with inline filename `STUPH`. After installing shared support, it executes `LDA #$00` at `$89B8` and `JMP $88FD` at `$89BA`. Next: trace `$B703` and `$B736`, and label the common state at `$7E00`.
 
+The common text-output chain is now byte-matched through three short fragments: [inline byte reader](MI.U1-inline-byte.s) `$8037–$8042`, [inline text interpreter](MI.U1-inline-text.s) `$8119–$8143`, and [character/layout dispatcher](MI.U1-text-control.s) `$8062–$8085`. `JSR $8119` consumes the following zero-terminated inline text by modifying its return address. The reader's `$8040/$8041` operand is self-modifying. Ordinary characters reach `STUPH` `$15B0`; `$7F` consumes the next byte as a column skip, while `$7C–$7E` change layout. Their exact screen effect must be compared with video memory; the byte-matched path by itself does not establish colors or pixels.
+
 The [controlled death record comparison](../docs/player-state.md) tracks all 458 live `U1.VARS` bytes across selector entry and the first resurrected `OUT` input. It found six changed bytes for that path; the other 452 matched.
 
-Reviewed source: [module selector](MI.U1-selector.s) at `$88F8–$893E`, [death reset](MI.U1-death-reset.s) at `$888D–$88A0`, [status values](MI.U1-status-values.s) at `$837F–$83A8`, and [decimal update](MI.U1-turn-update.s) at `$82E2–$8330`. Run `python3 tools/verify_disasm.py` from the repository root to reassemble these against the local `MI.U1` extraction.
+Reviewed source includes the [module selector](MI.U1-selector.s) at `$88F8–$893E`, [death reset](MI.U1-death-reset.s) at `$888D–$88A0`, [status values](MI.U1-status-values.s) at `$837F–$83A8`, [decimal update](MI.U1-turn-update.s) at `$82E2–$8330`, and the text-output fragments above. Run `python3 tools/verify_disasm.py` from the repository root to reassemble these against the local `MI.U1` extraction.

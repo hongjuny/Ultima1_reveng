@@ -5,8 +5,8 @@ Each page records **verified instruction ranges and evidence**, using the origin
 | Phase | Files | Current status |
 | --- | --- | --- |
 | Startup | [U1.SYSTEM](U1.SYSTEM.md), [U1.INTRO](U1.INTRO.md), [MAKE.INDATA](MAKE.INDATA.md) | `U1.INTRO` entry, both key polls, two file requests, and `MAKE.INDATA` page copy setup reassembled |
-| Shared engine | [MI.U1](MI.U1.md), [STUPH](STUPH.md) | Module selector and support jump table identified |
-| Gameplay | [GEN](GEN.md), [OUT](OUT.md), [DNG](DNG.md), [TWN](TWN.md), [CAS](CAS.md), [SPA](SPA.md), [TM](TM.md) | `GEN` menu and `OUT` transition decisions reassembled; most routines pending |
+| Shared engine | [MI.U1](MI.U1.md), [STUPH](STUPH.md) | Module selector, 34 support vectors, keyboard latch, and inline text-output chain identified; one glyph's screen-memory write traced |
+| Gameplay | [GEN](GEN.md), [OUT](OUT.md), [DNG](DNG.md), [TWN](TWN.md), [CAS](CAS.md), [SPA](SPA.md), [TM](TM.md) | `GEN`/`OUT`/`CAS`/`TWN`/`DNG` paths have runtime evidence; `SPA`/`TM` input dispatch is byte-matched but still needs runtime entry |
 | Data | `MAPCHARS`, [TCMAPS](TCMAPS.md), `NIF`, generated [U1.VARS](U1.VARS.md) | `TCMAPS` packed slots and overlapping runtime copy windows verified; `U1.VARS` save image and initial fields verified |
 | Operating system | `PRODOS` | External dependency, not game disassembly |
 

@@ -14,6 +14,9 @@ FRAGMENTS = (
     ("MI.U1-death-reset.s", "MI.U1", 0x7000, 0x888D, 0x88A1),
     ("MI.U1-status-values.s", "MI.U1", 0x7000, 0x837F, 0x83A9),
     ("MI.U1-bounded-random.s", "MI.U1", 0x7000, 0x8254, 0x8266),
+    ("MI.U1-text-control.s", "MI.U1", 0x7000, 0x8062, 0x8086),
+    ("MI.U1-inline-text.s", "MI.U1", 0x7000, 0x8119, 0x8144),
+    ("MI.U1-inline-byte.s", "MI.U1", 0x7000, 0x8037, 0x8043),
     ("STUPH-random.s", "STUPH", 0x0800, 0x1DF1, 0x1E18),
     ("STUPH-keyboard-latch.s", "STUPH", 0x0800, 0x1D64, 0x1D7F),
     ("U1.INTRO-entry.s", "U1.INTRO", 0x0800, 0x0800, 0x0806),
@@ -85,6 +88,8 @@ FRAGMENTS = (
     ("DNG-descend-entry.s", "DNG", 0x8956, 0x972C, 0x9732),
     ("DNG-ascend-regenerate.s", "DNG", 0x8956, 0x9728, 0x972C),
     ("DNG-exit-out.s", "DNG", 0x8956, 0x9716, 0x9728),
+    ("SPA-key-dispatch.s", "SPA", 0x8956, 0x8A5F, 0x8A7B),
+    ("TM-command-dispatch.s", "TM", 0x8956, 0x8E80, 0x8EA8),
 )
 
 

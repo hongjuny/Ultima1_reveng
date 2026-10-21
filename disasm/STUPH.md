@@ -5,17 +5,20 @@ Load range: `$0800–$1FFF`. Early regions are patterned display data. Later reg
 | Range | Disassembly / evidence | Interpretation |
 | --- | --- | --- |
 | `$1580–$1582` | Three-byte preface | Meaning open |
-| `$1583–$15E5` | 33 consecutive `JMP` stubs, three bytes each | Callable interface |
+| `$1583–$15E8` | 34 consecutive `JMP` stubs, three bytes each | Callable interface; checked by `tools/inspect_stuph_vectors.py` |
 | `$1583` | `JMP $177F` | First stub; callers in `MI.U1` |
 | `$1586` | `JMP $1831` | Second stub |
 | `$1589` | `JMP $1679` | Shared file-loader entry used by the `OUT` handoff |
 | `$159E` | `JMP $19F3` | Called during module setup |
 | `$15B9` | `JMP $1DF1` | Shared random-byte entry used by castle combat |
-| `$15E3` | `JMP $1670` | Last stub |
+| `$15E3` | `JMP $1670` | Hardware support entry |
+| `$15E6` | `JMP $1C15` | Last stub; omitted in the earlier 33-entry inventory |
 | `$1DF1–$1E17` | [Reviewed 39-byte routine](STUPH-random.s), byte-matched | Mutates 16-byte state at `$1E18–$1E27`; returns byte at `$1E18` |
 | `$1D64–$1D7E` | [Reviewed keyboard latch routine](STUPH-keyboard-latch.s), byte-matched | Reads `$C000`, buffers up to four high-bit key bytes at `$74–$77`, clears strobe through `$C010` |
 
 The jump table makes this file an executable dependency, despite its graphics-heavy beginning. Next: identify each target routine and its callers without treating earlier image data as code.
+
+The display path is now mapped at the static call level: `$15B0 → $1A1D` uses `$1200/$12C0` row-address tables and patches stores into the Apple II graphics pages near `$2000/$4000`. `$1592 → $193E` and `$1598 → $198F` also write those pages; `$15A1 → $19DC` sets drawing bounds. This identifies the resident renderer's main interface, but the exact glyph source, pixel layout, color mapping, and frame-by-frame effects still need runtime capture. Speaker toggles at `$C030` occur in the `$1Bxx` support area, reached through sound-related vectors including `$15CB/$15D1`; their event semantics and timing remain open.
 
 The bounded input stub `$15C2` jumps to `$1D97`, which calls `$1D7F` and in turn `$1D64`. `$15C5` jumps to `$1DA3`, a separate input path also used by `OUT`. At `$1D64`, a high-bit-clear read from `$C000` returns immediately. A high-bit-set key is appended to `$74–$77` while `$78<4`; the `$A0` value first resets `$78` to zero. An accepted key reads `$C010` to clear the keyboard strobe. The 27-byte fragment matches the extracted file; the precise differences between `$1D97` and `$1DA3`, including timeout and presentation effects, still need a dedicated trace.
 
