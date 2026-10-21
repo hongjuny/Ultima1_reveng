@@ -14,6 +14,8 @@ CHECKS = (
     ("shared I/O vector table", ["tools/inspect_stuph_vectors.py", "--check"]),
     ("four castle gem flags and TM gate", ["tools/verify_quest_flags.py"]),
     ("controlled final craft world spawn", ["tools/verify_final_craft_spawn.py"]),
+    ("controlled first castle quest acceptance", ["tools/verify_cas_quest_accept.py"]),
+    ("controlled outdoor landmark quest completion", ["tools/verify_out_landmark_quest.py"]),
     ("reviewed assembly", ["tools/verify_disasm.py"]),
     ("TCMAPS records", ["tools/extract_data.py", "--check"]),
     ("intro support relocation", ["tools/verify_intro_support.py"]),

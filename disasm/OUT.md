@@ -23,6 +23,8 @@ The `GEN`→`OUT` handoff loaded all 5230 bytes into `$8956–$9DC3`, confirmed 
 | `$913A–$9169` | Landmark match and state write, statically checked | Completes a positive even-numbered castle quest by storing `$FF` |
 | `$9565–$9596` | One-shot `$7EB5` check and `$0F` craft placement, statically checked | After a qualifying `CAS` exit, creates raw `$1E` world tile and clears the request |
 | `$9927–$9958` | Dynamic world-object writer, statically checked | Doubles a tile code, saves prior map cell, and writes the new raw tile |
+
+The [landmark quest replay](../tools/verify_out_landmark_quest.py) changed only starting coordinates to a real map tile `(59,3)` and quest byte `$7EA9` from 0 to accepted state 1. Ordinary `E` input reached `$913A`, selected location id 2, and changed that quest byte to `$FF` at `$915F`. This validates one even-quest producer with controlled prerequisites; the normal route to that landmark remains open.
 | `$8EFA` | Saves pointers, page-copies state, preserves A | Transition helper |
 | `$8F1C` | `JMP $88FD` | Common overlay selector |
 | `$90FF–$9137` | Sets A to `$10`, `$0C`, or `$08` before `$8EFA` | Selects `CAS`, `TWN`, or `DNG` |
