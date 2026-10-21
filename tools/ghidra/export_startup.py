@@ -8,11 +8,15 @@ import sys
 from import_modules import ROOT, SCRIPT_DIR, analyzer
 
 BUILD = ROOT / "build/macos-startup"
-PROGRAMS = {"GEN": (0x8956, ROOT / "extracted/GEN"),"U1.INTRO": (0x0800, ROOT / "extracted/U1.INTRO"),
+PROGRAMS = {"MI.U1": (0x7000, ROOT / "extracted/MI.U1"),
+            "STUPH": (0x0800, ROOT / "extracted/STUPH"),
+            "GEN": (0x8956, ROOT / "extracted/GEN"),
+            "U1.INTRO": (0x0800, ROOT / "extracted/U1.INTRO"),
             "MAKE.INDATA": (0x1E00, ROOT / "extracted/MAKE.INDATA"),
             "INTRO.RELOC": (0x8700, BUILD / "INTRO.RELOC")}
 # MAKE.INDATA $1F17 copies $2000-$27FF to $8700-$8EFF before executing it.
-SEEDS = {"GEN": (0x8CFA, 0x8E12),"INTRO.RELOC": (0x8700, 0x8748),
+SEEDS = {"GEN": (0x8CFA, 0x8E12),
+         "INTRO.RELOC": (0x8700, 0x8748),
          "U1.INTRO": (0x0ACA, 0x0B08, 0x0DFD, 0x0E00, 0x0E03, 0x0E7E,
                        0x10EB, 0x110D, 0x1112),
          "MAKE.INDATA": ()}
@@ -38,6 +42,10 @@ def main():
         if name == "U1.INTRO":
             command += ["-postScript", "ExportUltimaAlternateEntries.java",
                         str(BUILD / "U1.INTRO-alternates.tsv"), "0D9B", "0D9E"]
+        if name in ("GEN", "MI.U1", "STUPH"):
+            command += ["-postScript", "ExportUltimaRuntimeCandidates.java",
+                        str(BUILD / f"{name}-runtime.tsv"), f"{base:04X}",
+                        f"{base + source.stat().st_size:04X}"]
         command += ["-overwrite"]
         with (BUILD / f"{name}-ghidra.log").open("w") as log:
             result = subprocess.run(command, env=env, stdout=log, stderr=subprocess.STDOUT)

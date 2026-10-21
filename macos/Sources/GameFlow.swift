@@ -1,0 +1,63 @@
+import Foundation
+
+extension StartupMachine {
+    func beginGame() { gameRunning = true; keyboard = 0xC1 }
+    func sendKey(_ key: UInt8) { keyboard = key | 0x80 }
+
+    func gameLoader(execute: Bool) throws {
+        let argument = popWord() + 1
+        var end = argument
+        while end < argument + 32 && memory[end] != 0 { end += 1 }
+        let name = String(bytes: memory[argument..<end], encoding: .ascii) ?? ""
+        let address: Int
+        switch name {
+        case "MI.U1": address = 0x7000; engineLoaded = true
+        case "STUPH": address = 0x0800
+        case "GEN": address = 0x8956; genLoaded = true
+        default: throw StartupFailure.unsupported("Module not yet translated: \(name)")
+        }
+        try load(name, at: address)
+        a = nz(0); setFlag(1, false)
+        if execute { pushWord(end); pc = address } else { pc = end + 1 }
+    }
+
+    func nextGameFrame(budget: Int) throws -> Bool {
+        for _ in 0..<budget {
+            // Only reference captures freeze at this boundary. Interactive runs
+            // execute the original cursor, polling and normalization loops.
+            if captureInputBoundaries && engineLoaded && pc == 0x15BF && keyboard & 0x80 == 0 {
+                awaitingInput = true
+                return true
+            }
+            awaitingInput = false
+            if engineLoaded && pc == 0xB724 {
+                let args = popWord() + 1
+                let source = Int(memory[args]) | Int(memory[args+1]) << 8
+                let length = Int(memory[args+2]) | Int(memory[args+3]) << 8
+                let directory = saveDirectory ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+                    .appendingPathComponent("UltimaI/Characters")
+                try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+                try Data(memory[source..<source+length]).write(to: directory.appendingPathComponent("U1.VARS"), options: .atomic)
+                a = nz(0); setFlag(1, false); pc = args + 6; saves += 1
+                continue
+            }
+            if pc == 0xB70C && gameRunning { try gameLoader(execute: true); continue }
+            if engineLoaded && pc == 0xB703 { try gameLoader(execute: false); continue }
+            // Apple monitor HOME clears the text page; the game itself draws HGR.
+            if engineLoaded && pc == 0xFC58 {
+                for address in 0x400..<0x800 { memory[address] = 0xA0 }
+                memory[0x24] = 0; memory[0x25] = 0; rts(); continue
+            }
+            visited.insert(pc); instructions += 1
+            if engineLoaded {
+                if pc >= 0x8956 && genLoaded { try stepGEN() }
+                else if pc >= 0x7000 && pc < 0x89BD { try stepMIU1() }
+                else if pc >= 0x1583 && pc < 0x2000 { try stepSTUPH() }
+                else { throw StartupFailure.untranslated(pc) }
+            } else {
+                try translatedStep()
+            }
+        }
+        return true
+    }
+}

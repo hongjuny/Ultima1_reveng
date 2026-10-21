@@ -3,9 +3,15 @@ import AppKit
 @MainActor
 final class GameView: NSView {
     var begin: (() -> Void)?
+    var input: ((UInt8) -> Void)?
+    var playing = false
     override var acceptsFirstResponder: Bool { true }
     override func keyDown(with event: NSEvent) {
-        if event.keyCode == 36 || event.keyCode == 49 { begin?() } else { super.keyDown(with: event) }
+        if playing {
+            let special: [UInt16: UInt8] = [36: 13, 49: 32, 53: 27, 123: 8, 124: 21, 125: 10, 126: 11, 51: 8, 117: 127]
+            if let key = special[event.keyCode] { input?(key); return }
+            if let c = event.charactersIgnoringModifiers?.uppercased().utf8.first, (32...126).contains(c) { input?(c) }
+        } else if event.keyCode == 36 || event.keyCode == 49 { begin?() } else { super.keyDown(with: event) }
     }
     var frameImage: CGImage? { didSet { needsDisplay = true } }
     override var isOpaque: Bool { true }
@@ -39,15 +45,15 @@ final class ApplicationDelegate: NSObject, NSApplicationDelegate, NSToolbarDeleg
         let menu = NSMenu()
         let applicationItem = NSMenuItem(); menu.addItem(applicationItem)
         let applicationMenu = NSMenu(); applicationItem.submenu = applicationMenu
-        applicationMenu.addItem(withTitle: "Ultima I 종료", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        applicationMenu.addItem(withTitle: "Quit Ultima I", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         let playbackItem = NSMenuItem(); menu.addItem(playbackItem)
-        let playback = NSMenu(title: "재생"); playbackItem.submenu = playback
-        playback.addItem(withTitle: "처음부터 다시 보기", action: #selector(restart), keyEquivalent: "r").target = self
-        let skipItem = playback.addItem(withTitle: "타이틀로 바로 이동", action: #selector(skipToTitle), keyEquivalent: "")
+        let playback = NSMenu(title: "Game"); playbackItem.submenu = playback
+        playback.addItem(withTitle: "Restart Intro", action: #selector(restart), keyEquivalent: "r").target = self
+        let skipItem = playback.addItem(withTitle: "Skip to Title", action: #selector(skipToTitle), keyEquivalent: "")
         skipItem.target = self; skipItem.keyEquivalentModifierMask = []
-        let pauseItem = playback.addItem(withTitle: "일시 정지 / 계속", action: #selector(togglePause), keyEquivalent: "")
+        let pauseItem = playback.addItem(withTitle: "Pause / Resume", action: #selector(togglePause), keyEquivalent: "")
         pauseItem.target = self; pauseItem.keyEquivalentModifierMask = []
-        playback.addItem(withTitle: "전체 화면", action: #selector(toggleFullscreen), keyEquivalent: "f").target = self
+        playback.addItem(withTitle: "Full Screen", action: #selector(toggleFullscreen), keyEquivalent: "f").target = self
         app.mainMenu = menu
 
         window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 800, height: 600),
@@ -95,29 +101,27 @@ final class ApplicationDelegate: NSObject, NSApplicationDelegate, NSToolbarDeleg
         do {
             window.contentView = screen
             window.makeFirstResponder(screen)
+            screen.playing = false
             machine = try StartupMachine(resources: resources)
             paused = false; resumeAt = .distantPast
         } catch { show(error) }
     }
     @objc func createCharacter() {
-        do {
-            let session = try CharacterSession(resources: resources)
-            paused = true
-            let view = CharacterView(session: session, finished: { [weak self] in
-                guard let self else { return }
-                self.window.contentView = self.screen
-                self.window.makeFirstResponder(self.screen)
-                self.skipToTitle()
-            }, reportError: { [weak self] in self?.show($0) })
-            window.contentView = view
-            window.makeFirstResponder(view)
-        } catch { show(error) }
+        guard let machine else { return }
+        if machine.gameRunning { return }
+        skipToTitle()
+        machine.beginGame()
+        screen.playing = true
+        screen.input = { [weak self] key in self?.machine.sendKey(key) }
+        window.makeFirstResponder(screen)
+        paused = false
     }
     @objc func togglePause() {
-        guard machine?.titleReady != true else { return }
+        guard machine?.gameRunning == true || machine?.titleReady != true else { return }
         paused.toggle()
     }
     @objc func skipToTitle() {
+        if machine?.gameRunning == true { restart() }
         guard let machine else { return }
         do {
             while !machine.titleReady && machine.instructions < 100_000_000 {
@@ -137,11 +141,11 @@ final class ApplicationDelegate: NSObject, NSApplicationDelegate, NSToolbarDeleg
     func toolbar(_ toolbar: NSToolbar, itemForItemIdentifier id: NSToolbarItem.Identifier,
                  willBeInsertedIntoToolbar flag: Bool) -> NSToolbarItem? {
         let definitions: [String: (String, String, Selector)] = [
-            "character": ("새 인물 만들기", "person.crop.circle.badge.plus", #selector(createCharacter)),
-            "pause": ("일시 정지 / 계속", "pause.fill", #selector(togglePause)),
-            "skip": ("타이틀로 바로 이동", "forward.end.fill", #selector(skipToTitle)),
-            "replay": ("처음부터 다시 보기", "arrow.counterclockwise", #selector(restart)),
-            "fullscreen": ("전체 화면", "arrow.up.left.and.arrow.down.right", #selector(toggleFullscreen))]
+            "character": ("Start Game", "person.crop.circle.badge.plus", #selector(createCharacter)),
+            "pause": ("Pause / Resume", "pause.fill", #selector(togglePause)),
+            "skip": ("Skip to Title", "forward.end.fill", #selector(skipToTitle)),
+            "replay": ("Restart Intro", "arrow.counterclockwise", #selector(restart)),
+            "fullscreen": ("Full Screen", "arrow.up.left.and.arrow.down.right", #selector(toggleFullscreen))]
         guard let (label, symbol, action) = definitions[id.rawValue] else { return nil }
         let item = NSToolbarItem(itemIdentifier: id)
         item.label = label; item.toolTip = label
@@ -156,13 +160,13 @@ final class ApplicationDelegate: NSObject, NSApplicationDelegate, NSToolbarDeleg
             if try machine.nextFrame(budget: 150_000) {
                 screen.frameImage = HGRRenderer.image(memory: machine.memory, page: machine.page)
                 if !hadSplash && machine.splashPresented { resumeAt = Date().addingTimeInterval(1.4) }
-                if machine.titleReady { paused = true }
+                if machine.titleReady && !machine.gameRunning { paused = true }
             }
         } catch { paused = true; show(error) }
     }
     func show(_ error: Error) {
         let alert = NSAlert()
-        alert.messageText = "Ultima I 작업을 완료할 수 없습니다"
+        alert.messageText = "Unable to continue Ultima I"
         alert.informativeText = String(describing: error)
         alert.runModal()
     }
@@ -179,9 +183,9 @@ struct UltimaStartupApplication {
         } else {
             resources = Bundle.main.resourceURL!.appendingPathComponent("OriginalData")
         }
-        if let index = arguments.firstIndex(of: "--check-character"), index + 1 < arguments.count {
-            do { try checkCharacterCreation(resources: resources, output: URL(fileURLWithPath: arguments[index+1])) }
-            catch { fputs("Character checks failed: \(error)\n", stderr); exit(1) }
+        if let index = arguments.firstIndex(of: "--capture-gen"), index + 1 < arguments.count {
+            do { try captureGEN(resources: resources, output: URL(fileURLWithPath: arguments[index+1])) }
+            catch { fputs("GEN capture failed: \(error)\n", stderr); exit(1) }
             return
         }
         if let index = arguments.firstIndex(of: "--capture"), index + 1 < arguments.count {

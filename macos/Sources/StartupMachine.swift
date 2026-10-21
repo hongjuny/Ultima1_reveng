@@ -32,6 +32,13 @@ final class StartupMachine {
     var splashPresented = false
     var introFrames = 0
     var titleReady = false
+    var gameRunning = false
+    var engineLoaded = false
+    var genLoaded = false
+    var awaitingInput = false
+    var captureInputBoundaries = false
+    var saves = 0
+    var saveDirectory: URL?
     var loaderReturn = 0
     let resources: URL
 
@@ -109,13 +116,33 @@ final class StartupMachine {
     }
     func adc(_ value: UInt8) {
         let old = a
-        let sum = UInt16(a) + UInt16(value) + (flag(1) ? 1 : 0)
+        let carry = flag(1) ? 1 : 0
+        let sum = UInt16(a) + UInt16(value) + UInt16(carry)
         setFlag(1, sum > 255)
         let result = UInt8(truncatingIfNeeded: sum)
         setFlag(0x40, (~(old ^ value) & (old ^ result) & 0x80) != 0)
-        a = nz(result)
+        if flag(8) {
+            var low = Int(old & 15) + Int(value & 15) + carry
+            var high = Int(old >> 4) + Int(value >> 4)
+            if low > 9 { low += 6; high += 1 }
+            let intermediate = UInt8(truncatingIfNeeded: high << 4 | low & 15)
+            setFlag(0x40, (~(old ^ value) & (old ^ intermediate) & 0x80) != 0)
+            if high > 9 { high += 6; setFlag(1, true) }
+            a = nz(UInt8(truncatingIfNeeded: high << 4 | low & 15))
+        } else { a = nz(result) }
     }
-    func sbc(_ value: UInt8) { adc(~value) }
+    func sbc(_ value: UInt8) {
+        guard flag(8) else { adc(~value); return }
+        let old = a, borrow = flag(1) ? 0 : 1
+        let difference = Int(old) - Int(value) - borrow
+        let binary = UInt8(truncatingIfNeeded: difference)
+        setFlag(0x40, ((old ^ value) & (old ^ binary) & 0x80) != 0)
+        var adjusted = difference
+        if Int(old & 15) < Int(value & 15) + borrow { adjusted -= 6 }
+        if difference < 0 { adjusted -= 0x60 }
+        setFlag(1, difference >= 0)
+        a = nz(UInt8(truncatingIfNeeded: adjusted))
+    }
     func bit(_ value: UInt8) {
         setFlag(2, a & value == 0)
         setFlag(0x80, value & 0x80 != 0); setFlag(0x40, value & 0x40 != 0)
@@ -151,6 +178,7 @@ final class StartupMachine {
     // Returns at actual display boundaries. Busy waits are translated into a
     // native scheduler delay while retaining the original register exit state.
     func nextFrame(budget: Int = 8_000_000) throws -> Bool {
+        if gameRunning { return try nextGameFrame(budget: budget) }
         for _ in 0..<budget {
             if pc == 0x1F46 && !splashPresented {
                 splashPresented = true
