@@ -29,6 +29,7 @@ CHECKS = (
     ("TCMAPS final-slot copy and tail effect", ["tools/verify_tcmaps_last_slot.py"]),
     ("MAPCHARS scanline-plane format", ["tools/extract_mapchars.py", "--check"]),
     ("MAPCHARS castle draw and font swap", ["tools/verify_mapchars_render.py"]),
+    ("MAPCHARS first glyph video and pixel controls", ["tools/verify_mapchars_glyph_pixels.py"]),
     ("reviewed assembly", ["tools/verify_disasm.py"]),
     ("TCMAPS records", ["tools/extract_data.py", "--check"]),
     ("intro support relocation", ["tools/verify_intro_support.py"]),
