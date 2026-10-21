@@ -33,7 +33,9 @@ flowchart TD
 | `MI.U1` | `STUPH` | `$8975` calls `$B703`; inline name starts at `$8978` | Runtime confirmed; 6144-byte match at `$0800` after load |
 | `MI.U1` | `GEN` | `$8907` calls `$B703`; inline name at `$890A` | Runtime confirmed; 8932-byte match at `$8956` after load |
 | `MI.U1` | `CAS` | Outdoor tile code `$04` and E command select A=`$10` at `$88FD`; filename `CAS` at `$8920`, carry-clear return `$892B`, entry `$8956` | Runtime confirmed; 5524-byte match at entry |
-| `MI.U1` | six other gameplay modules | Name table at `$7E16`; selector at `$88FD–$893E` | High for names and selector, load API semantics pending |
+| `MI.U1` | `TWN` | Outdoor tile code `$06` and E command select A=`$0C`; filename `TWN` at `$8920`, entry `$8956` | Runtime confirmed; 8461-byte match at entry |
+| `MI.U1` | `DNG` | Outdoor tile code `$07` and E command select A=`$08`; filename `DNG` at `$8920`, entry `$8956` | Runtime confirmed; 10051-byte match at entry |
+| `MI.U1` | remaining gameplay modules | Name table at `$7E16`; selector at `$88FD–$893E` | High for names and selector; individual transitions pending |
 | `TWN` | `TCMAPS`, `MAPCHARS` | `$898B` and `$89A1` call `$B733`; inline names follow | High |
 | `CAS` | `TCMAPS`, `MAPCHARS` | Runtime `$898D → $89A3 → $89CE → $8A31 → $8A27`; both loaded files match extraction and first 768-byte map copy matches `$4014–$4313` | Runtime confirmed for first castle entry |
 | `TM` | `NIF` | `$9052` calls `$B703`; inline name at `$9055` | High |

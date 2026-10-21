@@ -60,6 +60,7 @@ FRAGMENTS = (
     ("TWN-food-price.s", "TWN", 0x8956, 0x9257, 0x926F),
     ("CAS-map-copy.s", "CAS", 0x8956, 0x89BB, 0x89E0),
     ("DNG-key-poll.s", "DNG", 0x8956, 0x8DDA, 0x8DE6),
+    ("DNG-move-commit.s", "DNG", 0x8956, 0x8EBE, 0x8ECE),
 )
 
 
