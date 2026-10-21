@@ -60,7 +60,9 @@ def main():
     # JSR $8119 consumes inline display bytes; the JMP immediately after each
     # SPA payload must be seeded separately so Ghidra resumes code there.
     entries.update(("SPA", address) for address in
-                   (0x8FF1, 0x9043, 0x9071, 0x9097))
+                   (0x8FF1, 0x9043, 0x9071, 0x9097,
+                    0x96EA, 0x9700, 0x9763, 0x9766,
+                    0x9789, 0x979E, 0x97B0))
     # STUPH's effect table stores address-minus-one targets for stack/RTS
     # dispatch; no ordinary JSR edge reaches these entries.
     entries.update(("STUPH", address) for address in

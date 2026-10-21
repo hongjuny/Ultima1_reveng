@@ -29,6 +29,7 @@ The generated listings are **linear drafts**. They interpret embedded text, grap
 9. [File-by-file disassembly](disasm/README.md)
 10. [Porting fidelity and evidence](docs/porting-fidelity.md)
 11. [Roadmap to a faithful macOS port](docs/porting-roadmap.md)
+    [Ghidra-first address-preserving port workflow (Korean)](docs/ghidra-first-port.md) records the new file-wide translation approach.
 12. [Progress and effort audit (2026-10-21, Korean)](docs/progress-audit-2026-10-21.md)
 13. [Local disk and emulator baseline](docs/baseline.md)
 14. [Startup and module loading](docs/startup.md)

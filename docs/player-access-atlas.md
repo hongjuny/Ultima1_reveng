@@ -2,7 +2,7 @@
 
 `U1.VARS`의 458바이트는 게임 중 `$7E6D–$8036`에 놓인다. 이 지도는 Ghidra가 **명령 후보**로 해석한 코드의 직접 메모리 읽기·쓰기 참조만 모은 것이다. 인덱스 주소 지정으로 뒷부분 배열을 순회하거나 간접 포인터로 접근하는 경우는 여기에 주소별로 나타나지 않는다. 후보 참조가 실제 실행된다는 뜻도 아니다. 확인된 의미와 저장 왕복은 [레코드 형식](../disasm/U1.VARS.md), [플레이어 상태](player-state.md)에서 따로 본다.
 
-직접 참조 후보는 **349곳**, 서로 다른 레코드 주소는 **61곳**이다. 137바이트 접두부 `$7E6D–$7EF5` 중 직접 참조된 주소는 **60곳**이다. `MI.U1, GEN, OUT, CAS, TWN, DNG, SPA, TM`의 8개 게임 단계/공용 프로그램에서 추출했다.
+직접 참조 후보는 **360곳**, 서로 다른 레코드 주소는 **62곳**이다. 137바이트 접두부 `$7E6D–$7EF5` 중 직접 참조된 주소는 **61곳**이다. `MI.U1, GEN, OUT, CAS, TWN, DNG, SPA, TM`의 8개 게임 단계/공용 프로그램에서 추출했다.
 
 | 프로그램 | 직접 참조 후보 수 |
 | --- | ---: |
@@ -12,10 +12,10 @@
 | `CAS` | 35 |
 | `TWN` | 24 |
 | `DNG` | 46 |
-| `SPA` | 38 |
+| `SPA` | 49 |
 | `TM` | 41 |
 
-접근 종류: 읽기 235, 쓰기 89, 읽기·쓰기 25. 주소별 칸의 `R/W/RW`는 Ghidra 참조 유형이다. 괄호는 명령 주소이며 각 모듈·접근 종류에서 앞의 세 곳만 표시한다.
+접근 종류: 읽기 240, 쓰기 93, 읽기·쓰기 27. 주소별 칸의 `R/W/RW`는 Ghidra 참조 유형이다. 괄호는 명령 주소이며 각 모듈·접근 종류에서 앞의 세 곳만 표시한다.
 
 | 레코드 주소 | 현재 필드 해석 | 직접 접근 후보 |
 | --- | --- | --- |
@@ -46,6 +46,7 @@
 | `$7EB3` | unclassified prefix | `OUT` R($9549); `OUT` W($9126,$955E) |
 | `$7EB4` | unclassified prefix | `OUT` R($9554); `OUT` W($912E,$955E) |
 | `$7EB5` | craft request | `OUT` R($9567); `OUT` W($9593) |
+| `$7EB6` | unclassified prefix | `SPA` R($973A); `SPA` RW($9732,$9737) |
 | `$7EB7` | sex | `GEN` W($8D80); `TWN` R($895E) |
 | `$7EB8` | name | `MI.U1` R($8839) |
 | `$7EB9` | name | `MI.U1` R($8839) |
@@ -66,8 +67,8 @@
 | `$7EE4` | shared turn/resource byte | `MI.U1` R($82F4); `MI.U1` W($82FA) |
 | `$7EE5` | Food | `MI.U1` R($82FF,$8307,$838B); `MI.U1` W($8895); `MI.U1` RW($830F); `OUT` R($89AC,$8A4D); `OUT` RW($8A47); `CAS` R($8A39); `TWN` R($8A30,$934F); `TWN` W($9356); `DNG` R($8DF4); `TM` R($8E6D) |
 | `$7EE6` | Food | `MI.U1` R($8302,$8388); `MI.U1` W($8898); `MI.U1` RW($830C); `OUT` R($89AF); `CAS` R($8A3C); `TWN` R($8A33,$9359); `TWN` W($935F); `DNG` R($8DF7); `TM` R($8E70) |
-| `$7EE7` | SPA third resource, unresolved | `MI.U1` R($8394); `DNG` R($947F,$9491); `DNG` W($9486,$949F); `SPA` R($A1A8) |
-| `$7EE8` | SPA third resource, unresolved | `MI.U1` R($8391); `OUT` R($95E2,$9665); `DNG` R($9489,$9496); `DNG` W($948E,$94A4); `SPA` R($A1A5) |
+| `$7EE7` | SPA third resource, unresolved | `MI.U1` R($8394); `DNG` R($947F,$9491); `DNG` W($9486,$949F); `SPA` R($970A,$9721,$A1A8); `SPA` W($970F,$972A) |
+| `$7EE8` | SPA third resource, unresolved | `MI.U1` R($8391); `OUT` R($95E2,$9665); `DNG` R($9489,$9496); `DNG` W($948E,$94A4); `SPA` R($9712,$971A,$A1A5); `SPA` W($9717,$972F) |
 | `$7EE9` | Fuel | `SPA` R($8A70,$92DD,$95B6 +9); `SPA` W($A15C,$A16D) |
 | `$7EEA` | Fuel | `SPA` R($8A73,$92E0,$95B9 +9); `SPA` W($A170); `SPA` RW($A161) |
 | `$7EEB` | Shield | `SPA` R($A196) |

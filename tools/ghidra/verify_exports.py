@@ -20,7 +20,7 @@ EXPECTED = {
     "U1.SYSTEM": (4, 10), "U1.INTRO": (28, 32), "MAKE.INDATA": (6, 6),
     "MI.U1": (42, 79), "STUPH": (89, 45), "GEN": (19, 74),
     "OUT": (54, 126), "CAS": (43, 117), "TWN": (39, 99),
-    "DNG": (63, 152), "SPA": (61, 174), "TM": (61, 136),
+    "DNG": (63, 152), "SPA": (70, 185), "TM": (61, 136),
 }
 REVIEWED_EDGES = {
     "MI.U1": {(0x8907, 0xB703), (0x88F8, 0x8870)},
@@ -105,13 +105,13 @@ def main():
         verified_data_count += len(data)
         print(f"{name}: {actual[0]} functions, {actual[1]} calls, "
               f"{len(code)} verified code and {len(data)} verified data bytes recognized")
-    if (totals["function"], totals["call"]) != (509, 1050):
+    if (totals["function"], totals["call"]) != (518, 1061):
         raise ValueError(f"aggregate changed: {totals}")
     if (verified_code_count, verified_data_count) != (4221, 487):
         raise ValueError("verified code/data byte counts changed")
     if not PLAYER_ATLAS.is_file() or PLAYER_ATLAS.read_text() != render_player_atlas():
         raise ValueError("player direct-access atlas differs from Ghidra exports")
-    print("12 phase-separated programs; 509 function candidates, 1050 direct calls, "
+    print("12 phase-separated programs; 518 function candidates, 1061 direct calls, "
           "4221 verified code and 487 verified data bytes recognized; "
           "player direct-access atlas verified")
     return 0

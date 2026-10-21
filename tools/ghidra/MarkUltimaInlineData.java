@@ -1,5 +1,6 @@
 // Protect byte-matched inline arguments and short embedded tables from disassembly.
-// These ranges were checked against reviewed ca65 fragments.
+// These ranges come from reviewed fragments or byte-checked inline text
+// boundaries and runtime continuation addresses.
 // @category UltimaI
 import ghidra.app.script.GhidraScript;
 import ghidra.program.model.address.Address;
@@ -24,6 +25,11 @@ public class MarkUltimaInlineData extends GhidraScript {
         {"SPA", "9046", "8", "down_direction_deltas"},
         {"SPA", "906E", "3", "right_display_args"},
         {"SPA", "9094", "3", "left_display_args"},
+        {"SPA", "96E2", "8", "hit_display_text"},
+        {"SPA", "9746", "29", "ace_repeat_text"},
+        {"SPA", "9774", "21", "ace_first_line"},
+        {"SPA", "9790", "14", "ace_second_line"},
+        {"SPA", "97A5", "11", "ace_third_line"},
         {"STUPH", "1AB2", "18", "sound_effect_return_addresses"}
     };
 
