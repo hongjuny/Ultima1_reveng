@@ -57,6 +57,14 @@ def main():
                 after["$7EEB"] == before["$7EEB"] and
                 after["$7EEC"] == before["$7EEC"],
                 f"{name}: fuel debit or shield differs")
+        final = run["next_input"]
+        require((final["$928A"], final["$928B"], final["$923F"],
+                 final["$923E"], final["$7EE9"] + 256*final["$7EEA"]) ==
+                {"up": (0xFE, 0, 3, 3, 995),
+                 "down": (2, 0, 3, 3, 995),
+                 "right": (0, 0, 0, 0, 998),
+                 "left": (0, 0, 2, 2, 998)}[name],
+                f"{name}: next-input state differs")
         require(run["final_cpu"].startswith("pc=8A5F"),
                 f"{name}: did not return to SPA input")
     print("SPA direction movement, staged heading, and 5/2 Fuel debit verified")
