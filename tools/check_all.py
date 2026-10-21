@@ -69,6 +69,7 @@ CHECKS = (
     ("DNG actor slots in map", ["tools/verify_dng_actor_map.py"]),
     ("DNG actor move and map restoration", ["tools/verify_dng_actor_move.py"]),
     ("DNG vertical actor move", ["tools/verify_dng_actor_move_y.py"]),
+    ("DNG level-two actor turns", ["tools/verify_dng_actor_turns.py"]),
 )
 
 
