@@ -13,6 +13,7 @@ from disassemble import ROOT
 
 SOURCE = ROOT / "extracted/NIF"
 OUTPUT = ROOT / "build/data/nif-monochrome.png"
+PHASE_OUTPUT = ROOT / "build/data/nif-phase.bin"
 REPORT = ROOT / "build/data/nif-format.json"
 WIDTH, HEIGHT, BYTES_PER_ROW = 280, 192, 40
 
@@ -33,6 +34,21 @@ def decode(data):
     return rows
 
 
+def encode(rows, phase):
+    if len(rows) != HEIGHT or any(len(row) != WIDTH for row in rows):
+        raise ValueError("NIF pixel dimensions differ")
+    if len(phase) != HEIGHT * BYTES_PER_ROW or any(value not in (0, 0x80)
+                                                   for value in phase):
+        raise ValueError("NIF phase plane differs")
+    result = bytearray()
+    for row_index, row in enumerate(rows):
+        for column in range(BYTES_PER_ROW):
+            bits = sum((1 << bit) for bit in range(7)
+                       if row[column * 7 + bit])
+            result.append(bits | phase[row_index * BYTES_PER_ROW + column])
+    return bytes(result)
+
+
 def png(rows):
     if len(rows) != HEIGHT or any(len(row) != WIDTH for row in rows):
         raise ValueError("NIF pixel dimensions differ")
@@ -49,18 +65,23 @@ def main():
     args = parser.parse_args()
     data = SOURCE.read_bytes()
     rows = decode(data)
+    phase = bytes(value & 0x80 for value in data)
+    if encode(rows, phase) != data:
+        raise ValueError("NIF pixel/phase round trip differs from source")
     high_bits = sum(bool(value & 0x80) for value in data)
     lit_pixels = sum(pixel != 0 for row in rows for pixel in row)
     info = {"width": WIDTH, "height": HEIGHT, "bytes_per_row": BYTES_PER_ROW,
             "payload_bytes": len(data), "high_bit_set_bytes": high_bits,
             "lit_monochrome_pixels": lit_pixels,
             "pixel_order": "seven low bits per byte, least significant bit first",
-            "row_order": "file row zero first; animation inserts each row at HGR bottom"}
+            "row_order": "file row zero first; animation inserts each row at HGR bottom",
+            "round_trip_matches_source": True}
     if not args.check:
         OUTPUT.parent.mkdir(parents=True, exist_ok=True)
         OUTPUT.write_bytes(png(rows))
+        PHASE_OUTPUT.write_bytes(phase)
         REPORT.write_text(json.dumps(info, indent=2) + "\n")
-        print("private image:", OUTPUT)
+        print("private image and phase plane:", OUTPUT, PHASE_OUTPUT)
     print(f"NIF {WIDTH}×{HEIGHT}, {high_bits}/{len(data)} phase bits set, "
           f"{lit_pixels} monochrome pixels")
 
