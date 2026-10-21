@@ -2,6 +2,8 @@
 // @category UltimaI
 import ghidra.app.script.GhidraScript;
 import ghidra.program.model.address.Address;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class SeedUltimaEntrypoints extends GhidraScript {
     private static final String[][] SEEDS = {
@@ -22,19 +24,31 @@ public class SeedUltimaEntrypoints extends GhidraScript {
     @Override
     public void run() throws Exception {
         String name = currentProgram.getName();
+        String[] args = getScriptArgs();
+        if (args.length != 1) throw new IllegalArgumentException("expected reviewed-entrypoint TSV path");
+        int seeded = 0;
         for (String[] row : SEEDS) {
             if (!row[0].equals(name)) continue;
             for (int i = 1; i < row.length; i++) {
-                Address address = toAddr(Long.parseLong(row[i], 16));
-                if (!currentProgram.getMemory().contains(address)) continue;
-                disassemble(address);
-                if (currentProgram.getFunctionManager().getFunctionAt(address) == null) {
-                    createFunction(address, "entry_" + row[i]);
-                }
-                println(name + " seeded $" + row[i]);
+                seed(row[i]);
+                seeded++;
             }
-            return;
         }
-        println(name + ": no entry-point seed list");
+        for (String line : Files.readAllLines(Path.of(args[0]))) {
+            String[] fields = line.split("\\t");
+            if (fields.length != 2 || !fields[0].equals(name)) continue;
+            seed(fields[1]);
+            seeded++;
+        }
+        println(name + ": seeded " + seeded + " observed/reviewed entry points");
+    }
+
+    private void seed(String hex) throws Exception {
+        Address address = toAddr(Long.parseLong(hex, 16));
+        if (!currentProgram.getMemory().contains(address)) return;
+        disassemble(address);
+        if (currentProgram.getFunctionManager().getFunctionAt(address) == null) {
+            createFunction(address, "entry_" + hex);
+        }
     }
 }

@@ -47,6 +47,11 @@ def main():
     env["JAVA_TOOL_OPTIONS"] = (
         env.get("JAVA_TOOL_OPTIONS", "") + f" -Duser.home={user_home}"
     ).strip()
+    sys.path.insert(0, str(ROOT / "tools"))
+    from verify_disasm import FRAGMENTS
+    manifest = BUILD / "reviewed-entrypoints.tsv"
+    entries = sorted({(module, start) for _, module, _, start, _ in FRAGMENTS})
+    manifest.write_text("".join(f"{module}\t{start:04X}\n" for module, start in entries))
     selected = sys.argv[1:] or list(MODULES)
     for name in selected:
         if name not in MODULES:
@@ -55,20 +60,23 @@ def main():
         if not source.is_file():
             raise FileNotFoundError(source)
         output = BUILD / f"{name}-calls.tsv"
+        memory_output = BUILD / f"{name}-memory.tsv"
         log = BUILD / f"{name}-ghidra.log"
         command = [str(analyzer()), str(BUILD), "UltimaI",
                    "-import", str(source), "-loader", "BinaryLoader",
                    "-loader-baseAddr", f"0x{MODULES[name]:04X}",
                    "-processor", "6502:LE:16:default",
                    "-scriptPath", str(SCRIPT_DIR),
-                   "-preScript", "SeedUltimaEntrypoints.java",
+                   "-preScript", "MarkUltimaDispatch.java",
+                   "-preScript", "SeedUltimaEntrypoints.java", str(manifest),
                    "-postScript", "ExportUltimaCalls.java", str(output),
+                   "-postScript", "ExportUltimaMemory.java", str(memory_output),
                    "-analysisTimeoutPerFile", "120", "-max-cpu", "2",
                    "-overwrite"]
         with log.open("w") as stream:
             result = subprocess.run(command, env=env, stdout=stream,
                                     stderr=subprocess.STDOUT, check=False)
-        if result.returncode or not output.is_file():
+        if result.returncode or not output.is_file() or not memory_output.is_file():
             raise RuntimeError(f"Ghidra import failed for {name}; inspect {log}")
         rows = output.read_text().splitlines()
         functions = sum(row.startswith("function\t") for row in rows)

@@ -11,7 +11,7 @@ This project studies the 1986 Apple II ProDOS release of *Ultima I*. The analysi
 5. Run `python3 tools/verify_disasm.py` to reassemble reviewed fragments and compare them with the local extraction.
 6. Run `python3 tools/extract_data.py --check` to validate known data containers, or omit `--check` to extract records locally under `build/data/`.
 7. Run private emulator traces with `python3 tools/run_runtime.py trace_out_after_space.py`. The runner builds an isolated a2m control variant, runs the named trace scripts in order, and then runs `check_all.py`.
-8. If Ghidra is installed, run `python3 tools/ghidra/import_modules.py` to rebuild the private 6502 programs and call TSV files under `build/ghidra-project/`; `python3 tools/ghidra/verify_exports.py` checks the published candidate counts and selected call edges.
+8. If Ghidra is installed, run `python3 tools/ghidra/import_modules.py` to rebuild the private 6502 programs and call/zero-page TSV files under `build/ghidra-project/`; `python3 tools/ghidra/verify_exports.py` checks the published candidate counts and selected call edges.
 
 The generated listings are **linear drafts**. They interpret embedded text, graphics, inline filenames, and tables as instructions. Review each code range against control flow before treating it as an assembly source. The listings also reproduce original bytes and are ignored by Git.
 
@@ -21,16 +21,17 @@ The generated listings are **linear drafts**. They interpret embedded text, grap
 2. [Dependency map](docs/dependency-map.md)
 3. [Execution architecture (Korean)](docs/execution-architecture.md)
 4. [Ghidra call atlas](docs/ghidra-call-atlas.md) and [reviewed assembly address atlas](docs/assembly-atlas.md)
-5. [Shared I/O service vectors (Korean)](docs/shared-services.md)
-6. [File-by-file disassembly](disasm/README.md)
-7. [Porting fidelity and evidence](docs/porting-fidelity.md)
-8. [Roadmap to a faithful macOS port](docs/porting-roadmap.md)
-9. [Progress and effort audit (2026-10-21, Korean)](docs/progress-audit-2026-10-21.md)
-10. [Local disk and emulator baseline](docs/baseline.md)
-11. [Startup and module loading](docs/startup.md)
-12. [Gameplay module dispatch](docs/module-dispatch.md)
-13. [Game structure map](docs/game-structure.md)
-14. [Analysis log](docs/analysis-log.md)
+5. [Command dispatch matrix (Korean)](docs/command-dispatch-matrix.md) and [memory and zero-page lifetimes (Korean)](docs/memory-and-zero-page.md)
+6. [Shared I/O service vectors (Korean)](docs/shared-services.md)
+7. [File-by-file disassembly](disasm/README.md)
+8. [Porting fidelity and evidence](docs/porting-fidelity.md)
+9. [Roadmap to a faithful macOS port](docs/porting-roadmap.md)
+10. [Progress and effort audit (2026-10-21, Korean)](docs/progress-audit-2026-10-21.md)
+11. [Local disk and emulator baseline](docs/baseline.md)
+12. [Startup and module loading](docs/startup.md)
+13. [Gameplay module dispatch](docs/module-dispatch.md)
+14. [Game structure map](docs/game-structure.md)
+15. [Analysis log](docs/analysis-log.md)
 
 The `extracted/`, `disk/`, and `build/` directories and Ghidra project files are ignored. Review any future annotated assembly before publication: even text form can contain substantial original game material.
 

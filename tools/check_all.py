@@ -33,6 +33,7 @@ CHECKS = (
     ("MAPCHARS first glyph video and pixel controls", ["tools/verify_mapchars_glyph_pixels.py"]),
     ("reviewed assembly", ["tools/verify_disasm.py"]),
     ("reviewed assembly address atlas", ["tools/build_assembly_atlas.py", "--check"]),
+    ("six overlay command handler tables", ["tools/build_command_matrix.py", "--check"]),
     ("TCMAPS records", ["tools/extract_data.py", "--check"]),
     ("intro support relocation", ["tools/verify_intro_support.py"]),
     ("intro-to-engine handoff", ["tools/verify_intro_to_engine.py"]),
@@ -97,6 +98,7 @@ CHECKS = (
     ("DNG deeper-floor spawn HP", ["tools/verify_dng_spawn_hp_deep.py"]),
     ("DNG lethal actor removal and respawn", ["tools/verify_dng_actor_kill_respawn.py"]),
     ("cross-module turn and residency map", ["tools/verify_big_picture.py"]),
+    ("overlay zero-page lifetime and local coordinates", ["tools/verify_zero_page_lifetimes.py"]),
 )
 
 
