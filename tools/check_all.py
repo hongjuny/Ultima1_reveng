@@ -100,6 +100,7 @@ CHECKS = (
     ("DNG initial actor spawns", ["tools/verify_dng_initial_spawns.py"]),
     ("DNG deeper-floor spawn HP", ["tools/verify_dng_spawn_hp_deep.py"]),
     ("DNG lethal actor removal and respawn", ["tools/verify_dng_actor_kill_respawn.py"]),
+    ("SPA four-direction movement and Fuel", ["tools/verify_spa_direction_controls.py"]),
     ("cross-module turn and residency map", ["tools/verify_big_picture.py"]),
     ("overlay zero-page lifetime and local coordinates", ["tools/verify_zero_page_lifetimes.py"]),
 )
