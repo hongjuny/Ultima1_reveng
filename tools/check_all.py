@@ -34,6 +34,7 @@ CHECKS = (
     ("reviewed assembly", ["tools/verify_disasm.py"]),
     ("reviewed assembly address atlas", ["tools/build_assembly_atlas.py", "--check"]),
     ("six overlay command handler tables", ["tools/build_command_matrix.py", "--check"]),
+    ("SPA nested view command table", ["tools/build_spa_view_matrix.py", "--check"]),
     ("TCMAPS records", ["tools/extract_data.py", "--check"]),
     ("intro support relocation", ["tools/verify_intro_support.py"]),
     ("intro-to-engine handoff", ["tools/verify_intro_to_engine.py"]),
