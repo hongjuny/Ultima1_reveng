@@ -104,6 +104,7 @@ CHECKS = (
     ("SPA four-direction movement and Fuel", ["tools/verify_spa_direction_controls.py"]),
     ("SPA Fuel boundary at zero and cost five", ["tools/verify_spa_fuel_bounds.py"]),
     ("SPA distinct command targets", ["tools/verify_spa_command_survey.py"]),
+    ("SPA nested view movement and HyperJump", ["tools/verify_spa_view_controls.py"]),
     ("STUPH controlled speaker pulse timing", ["tools/verify_stuph_sound_pulses.py"]),
     ("cross-module turn and residency map", ["tools/verify_big_picture.py"]),
     ("overlay zero-page lifetime and local coordinates", ["tools/verify_zero_page_lifetimes.py"]),
