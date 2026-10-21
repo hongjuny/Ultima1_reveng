@@ -111,8 +111,10 @@ def play(key, source, action):
     return action / "poll/handoff.json", False
 
 
-def main(max_actions=80):
-    source = prepare()
+def main(max_actions=80, source_report: Path | None = None,
+         output: Path = OUTPUT):
+    source = prepare() if source_report is None else source_report
+    output.mkdir(parents=True, exist_ok=True)
     history = []
     for number in range(1, max_actions + 1):
         report = json.loads(source.read_text())
@@ -133,8 +135,8 @@ def main(max_actions=80):
         else:
             desired = (target[0] - position[0], target[1] - position[1])
             key = 65 if desired == facing else direction_key(facing, desired)
-        output = OUTPUT / f"action-{number:03d}"
-        next_source, completed = play(key, source, output)
+        action = output / f"action-{number:03d}"
+        next_source, completed = play(key, source, action)
         after = json.loads(next_source.read_text())
         after_ram = main_ram(Path(after["snapshot"]["path"]))
         entry = {"number": number, "key": key, "before_position": list(position),
@@ -143,7 +145,7 @@ def main(max_actions=80):
                  "source_report": str(source), "result_report": str(next_source),
                  "quest_after": after_ram[0x7EAA], "completed": completed}
         history.append(entry)
-        (OUTPUT / "route.json").write_text(json.dumps(history, indent=2) + "\n")
+        (output / "route.json").write_text(json.dumps(history, indent=2) + "\n")
         print(f"{number:02d} key=${key:02X} player={position} face={facing} "
               f"slot5={target} hp={monster_hp} quest={after_ram[0x7EAA]:02X}", flush=True)
         if completed:
