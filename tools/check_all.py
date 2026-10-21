@@ -66,6 +66,7 @@ CHECKS = (
     ("DNG level-two combat turns", ["tools/verify_dng_level2_heavy_hit.py"]),
     ("DNG multi-level map generation", ["tools/verify_dng_generation_levels.py"]),
     ("DNG random $05/$06 cell", ["tools/verify_dng_random_tile.py"]),
+    ("DNG actor slots in map", ["tools/verify_dng_actor_map.py"]),
 )
 
 

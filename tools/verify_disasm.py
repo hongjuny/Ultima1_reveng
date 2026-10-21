@@ -72,6 +72,7 @@ FRAGMENTS = (
     ("DNG-stair-facing.s", "DNG", 0x8956, 0x963F, 0x9647),
     ("DNG-stair-placement.s", "DNG", 0x8956, 0x8D36, 0x8D99),
     ("DNG-random-cell.s", "DNG", 0x8956, 0x8D20, 0x8D31),
+    ("DNG-actor-encode.s", "DNG", 0x8956, 0x9437, 0x9447),
     ("DNG-descend-entry.s", "DNG", 0x8956, 0x972C, 0x9732),
     ("DNG-ascend-regenerate.s", "DNG", 0x8956, 0x9728, 0x972C),
     ("DNG-exit-out.s", "DNG", 0x8956, 0x9716, 0x9728),
