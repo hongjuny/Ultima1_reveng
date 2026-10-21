@@ -43,23 +43,25 @@ def shortest(grid, start, goal):
     raise RuntimeError(f"no walking route to {goal}")
 
 
-def main():
-    initial = json.loads(SOURCE.read_text())
+def main(source_report: Path = SOURCE, output: Path = OUTPUT,
+         expected_start: tuple[int, int] = (39, 33),
+         required_quest: int | None = None):
+    initial = json.loads(source_report.read_text())
     if initial["timeout"] is not None or cpu_pc(initial["final_cpu"]) != 0x8A6C:
         raise RuntimeError("source is not at OUT input")
     ram = main_ram(Path(initial["snapshot"]["path"]))
     start = tuple(ram[:2])
     grid = ram[0x6000:0x7000]
-    if start != (39, 33) or grid[GOAL[1] * 64 + GOAL[0]] != 8:
+    if start != expected_start or grid[GOAL[1] * 64 + GOAL[0]] != 8:
         raise RuntimeError("source location or destination castle differs")
     path = shortest(grid, start, GOAL)
-    OUTPUT.mkdir(parents=True, exist_ok=True)
-    source = SOURCE
+    output.mkdir(parents=True, exist_ok=True)
+    source = source_report
     entries = []
     current = start
     for number, dest in enumerate(path, 1):
         key = KEYS[(dest[0] - current[0], dest[1] - current[1])]
-        action = OUTPUT / f"step-{number:02d}"
+        action = output / f"step-{number:02d}"
         action.mkdir(parents=True, exist_ok=True)
         with (action / "trace.log").open("w") as log, contextlib.redirect_stdout(log):
             if replay(key, source, action):
@@ -70,6 +72,8 @@ def main():
         actual = tuple(reached[:2])
         if cpu_pc(report["final_cpu"]) != 0x8A6C or actual != dest:
             raise RuntimeError(f"step {number}: expected {dest}, got {actual}")
+        if required_quest is not None and reached[0x7EAA] != required_quest:
+            raise RuntimeError(f"quest changed at step {number}")
         expected_code = grid[dest[1] * 64 + dest[0]] >> 1
         if report["tile_lookup"]["code"] != expected_code:
             raise RuntimeError(f"step {number}: map tile changed")
@@ -77,7 +81,7 @@ def main():
                 "after": list(actual), "tile_code": expected_code,
                 "source_report": str(source), "result_report": str(report_path)}
         entries.append(item)
-        (OUTPUT / "route.json").write_text(json.dumps(entries, indent=2) + "\n")
+        (output / "route.json").write_text(json.dumps(entries, indent=2) + "\n")
         print(f"{number:02d}/{len(path)} key=${key:02X} {current}→{actual} "
               f"tile=${expected_code:02X}", flush=True)
         source = report_path

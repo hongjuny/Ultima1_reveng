@@ -17,18 +17,19 @@ OUTPUT = ROOT / "build/traces/odd-castle-king-route"
 PATH = [(x, 9) for x in range(1, 26)] + [(25, y) for y in (8, 7, 6)]
 
 
-def main():
-    prior = json.loads(SOURCE.read_text())
+def main(source_report: Path = SOURCE, output: Path = OUTPUT,
+         expected_quest: int = 0):
+    prior = json.loads(source_report.read_text())
     ram = main_ram(Path(prior["snapshot"]["path"]))
-    if tuple(ram[:2]) != (0, 9) or ram[0x9E3B] != 1:
+    if tuple(ram[:2]) != (0, 9) or ram[0x9E3B] != 1 or ram[0x7EAA] != expected_quest:
         raise RuntimeError("source is not the second castle entrance")
     if ram[0xB400 + 6 * 38 + 25] != 0x6C:
         raise RuntimeError("king tile differs")
-    OUTPUT.mkdir(parents=True, exist_ok=True)
-    source, current, entries = SOURCE, (0, 9), []
+    output.mkdir(parents=True, exist_ok=True)
+    source, current, entries = source_report, (0, 9), []
     for number, destination in enumerate(PATH, 1):
         key = 0x15 if destination[0] > current[0] else 0x0B
-        action = OUTPUT / f"step-{number:02d}"
+        action = output / f"step-{number:02d}"
         action.mkdir(parents=True, exist_ok=True)
         with (action / "trace.log").open("w") as log, contextlib.redirect_stdout(log):
             if replay(key, source, action):
@@ -37,13 +38,14 @@ def main():
         report = json.loads(report_path.read_text())
         reached = main_ram(Path(report["snapshot"]["path"]))
         actual = tuple(reached[:2])
-        if cpu_pc(report["final_cpu"]) != 0x8A27 or actual != destination:
+        if cpu_pc(report["final_cpu"]) != 0x8A27 or actual != destination or \
+                reached[0x7EAA] != expected_quest:
             raise RuntimeError(f"castle step {number}: expected {destination}, got {actual}")
         item = {"number": number, "key": key, "before": list(current),
                 "after": list(actual), "source_report": str(source),
                 "result_report": str(report_path), "hp": reached[0x7EC6]}
         entries.append(item)
-        (OUTPUT / "route.json").write_text(json.dumps(entries, indent=2) + "\n")
+        (output / "route.json").write_text(json.dumps(entries, indent=2) + "\n")
         print(f"{number:02d}/{len(PATH)} {current}→{actual} hp={item['hp']}", flush=True)
         source, current = report_path, actual
     print(f"king tile reached at {current}; report {source}")
