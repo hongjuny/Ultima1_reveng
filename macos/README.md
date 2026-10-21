@@ -8,7 +8,7 @@ open "build/Ultima I.app"
 ```
 
 The first build uses the installed Ghidra and Swift compiler. Keep the locally
-extracted `U1.INTRO`, `MAKE.INDATA`, `MI.U1`, `STUPH`, and `GEN` in `extracted/`. Use `--ghidra` to refresh
+extracted `U1.INTRO`, `MAKE.INDATA`, `MI.U1`, `STUPH`, `GEN`, and `OUT` in `extracted/`. Use `--ghidra` to refresh
 the startup analysis. The generated Swift, application bundle, original assets,
 and captured frames stay under ignored `build/`.
 
@@ -18,7 +18,9 @@ pause, skip to title, replay (Command-R), and fullscreen (Command-F).
 Press Return/Space on the title or use the person toolbar button to create a
 character through GEN's original Apple II menu. The original English screens,
 font renderer, cursor and keyboard routines cover allocation, race, sex, class,
-name, confirmation and local saving. Outdoor gameplay is the next translation unit. See
+name, confirmation and local saving. Choose B in GEN to load the saved character
+and enter Sosaria. Arrow keys move, Space passes, and Q saves. See
+[Sosaria entry](../docs/native-sosaria.md) for validation and current scope, and
 [character creation](../docs/native-character-creation.md) for translation boundaries
 and save-format limitations.
 
@@ -34,6 +36,7 @@ Reproduce the original title checkpoint and compare the native application:
 python3 tools/run_runtime.py --no-check trace_startup_title_reference.py
 python3 tools/verify_native_startup.py
 python3 tools/verify_native_character.py
+python3 tools/verify_native_sosaria.py
 ```
 
 The reference capture uses the established private emulator snapshots. Only its

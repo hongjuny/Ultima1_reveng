@@ -13,7 +13,7 @@ extension StartupMachine {
         switch name {
         case "MI.U1": address = 0x7000; engineLoaded = true
         case "STUPH": address = 0x0800
-        case "GEN": address = 0x8956; genLoaded = true
+        case "GEN", "OUT": address = 0x8956; overlay = name
         default: throw StartupFailure.unsupported("Module not yet translated: \(name)")
         }
         try load(name, at: address)
@@ -25,17 +25,19 @@ extension StartupMachine {
         for _ in 0..<budget {
             // Only reference captures freeze at this boundary. Interactive runs
             // execute the original cursor, polling and normalization loops.
-            if captureInputBoundaries && engineLoaded && pc == 0x15BF && keyboard & 0x80 == 0 {
+            if captureInputBoundaries && engineLoaded && (pc == 0x15BF || (overlay == "OUT" && pc == 0x8A6C)) && keyboard & 0x80 == 0 {
                 awaitingInput = true
                 return true
             }
             awaitingInput = false
+            if engineLoaded && [0xB721, 0xB71E, 0xB736].contains(pc) {
+                try hostFileService(); continue
+            }
             if engineLoaded && pc == 0xB724 {
                 let args = popWord() + 1
                 let source = Int(memory[args]) | Int(memory[args+1]) << 8
                 let length = Int(memory[args+2]) | Int(memory[args+3]) << 8
-                let directory = saveDirectory ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-                    .appendingPathComponent("UltimaI/Characters")
+                let directory = playerDirectory
                 try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
                 try Data(memory[source..<source+length]).write(to: directory.appendingPathComponent("U1.VARS"), options: .atomic)
                 a = nz(0); setFlag(1, false); pc = args + 6; saves += 1
@@ -50,7 +52,13 @@ extension StartupMachine {
             }
             visited.insert(pc); instructions += 1
             if engineLoaded {
-                if pc >= 0x8956 && genLoaded { try stepGEN() }
+                if pc >= 0x8956 && !overlay.isEmpty {
+                    switch overlay {
+                    case "GEN": try stepGEN()
+                    case "OUT": try stepOUT()
+                    default: throw StartupFailure.unsupported("Untranslated overlay: \(overlay)")
+                    }
+                }
                 else if pc >= 0x7000 && pc < 0x89BD { try stepMIU1() }
                 else if pc >= 0x1583 && pc < 0x2000 { try stepSTUPH() }
                 else { throw StartupFailure.untranslated(pc) }

@@ -13,6 +13,7 @@ CHECKS = (
     ("file sizes and addresses", ["tools/disassemble.py", "--check"]),
     ("native macOS initialization screens", ["tools/verify_native_startup.py"]),
     ("native macOS character creation", ["tools/verify_native_character.py"]),
+    ("native macOS Sosaria entry", ["tools/verify_native_sosaria.py"]),
     ("shared I/O vector table", ["tools/inspect_stuph_vectors.py", "--check"]),
     ("four castle gem flags and TM gate", ["tools/verify_quest_flags.py"]),
     ("controlled princess exit qualification boundaries", ["tools/verify_cas_princess_gate.py"]),

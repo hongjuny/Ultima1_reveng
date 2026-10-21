@@ -8,7 +8,8 @@ import sys
 from import_modules import ROOT, SCRIPT_DIR, analyzer
 
 BUILD = ROOT / "build/macos-startup"
-PROGRAMS = {"MI.U1": (0x7000, ROOT / "extracted/MI.U1"),
+PROGRAMS = {"OUT": (0x8956, ROOT / "extracted/OUT"),
+            "MI.U1": (0x7000, ROOT / "extracted/MI.U1"),
             "STUPH": (0x0800, ROOT / "extracted/STUPH"),
             "GEN": (0x8956, ROOT / "extracted/GEN"),
             "U1.INTRO": (0x0800, ROOT / "extracted/U1.INTRO"),
@@ -42,7 +43,7 @@ def main():
         if name == "U1.INTRO":
             command += ["-postScript", "ExportUltimaAlternateEntries.java",
                         str(BUILD / "U1.INTRO-alternates.tsv"), "0D9B", "0D9E"]
-        if name in ("GEN", "MI.U1", "STUPH"):
+        if name in ("GEN", "MI.U1", "STUPH", "OUT"):
             command += ["-postScript", "ExportUltimaRuntimeCandidates.java",
                         str(BUILD / f"{name}-runtime.tsv"), f"{base:04X}",
                         f"{base + source.stat().st_size:04X}"]

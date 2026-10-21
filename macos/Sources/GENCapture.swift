@@ -1,6 +1,6 @@
 import Foundation
 
-func captureGEN(resources: URL, output: URL) throws {
+func captureGEN(resources: URL, output: URL, enterOut: Bool = false, resumeOnly: Bool = false) throws {
     try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
     let machine = try StartupMachine(resources: resources)
     // Valid packed-decimal inputs cover the number formatter's arithmetic.
@@ -41,9 +41,21 @@ func captureGEN(resources: URL, output: URL) throws {
         try HGRRenderer.save(HGRRenderer.image(memory: machine.memory, page: machine.page), to: output.appendingPathComponent(name+".png"))
         try Data(machine.memory).write(to: output.appendingPathComponent(name+".ram"))
         try HGRRenderer.pixels(memory: machine.memory, page: machine.page).write(to: output.appendingPathComponent(name+".rgba"))
-        print(String(format:"GEN %@: $%04X, page $%04X", name, machine.pc, machine.page))
+        try JSONSerialization.data(withJSONObject: ["pc": machine.pc, "page": machine.page,
+            "overlay": machine.overlay, "coordinates": [Int(machine.memory[0]), Int(machine.memory[1])]],
+            options: [.prettyPrinted, .sortedKeys]).write(to: output.appendingPathComponent(name+".json"))
+        print(String(format:"%@ %@: $%04X, page $%04X", machine.overlay, name, machine.pc, machine.page))
     }
     try waitForInput(); try capture("menu")
+    if resumeOnly {
+        try key(66); try capture("out-resumed")
+        guard machine.overlay == "OUT" else { throw StartupFailure.unsupported("Saved game did not resume OUT") }
+        let saved = try Data(contentsOf: output.appendingPathComponent("U1.VARS"))
+        guard Data(machine.memory[0x7E6D..<0x8037]) == saved else {
+            throw StartupFailure.unsupported("Resumed player state differs from saved record")
+        }
+        return
+    }
     try key(65); try capture("attributes")
     for _ in 0..<15 { try key(21) }
     try key(47)
@@ -55,6 +67,35 @@ func captureGEN(resources: URL, output: URL) throws {
     try key(65); try key(13); try capture("confirmation")
     try key(89); try capture("saved-menu")
     guard machine.saves == 1 else { throw StartupFailure.unsupported("GEN did not save") }
+    if enterOut {
+        try key(66); try capture("out-first-input")
+        guard machine.overlay == "OUT" else { throw StartupFailure.unsupported("OUT not loaded") }
+        let origin = machine.memory
+        let registers = (machine.a, machine.x, machine.y, machine.sp, machine.p, machine.pc, machine.page)
+        func restoreOutdoorInput() {
+            machine.memory = origin
+            (machine.a, machine.x, machine.y, machine.sp, machine.p, machine.pc, machine.page) = registers
+        }
+        for direction: UInt8 in [11, 10, 21, 8] {
+            restoreOutdoorInput()
+            try key(direction); try capture(String(format:"out-direction-%02x", direction))
+        }
+        restoreOutdoorInput()
+        try key(11); try capture("out-up")
+        try key(32); try capture("out-pass")
+        try key(81); try capture("out-save")
+        guard machine.saves == 2 else { throw StartupFailure.unsupported("Outdoor Q did not save") }
+        restoreOutdoorInput()
+        machine.captureInputBoundaries = false
+        machine.sendKey(11)
+        for _ in 0..<120 { _ = try machine.nextFrame(budget: 6_000) }
+        guard machine.memory[0] == 39, machine.memory[1] == 32 else {
+            throw StartupFailure.unsupported("Live outdoor input did not move north")
+        }
+        try HGRRenderer.save(HGRRenderer.image(memory: machine.memory, page: machine.page), to: output.appendingPathComponent("out-live.png"))
+        print("Live Sosaria polling and rendering accepted Up")
+        return
+    }
     // Exercise the actual timer-driven polling path with capture stops disabled.
     machine.captureInputBoundaries = false
     machine.sendKey(65)

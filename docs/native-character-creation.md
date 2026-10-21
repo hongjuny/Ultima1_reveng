@@ -40,8 +40,8 @@ GEN's original Y path supplies its own 458-byte record and save parameters.
 The host writes `~/Library/Application Support/UltimaI/Characters/U1.VARS`, then
 returns to GEN's original menu. As with the original single player record, a
 later confirmed save replaces this file. Earlier prototype UUID-directory
-records remain untouched. Continue-game/outdoor entry is not implemented yet;
-this change covers original character creation and saving.
+records remain untouched. GEN B now loads that file and enters the original
+OUT module; see [Sosaria entry](native-sosaria.md).
 
 ## Verification
 

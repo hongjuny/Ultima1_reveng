@@ -157,7 +157,7 @@ final class ApplicationDelegate: NSObject, NSApplicationDelegate, NSToolbarDeleg
         guard let machine, !paused, Date() >= resumeAt else { return }
         do {
             let hadSplash = machine.splashPresented
-            if try machine.nextFrame(budget: 150_000) {
+            if try machine.nextFrame(budget: machine.overlay == "OUT" ? 6_000 : 150_000) {
                 screen.frameImage = HGRRenderer.image(memory: machine.memory, page: machine.page)
                 if !hadSplash && machine.splashPresented { resumeAt = Date().addingTimeInterval(1.4) }
                 if machine.titleReady && !machine.gameRunning { paused = true }
@@ -182,6 +182,16 @@ struct UltimaStartupApplication {
             resources = URL(fileURLWithPath: arguments[index + 1])
         } else {
             resources = Bundle.main.resourceURL!.appendingPathComponent("OriginalData")
+        }
+        if let index = arguments.firstIndex(of: "--capture-resume"), index + 1 < arguments.count {
+            do { try captureGEN(resources: resources, output: URL(fileURLWithPath: arguments[index+1]), enterOut: true, resumeOnly: true) }
+            catch { fputs("Saved game resume failed: \(error)\n", stderr); exit(1) }
+            return
+        }
+        if let index = arguments.firstIndex(of: "--capture-out"), index + 1 < arguments.count {
+            do { try captureGEN(resources: resources, output: URL(fileURLWithPath: arguments[index+1]), enterOut: true) }
+            catch { fputs("Sosaria capture failed: \(error)\n", stderr); exit(1) }
+            return
         }
         if let index = arguments.firstIndex(of: "--capture-gen"), index + 1 < arguments.count {
             do { try captureGEN(resources: resources, output: URL(fileURLWithPath: arguments[index+1])) }

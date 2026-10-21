@@ -14,7 +14,9 @@ open "build/Ultima I.app"
 The app translates the startup code into Swift and constructs the Origin splash,
 intro animation, and Ultima I title from the original data at runtime. It then
 executes MI.U1/STUPH/GEN to render the original English character creation
-screens, including their font, input routines and confirmation/save flow.
+screens, including their font, input routines and confirmation/save flow. GEN B
+loads the saved character into Sosaria with original OUT rendering, directional
+movement and Q saving. See [Sosaria entry](docs/native-sosaria.md).
 See the [original-screen comparison](docs/native-character-creation.md).
 See [build and controls](macos/README.md) and the [startup translation report](docs/native-startup.md).
 The local app bundle contains original assets and stays under ignored `build/`.

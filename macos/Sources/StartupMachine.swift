@@ -34,7 +34,7 @@ final class StartupMachine {
     var titleReady = false
     var gameRunning = false
     var engineLoaded = false
-    var genLoaded = false
+    var overlay = ""
     var awaitingInput = false
     var captureInputBoundaries = false
     var saves = 0
