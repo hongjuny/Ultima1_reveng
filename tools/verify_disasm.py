@@ -74,6 +74,7 @@ FRAGMENTS = (
     ("DNG-random-cell.s", "DNG", 0x8956, 0x8D20, 0x8D31),
     ("DNG-actor-encode.s", "DNG", 0x8956, 0x9437, 0x9447),
     ("DNG-spawn-init.s", "DNG", 0x8956, 0x9C02, 0x9C11),
+    ("DNG-spawn-slot-hp.s", "DNG", 0x8956, 0x9C11, 0x9C54),
     ("DNG-spawn-map.s", "DNG", 0x8956, 0x9C82, 0x9C9A),
     ("DNG-actor-move-x.s", "DNG", 0x8956, 0x997F, 0x99AA),
     ("DNG-actor-move-y.s", "DNG", 0x8956, 0x99D6, 0x9A01),

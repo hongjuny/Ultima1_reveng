@@ -39,8 +39,8 @@ def main() -> int:
     require(describe(Path(disk["path"])) ==
             {"size": disk["size"], "sha256": disk["sha256"]},
             "DNG spawn game disk differs")
-    require(checked_ram(spawns["snapshot"]) ==
-            checked_ram(generation["snapshot"]),
+    final_ram = checked_ram(spawns["snapshot"])
+    require(final_ram == checked_ram(generation["snapshot"]),
             "DNG initial spawn replay differs from generator return")
     points = spawns["checkpoints"]
     require([item["pc"] for item in points] ==
@@ -76,10 +76,16 @@ def main() -> int:
     require(bytes.fromhex(points[-1]["map_hex"]) == previous and
             points[-1]["remaining"] == 0 and
             points[-1]["active_flags"] == "0000000101" and
-            points[-1]["actor_hp"] == "000b0c0d0000",
+            points[-1]["actor_hp"] == "000b0c0d0000" and
+            final_ram[0xA506] == 1 and final_ram[0xA60E] == 1 and
+            final_ram[0xA51A:0xA520] == bytes((0, 11, 12, 13, 0, 0)) and
+            final_ram[0xA520:0xA526] == bytes(6) and
+            [points[i]["actor_hp"] for i in (2, 5, 8)] ==
+            ["0000000d0000", "000b000d0000", "000b0c0d0000"],
             "DNG final actor state differs")
     print("DNG first-floor spawn order: slot 3 at (5,3), 1 at (5,1), 2 at (7,9)")
     print("Flags 1→0 mark active slots; only three map cells change; full RAM matches generator replay")
+    print("First-floor actor HP: 10 + $A60E×slot = 13, 11, 12 in spawn order")
     return 0
 
 
