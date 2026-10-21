@@ -1,4 +1,4 @@
-// Export candidate code/data spans and direct zero-page operand references.
+// Export candidate code/data spans and direct zero-page/player-record references.
 // Ghidra auto-analysis can mistake inline bytes for code; these are leads only.
 // @category UltimaI
 import ghidra.app.script.GhidraScript;
@@ -59,12 +59,18 @@ public class ExportUltimaMemory extends GhidraScript {
                     String owner = function == null ? "" : function.getName();
                     for (Reference ref : instruction.getReferencesFrom()) {
                         Address target = ref.getToAddress();
-                        if (!target.isMemoryAddress() || target.getOffset() >= 0x100) continue;
+                        if (!target.isMemoryAddress()) continue;
+                        long offset = target.getOffset();
+                        boolean zeroPage = offset < 0x100;
+                        boolean playerRecord = offset >= 0x7E6D && offset <= 0x8036;
+                        if (!zeroPage && !playerRecord) continue;
                         boolean read = ref.getReferenceType().isRead();
                         boolean write = ref.getReferenceType().isWrite();
+                        if (!read && !write && !zeroPage) continue;
                         String access = read && write ? "readwrite" :
                                         read ? "read" : write ? "write" : "other";
-                        out.printf("zp\t%s\t%s\t%s\t%s\t%s\t%s%n",
+                        out.printf("%s\t%s\t%s\t%s\t%s\t%s\t%s%n",
+                                   zeroPage ? "zp" : "player",
                                    program, instruction.getAddress(), target,
                                    instruction.getMnemonicString(), owner, access);
                     }

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Refresh zero-page references and code/data candidates in the private Ghidra project."""
+"""Refresh zero-page/player references and code/data candidates in private Ghidra exports."""
 
 import os
 from pathlib import Path
@@ -33,8 +33,10 @@ def main():
             raise RuntimeError(f"memory export failed for {name}; inspect {log}")
         rows = output.read_text().splitlines()
         zp = sum(row.startswith("zp\t") for row in rows)
+        player = sum(row.startswith("player\t") for row in rows)
         spans = sum(row.startswith("span\t") for row in rows)
-        print(f"{name}: {zp} zero-page references, {spans} classification spans", flush=True)
+        print(f"{name}: {zp} zero-page, {player} player-record references, "
+              f"{spans} classification spans", flush=True)
     return 0
 
 

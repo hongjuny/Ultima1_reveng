@@ -2,6 +2,8 @@
 
 `GEN` loads the 458-byte `U1.VARS` record from `$6000–$61C9` and copies it to `$7E6D–$8036`. This page tracks that live memory range for one **controlled** castle death. The trace starts at the `CAS` attack-handler return, changes only the player's low HP byte `$7EC6` from `$96` to `$0A` before a known `$0F` guard hit, then follows the shared death path and the `OUT` resurrection path to the first outdoor key poll.
 
+For a module-by-module index of candidate direct reads and writes to the whole record, see the [player-access atlas](player-access-atlas.md). Its static references are separate from the execution evidence on this page.
+
 | Record byte | Before intervention | Selector `$88FD` | First OUT input `$8A6C` | Observed source of change |
 | --- | ---: | ---: | ---: | --- |
 | `$7E7A` | `$01` | `$01` | `$00` | `OUT` `$8A17` clears it |

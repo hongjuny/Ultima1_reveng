@@ -14,6 +14,7 @@ from disassemble import FILES
 from build_command_matrix import KEY_ADDRESS, KEYS, TABLES
 from build_spa_view_matrix import TABLE as SPA_VIEW_TABLE
 from build_code_data_ledger import verified_sets
+from build_player_access_atlas import OUTPUT as PLAYER_ATLAS, render as render_player_atlas
 
 EXPECTED = {
     "U1.SYSTEM": (3, 8), "U1.INTRO": (28, 32), "MAKE.INDATA": (6, 6),
@@ -108,8 +109,11 @@ def main():
         raise ValueError(f"aggregate changed: {totals}")
     if (verified_code_count, verified_data_count) != (4112, 476):
         raise ValueError("verified code/data byte counts changed")
+    if not PLAYER_ATLAS.is_file() or PLAYER_ATLAS.read_text() != render_player_atlas():
+        raise ValueError("player direct-access atlas differs from Ghidra exports")
     print("12 phase-separated programs; 504 function candidates, 1045 direct calls, "
-          "4112 verified code and 476 verified data bytes recognized")
+          "4112 verified code and 476 verified data bytes recognized; "
+          "player direct-access atlas verified")
     return 0
 
 
