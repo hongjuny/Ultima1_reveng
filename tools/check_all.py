@@ -32,6 +32,7 @@ CHECKS = (
     ("MAPCHARS castle draw and font swap", ["tools/verify_mapchars_render.py"]),
     ("MAPCHARS first glyph video and pixel controls", ["tools/verify_mapchars_glyph_pixels.py"]),
     ("reviewed assembly", ["tools/verify_disasm.py"]),
+    ("reviewed assembly address atlas", ["tools/build_assembly_atlas.py", "--check"]),
     ("TCMAPS records", ["tools/extract_data.py", "--check"]),
     ("intro support relocation", ["tools/verify_intro_support.py"]),
     ("intro-to-engine handoff", ["tools/verify_intro_to_engine.py"]),

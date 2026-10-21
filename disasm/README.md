@@ -2,6 +2,8 @@
 
 Each page records **verified instruction ranges and evidence**, using the original Apple II address as the key. The full `da65` listing for each file is generated locally under ignored `build/disassembly/`; it is an unreviewed linear interpretation and contains original data bytes. Pages here grow as code/data boundaries are checked. An absent range means *not yet analyzed*, not empty or unreachable.
 
+The [assembly address atlas](../docs/assembly-atlas.md) locates every reviewed fragment within its original file. The [Ghidra call atlas](../docs/ghidra-call-atlas.md) places candidate functions and cross-module calls into the game loop; Ghidra output is a lead for review, not byte-matched or runtime proof.
+
 | Phase | Files | Current status |
 | --- | --- | --- |
 | Startup | [U1.SYSTEM](U1.SYSTEM.md), [U1.INTRO](U1.INTRO.md), [MAKE.INDATA](MAKE.INDATA.md) | `U1.INTRO` entry, both key polls, two file requests, and `MAKE.INDATA` page copy setup reassembled |
