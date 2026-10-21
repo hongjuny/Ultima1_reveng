@@ -64,6 +64,9 @@ def main():
     assert tm_key["checkpoints"][-1]["pc"] == "0x9815"
     assert turns["CAS"]["after_next_poll"]["player"]["addresses"] == turns["TWN"]["after_next_poll"]["player"]["addresses"]
     assert turns["CAS"]["after_next_poll"]["zero_page"]["addresses"] == turns["TWN"]["after_next_poll"]["zero_page"]["addresses"]
+    assert turns["CAS"]["after_next_poll"]["player"]["values"] == turns["TWN"]["after_next_poll"]["player"]["values"]
+    assert spa_key["player"]["values"]["$7EDA"] == [0, 5]
+    assert tm_key["player"]["values"]["$7EDA"] == [0, 16]
     print("six module turns, controlled B transitions, four TM intro pages, and residency verified")
 
 

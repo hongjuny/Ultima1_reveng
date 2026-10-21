@@ -28,6 +28,9 @@ SCENARIOS = {
 def diff(before: bytes, after: bytes, base: int) -> dict:
     addresses = [base + i for i, (old, new) in enumerate(zip(before, after)) if old != new]
     return {"count": len(addresses), "addresses": [f"${a:04X}" for a in addresses[:64]],
+            "values": {f"${base+i:04X}": [old, new] for i, (old, new) in
+                       enumerate(zip(before, after)) if old != new and
+                       (base+i) in addresses[:64]},
             "truncated": len(addresses) > 64,
             "before_sha256": hashlib.sha256(before).hexdigest(),
             "after_sha256": hashlib.sha256(after).hexdigest()}
