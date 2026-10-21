@@ -16,10 +16,10 @@ from trace_startup import cpu_pc, wait_at
 SOURCE = ROOT / "build/traces/tm-gem-command/handoff.json"
 
 
-def main(mondain_hp=None, output=None, gem_destroyed=None):
+def main(mondain_hp=None, output=None, gem_destroyed=None, source_report=SOURCE):
     output = output or ROOT / ("build/traces/tm-attack-direction-control" if
                               mondain_hp is not None else "build/traces/tm-attack-direction")
-    prior = json.loads(SOURCE.read_text())
+    prior = json.loads(source_report.read_text())
     source = prior["snapshot"]
     disk_item = prior["working_game_disk"]
     for item in (source, disk_item):
@@ -109,8 +109,9 @@ if __name__ == "__main__":
         parser.add_argument("--mondain-hp", type=int)
         parser.add_argument("--gem-destroyed", type=int, choices=(0, 1))
         parser.add_argument("--output", type=Path)
+        parser.add_argument("--source", type=Path, default=SOURCE)
         args = parser.parse_args()
-        main(args.mondain_hp, args.output, args.gem_destroyed)
+        main(args.mondain_hp, args.output, args.gem_destroyed, args.source)
     except (OSError, RuntimeError, ValueError, KeyError, TypeError) as error:
         print(f"TM directional attack failed: {error}", file=sys.stderr)
         raise SystemExit(1)
