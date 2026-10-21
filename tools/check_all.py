@@ -72,6 +72,7 @@ CHECKS = (
     ("DNG level-two actor turns", ["tools/verify_dng_actor_turns.py"]),
     ("DNG initial actor spawns", ["tools/verify_dng_initial_spawns.py"]),
     ("DNG deeper-floor spawn HP", ["tools/verify_dng_spawn_hp_deep.py"]),
+    ("DNG lethal actor removal and respawn", ["tools/verify_dng_actor_kill_respawn.py"]),
 )
 
 
