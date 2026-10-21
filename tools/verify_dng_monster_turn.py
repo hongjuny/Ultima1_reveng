@@ -51,11 +51,21 @@ def main() -> int:
     require(after == checked_ram(alternate["snapshot"]),
             "DNG monster replay does not match independent next poll")
     require([point["pc"] for point in monster["checkpoints"]] ==
-            ["0x98EC", "0x9A0A", "0x9B0C", "0x9B1A", "0x8DE6", "0x8DDA"] and
+            ["0x98EC", "0x9A0A", "0x9A5F", "0x9A62", "0x9A72", "0x9A95",
+             "0x9AAC", "0x9ABD", "0x9B0C", "0x9B1A", "0x8DE6", "0x8DDA"] and
             [item["hp_7EC6_7EC7"] for item in monster["watched"]] ==
-            ["9600", "9600", "9600", "9400", "9400", "9400"] and
-            monster["watched"][2]["damage_a4f2_a4f3"] == "0200" and
-            " a=94 " in monster["checkpoints"][2]["cpu"] and
+            ["9600"] * 9 + ["9400"] * 3 and
+            before[0x7ECC] == 10 and before[0x7E7B] == 1 and
+            before[0xA506] == before[0xA60D + before[0xA506]] ==
+            before[0xA4FE] == 1 and
+            ((before[0x7ECC] >> 1) + 8 * before[0x7E7B] + 0x38) & 0xFF == 0x45 and
+            " a=A6 " in monster["checkpoints"][2]["cpu"] and
+            monster["watched"][2]["threshold_a4fc"] == "45" and
+            monster["watched"][6]["damage_a4f2_a4f3"] == "0200" and
+            monster["watched"][7]["roll_a4f0_a4f1"] == "5300" and
+            monster["watched"][8]["damage_a4f2_a4f3"] == "0200" and
+            monster["watched"][8]["roll_a4f0_a4f1"] == "0100" and
+            " a=94 " in monster["checkpoints"][8]["cpu"] and
             before[0x7EC6:0x7EC8] == b"\x96\x00" and
             after[0x7EC6:0x7EC8] == b"\x94\x00",
             "DNG monster damage path or amount differs")
@@ -72,7 +82,8 @@ def main() -> int:
             next_ram[0x7EC6:0x7EC8] == b"\x94\x00" and
             next_poll_ram[0x7EC6:0x7EC8] == b"\x92\x00",
             "DNG subsequent blocked input or HP differs")
-    print("DNG $98EC → $9A0A → $9B0C: damage $0002, HP $0096→$0094")
+    print("DNG hit: random $A6 ≥ threshold $45; damage bound $0002, first draw $53 rejected")
+    print("DNG accepted damage $0002: HP $0096→$0094 at $9B0C")
     print("Two map cells changed during that turn; next blocked input reaches HP $0092")
     return 0
 

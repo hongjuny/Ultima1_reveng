@@ -50,6 +50,12 @@ def main() -> int:
                 try:
                     for label, address in (("turn routine", 0x98EC),
                                            ("monster attack", 0x9A0A),
+                                           ("hit roll return", 0x9A5F),
+                                           ("hit comparison", 0x9A62),
+                                           ("hit branch", 0x9A72),
+                                           ("damage bound setup", 0x9A95),
+                                           ("damage draw", 0x9AAC),
+                                           ("damage comparison", 0x9ABD),
                                            ("HP low-byte store", 0x9B0C),
                                            ("HP stores complete", 0x9B1A),
                                            ("next dungeon loop", 0x8DE6),
@@ -58,6 +64,8 @@ def main() -> int:
                         hp.append({"pc": f"0x{address:04X}",
                                    "hp_7EC6_7EC7": client.mem(0x7EC6, 2).hex(),
                                    "damage_a4f2_a4f3": client.mem(0xA4F2, 2).hex(),
+                                   "roll_a4f0_a4f1": client.mem(0xA4F0, 2).hex(),
+                                   "threshold_a4fc": client.mem(0xA4FC, 1).hex(),
                                    "actor_index_a4fe": client.mem(0xA4FE, 1).hex()})
                 except RuntimeError as error:
                     timeout = str(error)
