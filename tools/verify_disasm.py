@@ -70,6 +70,7 @@ FRAGMENTS = (
     ("DNG-damage-bound.s", "DNG", 0x8956, 0x9CBC, 0x9CD2),
     ("DNG-stair-gate.s", "DNG", 0x8956, 0x9666, 0x9670),
     ("DNG-stair-facing.s", "DNG", 0x8956, 0x963F, 0x9647),
+    ("DNG-stair-placement.s", "DNG", 0x8956, 0x8D36, 0x8D99),
     ("DNG-descend-entry.s", "DNG", 0x8956, 0x972C, 0x9732),
     ("DNG-ascend-regenerate.s", "DNG", 0x8956, 0x9728, 0x972C),
     ("DNG-exit-out.s", "DNG", 0x8956, 0x9716, 0x9728),
