@@ -4,9 +4,10 @@
 import json
 from pathlib import Path
 import sys
+import time
 
 from baseline import MANIFEST, describe
-from capture_boot import connect, launch, stop
+from capture_boot import connect, launch, stop, wait_for_snapshot
 from disassemble import ROOT
 from trace_startup import cpu_pc, wait_at
 
@@ -50,13 +51,21 @@ def main():
                     raise RuntimeError(f"TM key return did not reach $881E: {cpu}")
                 points.append({"label": "TM key return", "pc": "0x881E", "cpu": cpu})
                 points.append(wait_at(client, "TM prompt accepted or repeat", (0x882A, 0x881B)))
+                if points[-1]["pc"] != "0x882A":
+                    raise RuntimeError("TM Space was not accepted")
+                accepted_path = OUTPUT / "accepted.a2state"
+                accepted_path.unlink(missing_ok=True)
+                client.ok(f"save-state {accepted_path}")
+                wait_for_snapshot(accepted_path)
+                time.sleep(0.2)
+                accepted = {"path": str(accepted_path), **describe(accepted_path)}
                 final = client.ok("get-cpu")
             finally:
                 client.s.close()
         finally:
             stop(process)
     result = {"source_snapshot_sha256": source["sha256"], "key": 32,
-              "checkpoints": points, "final_cpu": final}
+              "checkpoints": points, "final_cpu": final, "snapshot": accepted}
     path = OUTPUT / "probe.json"
     path.write_text(json.dumps(result, indent=2) + "\n")
     print(f"private report: {path}")

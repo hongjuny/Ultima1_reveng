@@ -12,7 +12,10 @@ FILES = (TRACES / "turn-contracts/comparison.json",
          TRACES / "overlay-loop-probes/probes.json",
          TRACES / "memory-lifetime/regions.json",
          TRACES / "out-board-transitions/probe.json",
-         TRACES / "tm-page1/probe.json")
+         TRACES / "tm-page1/probe.json",
+         TRACES / "tm-intro-pages/probe.json",
+         TRACES / "spa-first-key/probe.json",
+         TRACES / "tm-first-key/probe.json")
 
 
 def main():
@@ -20,7 +23,8 @@ def main():
         print("PENDING big-picture runtime probes (run trace_turn_contracts.py, "
               "probe_overlay_loops.py, inspect_memory_lifetime.py)")
         return
-    turns, loops, memory, boarding, page1 = (json.loads(path.read_text()) for path in FILES)
+    turns, loops, memory, boarding, page1, tm_intro, spa_key, tm_key = (
+        json.loads(path.read_text()) for path in FILES)
     expected = {"OUT": ("0x8A6C", "$9357", "$7E4F"),
                 "DNG": ("0x8DDA", "$8E95", "$A4E9"),
                 "CAS": ("0x8A27", "$8A93", "$7EDA"),
@@ -44,16 +48,23 @@ def main():
         assert item["engine"]["matching_bytes"] > 6300
     assert memory["CAS"]["regions_sha256"]["$6000-$6FFF"] == memory["TWN"]["regions_sha256"]["$6000-$6FFF"]
     assert boarding["ordinary"]["checkpoints"][-1]["pc"] == "0x8D1F"
-    assert boarding["spa"]["checkpoints"][-1]["pc"] == "0x8A53"
+    assert boarding["spa"]["checkpoints"][-2]["pc"] == "0x8A53"
+    assert boarding["spa"]["checkpoints"][-1]["pc"] == "0x8A5F"
     assert boarding["tm"]["checkpoints"][-1]["pc"] == "0x881B"
     assert boarding["spa"]["craft_after"] == 6
     assert boarding["tm"]["craft_after"] == 10
     assert page1["checkpoints"][0]["pc"] == "0x881E"
     assert " a=20 " in page1["checkpoints"][0]["cpu"]
     assert page1["checkpoints"][1]["pc"] == "0x882A"
+    assert [x["pc"] for x in tm_intro["checkpoints"] if x["label"].endswith("accepted")] == ["0x882A"] * 3
+    assert [x["pc"] for x in tm_intro["checkpoints"]][-2:] == ["0x8E5E", "0x9815"]
+    assert spa_key["handler"] == "$9207"
+    assert spa_key["checkpoints"][-1]["pc"] == "0x8A5F"
+    assert tm_key["handler"] == "$9801"
+    assert tm_key["checkpoints"][-1]["pc"] == "0x9815"
     assert turns["CAS"]["after_next_poll"]["player"]["addresses"] == turns["TWN"]["after_next_poll"]["player"]["addresses"]
     assert turns["CAS"]["after_next_poll"]["zero_page"]["addresses"] == turns["TWN"]["after_next_poll"]["zero_page"]["addresses"]
-    print("OUT/CAS/TWN/DNG Up turns, controlled B transitions, TM page 1, loops, and residency verified")
+    print("six module turns, controlled B transitions, four TM intro pages, and residency verified")
 
 
 if __name__ == "__main__":

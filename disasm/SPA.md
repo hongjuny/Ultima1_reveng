@@ -9,3 +9,5 @@ Static control-flow review identifies the main-cycle at `$8A53`: it calls `$15C2
 Controlled runtime selection with A=`$14` at common `$88FD` loaded all 9,930 bytes at `$8956` and reached `$8A53` and `$8A5F` without a PC jump after entry. This confirms the loop and input site in the current saved-player state. The natural `OUT` vehicle/launch condition, command effects, and exit remain to trace; see [turn contracts](../docs/turn-contracts.md).
 
 A second controlled replay sent the real OUT B key after changing only the current world tile to craft code `$06`. It passed `$8D6E`, loaded SPA with all bytes matching, and reached `$8A53`. This confirms the B-command transition mechanism; the ordinary acquisition and placement of this craft remain unknown.
+
+From that entry, Space returned through `$8A62`, decoded to X=`$08`, jumped via patched `$8AB0` to handler `$9207`, and reached `$8AB3 → $8A53 → $8A5F` for the next input. See the [first SPA turn](../docs/turn-contracts.md). Other movement, fuel, shield, docking, and exit rules remain to trace.

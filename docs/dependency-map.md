@@ -45,7 +45,7 @@ flowchart TD
 
 `MI.U1` holds the common engine at `$7000–$8955`; `STUPH` provides callable stubs at `$1583–$15E5`. A selected gameplay module occupies `$8956` upward, replacing the original `MI.U1` loader tail. This makes the dependency graph **time-dependent**: the original loader and a gameplay module cannot be treated as simultaneously resident at `$8956`.
 
-`OUT` selects `DNG`, `TWN`, `CAS`, or `SPA` through the common selector. Direct return jumps from `GEN`, `DNG`, `TWN`, `CAS`, and `SPA` choose `OUT`. The `TM` transition remains untraced. See [module dispatch](module-dispatch.md) for the selector values and addresses.
+`OUT` selects `DNG`, `TWN`, `CAS`, `SPA`, or `TM` through the common selector. Direct return jumps from `GEN`, `DNG`, `TWN`, `CAS`, and `SPA` choose `OUT`. A controlled OUT B-command replay reached both `SPA` and `TM` with complete overlay byte matches; ordinary acquisition of the required craft and flags remains untraced. See [module dispatch](module-dispatch.md) for the selector values and addresses.
 
 The `OUT`→`CAS`→`OUT` round trip is runtime confirmed for one castle: tile code `$04` plus `E` loaded `CAS`; left key `$08` at its initial x=0 loaded `OUT` again. The outdoor coordinates, health, and food matched the state before castle entry at the returned input poll.
 

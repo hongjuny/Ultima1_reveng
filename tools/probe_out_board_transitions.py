@@ -59,12 +59,15 @@ def trial(client, snapshot, mode):
             raise RuntimeError(f"{overlay} overlay bytes differ")
         points.append(wait_at(client, f"{overlay} entry target",
                               (0x8A53 if mode == "spa" else 0x8AD7,)))
+        if mode == "spa":
+            points.append(wait_at(client, "SPA first command input", (0x8A5F,)))
         if mode == "tm":
             points.append(wait_at(client, "TM first page prompt", (0x87F7,)))
             points.append(wait_at(client, "TM first page key read", (0x881B,)))
     page_snapshot = None
-    if mode == "tm":
-        path = OUTPUT / "tm-first-page-key.a2state"
+    if mode in ("spa", "tm"):
+        path = OUTPUT / ("spa-first-input.a2state" if mode == "spa"
+                         else "tm-first-page-key.a2state")
         path.unlink(missing_ok=True)
         client.ok(f"save-state {path}")
         wait_for_snapshot(path)
