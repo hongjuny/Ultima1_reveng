@@ -18,6 +18,7 @@ The generated listings are **linear drafts**. They interpret embedded text, grap
 ## Reading order
 
 1. [Gameplay flow report: code, input, graphics, sound, memory (Korean)](docs/gameplay-flow-report.md)
+   [Walkthrough-guided investigation plan (Korean)](docs/walkthrough-guided-investigation.md) maps version-specific guide claims to testable branches.
 2. [Consolidated progress and gap report (Korean)](docs/consolidated-report-2026-10-21.md)
 3. [File and memory map](docs/file-map.md)
 4. [Dependency map](docs/dependency-map.md)
