@@ -34,4 +34,6 @@ The reviewed `$90FF–$9139` source confirms the exact cases: incoming A = `$04`
 
 The B command at `$8CF0` reads the current outdoor tile. The [reviewed gate](../disasm/OUT-board-transition.s) at `$8D61–$8D8D` dispatches selected craft code `$06` to `SPA` and code `$07` or above to `TM` if all four bytes `$7E75–$7E78` are nonzero. Runtime with one controlled map-cell edit reached `SPA`; a second controlled map-cell and four-flag edit reached `TM` entry at `$8AD7`, with each overlay matching its complete file. Four Space prompts then led to TM's `$8E5E` loop and one complete command turn. See the [turn contract and probe](turn-contracts.md). The normal acquisition of those craft and flag values remains untraced.
 
+The four required bytes are the red, green, blue, and white castle gem-award counters. `CAS` increments them at `$963A,$9697,$96F0,$9755`, respectively. This closes the static producer → gate connection; the ordinary gameplay routes to those writes remain open.
+
 The `$88FD` selector is a strong boundary for tracing game transitions. For each module, identify the value placed in A before reaching it and record any shared state changes before the jump.

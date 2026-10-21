@@ -52,6 +52,8 @@ Three attack fragments reassemble byte-for-byte: the [directional scan](CAS-atta
 | `$99DC → $8A41 → $88F8` | Borrow, castle death exit, shared selector; controlled replay | `$000A − $000F` reached `OUT` selector A=`$04` |
 | `$8C13–$8C28` | Collision-failure message and jump to `$8C3F` | Blocked movement still consumes a turn in this replay |
 
-Visible text includes a princess sequence, shops, and combat. The state changes associated with these events remain to trace.
+Four castle reward paths increment consecutive shared bytes: `$963A → $7E75` (red gem), `$9697 → $7E76` (green), `$96F0 → $7E77` (blue), and `$9755 → $7E78` (white). The names come from adjacent inline messages. `$95BC` loads castle group `$7E6F`, doubles it, and selects one of four reward routines through the pointer table at `$95D6`: `$95DE,$963E,$969B,$96F4`. The exact path prerequisites have not yet been executed. `OUT`'s [TM boarding gate](OUT-board-transition.s) requires all four bytes to be nonzero. [`verify_quest_flags.py`](../tools/verify_quest_flags.py) checks the selector, pointers, write opcodes, nearby gem descriptions, and gate reads against local extraction without publishing the original messages.
+
+Visible text also includes a princess sequence, shops, and combat. The runtime conditions and repeat-award behavior of the four gem paths remain to trace.
 
 The reviewed [map copy](CAS-map-copy.s) at `$89BB–$89DF` reassembles byte-for-byte. It reads the address table starting at entry 0, patches its own source operand, and copies 768 bytes to `$B400`. The packed pointer stride is only 764 bytes; see [TCMAPS](TCMAPS.md) for the overlap. The [key poll](CAS-key-poll.s), [left-edge exit](CAS-left-edge.s), [movement check](CAS-move-check.s), [tile check](CAS-map-tile-check.s), [actor lookup](CAS-actor-lookup.s), [collision wrapper](CAS-collision-wrapper.s), and [movement commit](CAS-move-commit.s) also reassemble byte-for-byte.
