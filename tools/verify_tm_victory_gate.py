@@ -88,8 +88,24 @@ def main():
             pcs(nif) == ["0x9052", "0xB703", "0x9059"] and nif["nif_match"] is True and
             ram[0x4000:0x5E00] == (ROOT / "extracted/NIF").read_bytes(),
             "TM controlled victory NIF load differs")
+    copied, copy_ram = checked("tm-nif-copy")
+    require(copied["source_snapshot"] == nif["snapshot"] and
+            pcs(copied) == ["0x9073", "0x9094"] and
+            copied["result"] == {"file_payload_match": True,
+                                  "full_8192_copy_match": True,
+                                  "source_cleared": True,
+                                  "tail_512_nonzero": 232,
+                                  "prior_target_changed_bytes": 7954} and
+            copy_ram[0x4000:0x6000] == bytes(8192),
+            "TM NIF 8-KiB move differs")
+    final, _ = checked("tm-final-wait")
+    require(final["source_snapshot"] == copied["snapshot"] and
+            final["input"] == 32 and
+            pcs(final) == ["0x90AA", "0x9132", "0x914D", "0x912F"],
+            "TM final animation/key loop differs")
     print("TM: 10 east moves, G destroys gem, A+east damages Mondain 1000→970;")
     print("controlled 1-HP branches by gem flag to $9034 or $9033; NIF loads at $4000")
+    print("finale moves $4000-$5FFF to $6000-$7FFF, clears source, then loops on keys")
     return 0
 
 
