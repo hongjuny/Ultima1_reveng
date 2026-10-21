@@ -2,6 +2,20 @@
 
 This project studies the 1986 Apple II ProDOS release of *Ultima I*. The analysis follows the game's startup and module loading order. It records addresses, control flow, and data formats without storing the game disk or extracted files in Git.
 
+## Native macOS startup
+
+With your local extraction and Ghidra installed:
+
+```sh
+python3 tools/build_macos_app.py
+open "build/Ultima I.app"
+```
+
+The app translates the startup code into Swift and constructs the Origin splash,
+intro animation, and Ultima I title from the original data at runtime.
+See [build and controls](macos/README.md) and the [startup translation report](docs/native-startup.md).
+The local app bundle contains original assets and stays under ignored `build/`.
+
 ## Local setup
 
 1. Supply your own ProDOS extraction in `extracted/`, using the filenames in [the file map](docs/file-map.md).
