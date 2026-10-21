@@ -24,9 +24,25 @@ def checked_ram(item):
 
 
 def main() -> int:
-    if not all(path.is_file() for path in (SOURCE, KILL, ALTERNATE)):
+    route = [TRACE / "dng-attack-a/handoff.json"]
+    for index in range(1, 4):
+        route.extend((TRACE / f"dng-attack-repeat-{index}/poll/handoff.json",
+                      TRACE / f"dng-attack-repeat-{index}/key/handoff.json"))
+    if not all(path.is_file() for path in (SOURCE, KILL, ALTERNATE, *route)):
         print("PENDING DNG lethal actor attack")
         return 0
+    route_reports = [json.loads(path.read_text()) for path in route]
+    first_source = json.loads((TRACE / "dng-east-to-03-after-1/handoff.json").read_text())
+    require(route_reports[0]["source_snapshot"] == first_source["snapshot"] and
+            all(item["timeout"] is None for item in route_reports) and
+            all(route_reports[index]["source_snapshot"] ==
+                route_reports[index - 1]["snapshot"]
+                for index in range(1, len(route_reports))) and
+            [item["input"]["key_ascii"] for item in route_reports[::2]] ==
+            [65] * 4 and
+            [checked_ram(item["snapshot"])[0xA51B] for item in
+             route_reports[::2]] == [6, 6, 6, 11],
+            "DNG repeated-A route differs")
     source, kill, alternate = [json.loads(path.read_text()) for path in
                                (SOURCE, KILL, ALTERNATE)]
     require(all(item["timeout"] is None for item in
