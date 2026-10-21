@@ -21,6 +21,7 @@ MODULES = ("U1.SYSTEM", "U1.INTRO", "MAKE.INDATA", "MI.U1", "STUPH",
 # These exact ranges are operands consumed after JSR, rather than 6502 instructions.
 # Each is inside a fragment that verify_disasm.py reassembles byte-for-byte.
 INLINE_DATA = {
+    "U1.SYSTEM": ((0x2212, 0x2214),),
     "U1.INTRO": ((0x0B5A, 0x0B60), (0x0F2B, 0x0F37)),
     "MI.U1": ((0x890A, 0x890E), (0x8926, 0x8928)),
     "STUPH": ((0x1AB2, 0x1AC4),),

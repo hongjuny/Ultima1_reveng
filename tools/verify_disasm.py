@@ -9,6 +9,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 FRAGMENTS = (
+    ("U1.SYSTEM-startup-handoff.s", "U1.SYSTEM", 0x2000, 0x21D6, 0x2223),
     ("MI.U1-selector.s", "MI.U1", 0x7000, 0x88F8, 0x893F),
     ("MI.U1-turn-update.s", "MI.U1", 0x7000, 0x82E2, 0x8331),
     ("MI.U1-death-reset.s", "MI.U1", 0x7000, 0x888D, 0x88A1),

@@ -8,6 +8,7 @@ import ghidra.program.model.data.ByteDataType;
 
 public class MarkUltimaInlineData extends GhidraScript {
     private static final String[][] RANGES = {
+        {"U1.SYSTEM", "2212", "2", "prefix_buffer_pointer"},
         {"U1.INTRO", "0B5A", "6", "mi_filename"},
         {"U1.INTRO", "0F2B", "12", "support_filename"},
         {"MI.U1", "890A", "4", "gen_filename"},

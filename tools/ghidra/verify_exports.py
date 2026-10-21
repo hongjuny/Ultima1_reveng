@@ -17,7 +17,7 @@ from build_code_data_ledger import verified_sets
 from build_player_access_atlas import OUTPUT as PLAYER_ATLAS, render as render_player_atlas
 
 EXPECTED = {
-    "U1.SYSTEM": (3, 8), "U1.INTRO": (28, 32), "MAKE.INDATA": (6, 6),
+    "U1.SYSTEM": (4, 10), "U1.INTRO": (28, 32), "MAKE.INDATA": (6, 6),
     "MI.U1": (38, 76), "STUPH": (89, 45), "GEN": (19, 74),
     "OUT": (54, 126), "CAS": (43, 117), "TWN": (39, 99),
     "DNG": (63, 152), "SPA": (61, 174), "TM": (61, 136),
@@ -105,14 +105,14 @@ def main():
         verified_data_count += len(data)
         print(f"{name}: {actual[0]} functions, {actual[1]} calls, "
               f"{len(code)} verified code and {len(data)} verified data bytes recognized")
-    if (totals["function"], totals["call"]) != (504, 1045):
+    if (totals["function"], totals["call"]) != (505, 1047):
         raise ValueError(f"aggregate changed: {totals}")
-    if (verified_code_count, verified_data_count) != (4112, 476):
+    if (verified_code_count, verified_data_count) != (4187, 478):
         raise ValueError("verified code/data byte counts changed")
     if not PLAYER_ATLAS.is_file() or PLAYER_ATLAS.read_text() != render_player_atlas():
         raise ValueError("player direct-access atlas differs from Ghidra exports")
-    print("12 phase-separated programs; 504 function candidates, 1045 direct calls, "
-          "4112 verified code and 476 verified data bytes recognized; "
+    print("12 phase-separated programs; 505 function candidates, 1047 direct calls, "
+          "4187 verified code and 478 verified data bytes recognized; "
           "player direct-access atlas verified")
     return 0
 

@@ -2,10 +2,11 @@
 
 This index places every **byte-matched, reviewed fragment** at its original Apple II load address. Each link leads to a small, public annotation; full linear listings and binary assets remain private. An unlisted address is **unreviewed**, not proven to be data or unreachable code. Overlapping reviewed fragments count once in the unique-byte total.
 
-Current inventory: **96 fragments, 4096 unique bytes** across 11 modules. These are raw-file bytes, not a percentage of executable code: code and data are mixed.
+Current inventory: **97 fragments, 4173 unique bytes** across 12 modules. These are raw-file bytes, not a percentage of executable code: code and data are mixed.
 
 | Module | Load range | Reviewed fragments | Unique reviewed bytes |
 | --- | --- | ---: | ---: |
+| [U1.SYSTEM](#u1system) | `$2000–$2691` | 1 | 77 |
 | [U1.INTRO](#u1intro) | `$0800–$11A4` | 5 | 137 |
 | [MAKE.INDATA](#makeindata) | `$1E00–$5434` | 1 | 69 |
 | [MI.U1](#miu1) | `$7000–$89BC` | 8 | 321 |
@@ -19,6 +20,12 @@ Current inventory: **96 fragments, 4096 unique bytes** across 11 modules. These 
 | [TM](#tm) | `$8956–$A910` | 4 | 222 |
 
 The `$8956` ranges below are **mutually exclusive overlays**. A call at `$8A00` must be interpreted with the loaded module named; these files do not form one combined address space. `MI.U1`'s final `$8956–$89BC` loader tail is overwritten after selection. See the [execution architecture](execution-architecture.md) and [Ghidra call atlas](ghidra-call-atlas.md).
+
+## U1.SYSTEM
+
+| RAM address | File offset | Bytes | Reviewed source |
+| --- | --- | ---: | --- |
+| `$21D6–$2222` | `$01D6–$0222` | 77 | [U1.SYSTEM-startup-handoff.s](../disasm/U1.SYSTEM-startup-handoff.s) |
 
 ## U1.INTRO
 
