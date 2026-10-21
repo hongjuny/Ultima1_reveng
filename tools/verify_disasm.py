@@ -64,6 +64,7 @@ FRAGMENTS = (
     ("DNG-map-access.s", "DNG", 0x8956, 0x9D32, 0x9D49),
     ("DNG-candidate-position.s", "DNG", 0x8956, 0xA432, 0xA449),
     ("DNG-map-write.s", "DNG", 0x8956, 0xA41F, 0xA432),
+    ("DNG-monster-hp.s", "DNG", 0x8956, 0x9B05, 0x9B20),
 )
 
 

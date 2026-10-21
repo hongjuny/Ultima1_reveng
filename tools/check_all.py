@@ -58,6 +58,7 @@ CHECKS = (
     ("DNG first key dispatch and move", ["tools/verify_dng_first_keys.py"]),
     ("DNG directions and wall", ["tools/verify_dng_directions.py"]),
     ("DNG first map generation", ["tools/verify_dng_generation.py"]),
+    ("DNG first monster turn", ["tools/verify_dng_monster_turn.py"]),
 )
 
 
