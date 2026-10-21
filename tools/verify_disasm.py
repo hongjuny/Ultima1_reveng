@@ -69,6 +69,7 @@ FRAGMENTS = (
     ("DNG-monster-damage-roll.s", "DNG", 0x8956, 0x9A95, 0x9ADC),
     ("DNG-stair-gate.s", "DNG", 0x8956, 0x9666, 0x9670),
     ("DNG-descend-entry.s", "DNG", 0x8956, 0x972C, 0x9732),
+    ("DNG-ascend-regenerate.s", "DNG", 0x8956, 0x9728, 0x972C),
     ("DNG-exit-out.s", "DNG", 0x8956, 0x9716, 0x9728),
 )
 

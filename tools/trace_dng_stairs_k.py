@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Replay K on the first observed $07 stair and capture level two."""
+"""Replay K at the first observed stair, with chosen direction and depth."""
 
 import json
 import os
@@ -25,8 +25,10 @@ def dungeon_state(client) -> dict:
             "hp": client.mem(0x7EC6, 2).hex(), "food": client.mem(0x7EE5, 2).hex()}
 
 
-def main() -> int:
-    prior = json.loads(SOURCE.read_text())
+def main(source_report: Path = SOURCE, output: Path = OUTPUT,
+         expected_tile: str = "07", expected_depth: str = "01",
+         branch: str = "descend") -> int:
+    prior = json.loads(source_report.read_text())
     if prior["timeout"] is not None or cpu_pc(prior["final_cpu"]) != 0x8DDA:
         raise RuntimeError("source is not at dungeon key poll")
     source, disk_item = prior["snapshot"], prior["working_game_disk"]
@@ -39,12 +41,12 @@ def main() -> int:
     sys.path.insert(0, str(ROOT / "build/emulator/a2m/tools"))
     from a2m_control_client import Ctl
 
-    OUTPUT.mkdir(parents=True, exist_ok=True)
-    pending = OUTPUT / f"stairs-k.pending-{os.getpid()}.a2state"
+    output.mkdir(parents=True, exist_ok=True)
+    pending = output / f"stairs-k.pending-{os.getpid()}.a2state"
     pending.unlink(missing_ok=True)
     points = []
     timeout = None
-    with (OUTPUT / "a2m.log").open("w") as log:
+    with (output / "a2m.log").open("w") as log:
         process = launch(emulator, disk, None, log)
         try:
             client = connect(Ctl, process)
@@ -55,8 +57,9 @@ def main() -> int:
                 if cpu_pc(client.ok("get-cpu")) != 0x8DDA:
                     raise RuntimeError("restored DNG poll differs")
                 before = dungeon_state(client)
-                if before["position"] != "0307" or before["facing"] != "0001" or before["tile"] != "07" or before["depth"] != "01":
-                    raise RuntimeError(f"not at first descending stairs: {before}")
+                if (before["position"] != "0307" or before["facing"] != "0001" or
+                        before["tile"] != expected_tile or before["depth"] != expected_depth):
+                    raise RuntimeError(f"not at expected stairs: {before}")
                 client.ok("set-turbo 8")
                 client.ok_or_data("break-clear-all")
                 client.ok_or_data("break-exec $8DE4")
@@ -68,14 +71,20 @@ def main() -> int:
                         raise RuntimeError(f"K did not return from poll: {cpu}")
                     points.append({"label": "K poll return", "pc": "0x8DE4",
                                    "cpu": cpu, "state": client.ok("get-state")})
-                    for label, address in (("command lookup return", 0x8DD7),
-                                           ("patched call", 0x8E0B),
-                                           ("K handler", 0x961B),
-                                           ("stair facing check", 0x963F),
-                                           ("stair choice", 0x9666),
-                                           ("descend", 0x972C),
-                                           ("next-level generator", 0x8C5D),
-                                           ("next-level key poll", 0x8DDA)):
+                    path = [("command lookup return", 0x8DD7),
+                            ("patched call", 0x8E0B),
+                            ("K handler", 0x961B),
+                            ("stair facing check", 0x963F),
+                            ("stair choice", 0x9666)]
+                    if branch == "descend":
+                        path.append(("descend", 0x972C))
+                    elif branch == "ascend":
+                        path.extend((("ascend", 0x9670), ("regenerate level", 0x9728)))
+                    else:
+                        raise ValueError(f"unknown stair branch: {branch}")
+                    path.extend((("next-level generator", 0x8C5D),
+                                 ("next-level key poll", 0x8DDA)))
+                    for label, address in path:
                         points.append(wait_at(client, label, (address,)))
                     if " x=1E " not in points[1]["cpu"]:
                         raise RuntimeError("K did not map to command index 15")
@@ -92,14 +101,14 @@ def main() -> int:
                 client.s.close()
         finally:
             stop(process)
-    final = OUTPUT / "stairs-k.a2state"
+    final = output / "stairs-k.a2state"
     pending.replace(final)
     report = {"source_snapshot": source, "working_game_disk": disk_item,
               "input": {"key_ascii": 75, "at_pc": "0x8DDA"},
               "checkpoints": points, "timeout": timeout, "before": before,
               "after": after, "final_cpu": final_cpu, "final_state": final_state,
               "snapshot": {"path": str(final), **describe(final)}}
-    path = OUTPUT / "handoff.json"
+    path = output / "handoff.json"
     path.write_text(json.dumps(report, indent=2) + "\n")
     print(f"DNG stairs K: {before} → {after}")
     print(f"private trace: {path}")

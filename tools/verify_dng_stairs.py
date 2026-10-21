@@ -17,6 +17,7 @@ ROUTE = TRACE / "dng-descend/route.json"
 TURN_KEY = TRACE / "dng-descend/stairs-turn/key/handoff.json"
 TURN_POLL = TRACE / "dng-descend/stairs-turn/poll/handoff.json"
 STAIRS = TRACE / "dng-stairs-k/handoff.json"
+ASCENT = TRACE / "dng-level2-ascend/handoff.json"
 EXPECTED_KEYS = (11, 11, 8, 11, 11, 21, 11, 11, 21, 11, 11, 8, 11, 11, 8, 11, 11)
 
 
@@ -41,9 +42,9 @@ def tile(ram: bytes) -> int:
 
 
 def main() -> int:
-    paths = (INITIAL, ROUTE, TURN_KEY, TURN_POLL, STAIRS)
+    paths = (INITIAL, ROUTE, TURN_KEY, TURN_POLL, STAIRS, ASCENT)
     if not all(path.is_file() for path in paths):
-        print("PENDING DNG route to $07 and level-two replay")
+        print("PENDING DNG route and two-way stair replay")
         return 0
     initial = json.loads(INITIAL.read_text())
     actions = json.loads(ROUTE.read_text())
@@ -120,8 +121,31 @@ def main() -> int:
             stairs_ram[0xA506] == 2 and tile(stairs_ram) == 8 and
             cpu_pc(stairs["final_cpu"]) == 0x8DDA,
             "DNG level-two entry differs")
+    ascent = json.loads(ASCENT.read_text())
+    ascent_ram = checked_ram(ascent["snapshot"])
+    require(ascent["timeout"] is None and
+            ascent["source_snapshot"] == stairs["snapshot"] and
+            ascent["working_game_disk"] == disk and
+            ascent["input"] == {"key_ascii": 75, "at_pc": "0x8DDA"} and
+            ascent["before"] == stairs["after"] and
+            [point["pc"] for point in ascent["checkpoints"]] ==
+            ["0x8DE4", "0x8DD7", "0x8E0B", "0x961B", "0x963F", "0x9666",
+             "0x9670", "0x9728", "0x8C5D", "0x8DDA"] and
+            ascent["after"] == {"position": "0307", "facing": "0001", "depth": "01",
+                                 "tile": "07", "hp": "8300", "food": "b400"} and
+            position(ascent_ram) == (3, 7) and facing(ascent_ram) == (0, 1) and
+            ascent_ram[0xA506] == 1 and tile(ascent_ram) == 7 and
+            cpu_pc(ascent["final_cpu"]) == 0x8DDA,
+            "DNG level-one return differs")
+    initial_map = checked_ram(initial["snapshot"])[0xB099:0xB112]
+    return_map = ascent_ram[0xB099:0xB112]
+    changed_base_tiles = [(i % 11, i // 11, initial_map[i] & 15, return_map[i] & 15)
+                          for i in range(121) if (initial_map[i] & 15) != (return_map[i] & 15)]
+    require(changed_base_tiles == [(2, 3, 5, 6)],
+            "observed first-floor map change differs")
     print("DNG $07 route: 17 keys from (1,1) to (3,7); HP 150→139")
     print("K facing south: $963F→$9666→$972C→$8C5D; depth 1→2, tile $07→$08")
+    print("K on level-two $08: $9670→$9728→$8C5D; depth 2→1, tile $08→$07")
     return 0
 
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Walk the observed first dungeon to its $07 stairs and press K.
+"""Walk the first dungeon to its $07 stairs and replay both K transitions.
 
 All snapshots and the generated map remain under ignored build/traces.
 The route is recalculated after each key because dungeon occupants move.
@@ -7,7 +7,6 @@ The route is recalculated after each key because dungeon occupants move.
 
 from collections import deque
 import contextlib
-import io
 import json
 from pathlib import Path
 import sys
@@ -16,6 +15,7 @@ from baseline import describe
 from disassemble import ROOT
 from trace_dng_after_up import main as next_poll
 from trace_dng_key_w import main as press_key
+from trace_dng_stairs_k import main as stair_k
 from trace_startup import cpu_pc
 from verify_intro_support import main_ram
 
@@ -125,6 +125,27 @@ def main(max_actions: int = 80) -> int:
     else:
         raise RuntimeError(f"stairs not reached in {max_actions} actions")
     (OUTPUT / "stairs-source.json").write_text(json.dumps({"source_report": str(source)}, indent=2) + "\n")
+    turn = OUTPUT / "stairs-turn"
+    turn.mkdir(exist_ok=True)
+    turn_key = 0x20 if facing == (0, 1) else direction_key(facing, (0, 1))
+    with (turn / "trace.log").open("w") as log, contextlib.redirect_stdout(log):
+        if press_key(turn_key, turn / "key", source):
+            raise RuntimeError(f"stair turn failed; see {turn / 'trace.log'}")
+        if next_poll(turn / "key/handoff.json", turn / "poll"):
+            raise RuntimeError(f"stair turn next poll failed; see {turn / 'trace.log'}")
+    ready = json.loads((turn / "poll/handoff.json").read_text())
+    ready_position, ready_facing, ready_depth, ready_grid, _ = observe(ready)
+    if (ready_position != GOAL or ready_facing != (0, 1) or ready_depth != 1 or
+            ready_grid[GOAL[1] * 11 + GOAL[0]] != 7):
+        raise RuntimeError("stair turn did not leave player facing south on $07")
+    descent_report = ROOT / "build/traces/dng-stairs-k/handoff.json"
+    if stair_k(turn / "poll/handoff.json", descent_report.parent):
+        raise RuntimeError("descent K replay failed")
+    ascent_report = ROOT / "build/traces/dng-level2-ascend/handoff.json"
+    if stair_k(descent_report, ascent_report.parent, expected_tile="08",
+               expected_depth="02", branch="ascend"):
+        raise RuntimeError("level-two ascent K replay failed")
+    print("dungeon stair round trip complete", flush=True)
     return 0
 
 
