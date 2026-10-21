@@ -68,6 +68,7 @@ CHECKS = (
     ("DNG random $05/$06 cell", ["tools/verify_dng_random_tile.py"]),
     ("DNG actor slots in map", ["tools/verify_dng_actor_map.py"]),
     ("DNG actor move and map restoration", ["tools/verify_dng_actor_move.py"]),
+    ("DNG vertical actor move", ["tools/verify_dng_actor_move_y.py"]),
 )
 
 

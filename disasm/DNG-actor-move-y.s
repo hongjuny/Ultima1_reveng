@@ -1,5 +1,5 @@
 ; $99D6-$9A00: vertical monster move after reading the old map cell.
-; Code-evidenced mirror of the observed horizontal path; not yet replayed.
+; Runtime-confirmed mirror of the observed horizontal path.
 .setcpu "6502"
 .segment "CODE"
 
