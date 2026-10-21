@@ -18,6 +18,8 @@ TURN_KEY = TRACE / "dng-descend/stairs-turn/key/handoff.json"
 TURN_POLL = TRACE / "dng-descend/stairs-turn/poll/handoff.json"
 STAIRS = TRACE / "dng-stairs-k/handoff.json"
 ASCENT = TRACE / "dng-level2-ascend/handoff.json"
+HORIZONTAL_KEY = TRACE / "dng-stairs-horizontal/key/handoff.json"
+HORIZONTAL_POLL = TRACE / "dng-stairs-horizontal/poll/handoff.json"
 EXPECTED_KEYS = (11, 11, 8, 11, 11, 21, 11, 11, 21, 11, 11, 8, 11, 11, 8, 11, 11)
 
 
@@ -42,7 +44,8 @@ def tile(ram: bytes) -> int:
 
 
 def main() -> int:
-    paths = (INITIAL, ROUTE, TURN_KEY, TURN_POLL, STAIRS, ASCENT)
+    paths = (INITIAL, ROUTE, TURN_KEY, TURN_POLL, STAIRS, ASCENT,
+             HORIZONTAL_KEY, HORIZONTAL_POLL)
     if not all(path.is_file() for path in paths):
         print("PENDING DNG route and two-way stair replay")
         return 0
@@ -95,6 +98,24 @@ def main() -> int:
     require(position(ram) == (3, 7) and facing(ram) == (1, 0) and
             tile(ram) == 7 and int.from_bytes(ram[0x7EC6:0x7EC8], "little") == 139,
             "descending stair arrival differs")
+    horizontal_key = json.loads(HORIZONTAL_KEY.read_text())
+    horizontal_poll = json.loads(HORIZONTAL_POLL.read_text())
+    horizontal_ram = checked_ram(horizontal_poll["snapshot"])
+    require(horizontal_key["timeout"] is None and horizontal_poll["timeout"] is None and
+            horizontal_key["source_snapshot"] == source["snapshot"] and
+            horizontal_poll["source_snapshot"] == horizontal_key["snapshot"] and
+            horizontal_key["working_game_disk"] == horizontal_poll["working_game_disk"] == disk and
+            horizontal_key["input"] == {"key_ascii": 75, "at_pc": "0x8DDA"} and
+            horizontal_key["patched_call"] == "201b96" and
+            [point["pc"] for point in horizontal_key["checkpoints"]] ==
+            ["0x8DE4", "0x8DD4", "0x8DD7", "0x8E0B", "0x961B", "0x963F", "0x8E0E"] and
+            horizontal_key["state_before"] == horizontal_key["state_after"] ==
+            {"position": "0307", "facing": "0100", "hp": "8b00", "food": "b400"} and
+            position(horizontal_ram) == (3, 7) and facing(horizontal_ram) == (1, 0) and
+            tile(horizontal_ram) == 7 and horizontal_ram[0xA506] == 1 and
+            int.from_bytes(horizontal_ram[0x7EC6:0x7EC8], "little") == 138 and
+            cpu_pc(horizontal_poll["final_cpu"]) == 0x8DDA,
+            "horizontal-facing K refusal differs")
     turn_key, turn_poll, stairs = [json.loads(path.read_text())
                                    for path in (TURN_KEY, TURN_POLL, STAIRS)]
     require(turn_key["timeout"] is None and turn_poll["timeout"] is None and
@@ -146,6 +167,7 @@ def main() -> int:
     print("DNG $07 route: 17 keys from (1,1) to (3,7); HP 150→139")
     print("K facing south: $963F→$9666→$972C→$8C5D; depth 1→2, tile $07→$08")
     print("K on level-two $08: $9670→$9728→$8C5D; depth 2→1, tile $08→$07")
+    print("K on $07 facing east: $963F→$8E0E refusal; depth stays 1, HP 139→138 by next poll")
     return 0
 
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Continue the first accepted DNG Up key to the next key poll."""
+"""Continue a completed DNG command to the next key poll."""
 
 import json
 import os

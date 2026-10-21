@@ -125,6 +125,15 @@ def main(max_actions: int = 80) -> int:
     else:
         raise RuntimeError(f"stairs not reached in {max_actions} actions")
     (OUTPUT / "stairs-source.json").write_text(json.dumps({"source_report": str(source)}, indent=2) + "\n")
+    if facing == (1, 0):
+        horizontal = ROOT / "build/traces/dng-stairs-horizontal"
+        horizontal.mkdir(parents=True, exist_ok=True)
+        with (horizontal / "trace.log").open("w") as log, contextlib.redirect_stdout(log):
+            if press_key(75, horizontal / "key", source, probe_stair=True):
+                raise RuntimeError(f"horizontal K failed; see {horizontal / 'trace.log'}")
+            if next_poll(horizontal / "key/handoff.json", horizontal / "poll"):
+                raise RuntimeError(f"horizontal K next poll failed; see {horizontal / 'trace.log'}")
+        print("horizontal-facing K refusal captured", flush=True)
     turn = OUTPUT / "stairs-turn"
     turn.mkdir(exist_ok=True)
     turn_key = 0x20 if facing == (0, 1) else direction_key(facing, (0, 1))

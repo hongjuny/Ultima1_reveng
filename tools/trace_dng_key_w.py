@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Replay W at the first DNG poll and inspect the command dispatch."""
+"""Replay a key at a DNG poll and inspect the command dispatch."""
 
 import json
 import os
@@ -17,7 +17,8 @@ OUTPUT = ROOT / "build/traces/dng-key-w"
 
 
 def main(key: int = 87, output: Path = OUTPUT,
-         source_report: Path = SOURCE, probe_move: bool = False) -> int:
+         source_report: Path = SOURCE, probe_move: bool = False,
+         probe_stair: bool = False) -> int:
     prior = json.loads(source_report.read_text())
     if prior["timeout"] is not None or cpu_pc(prior["final_cpu"]) != 0x8DDA:
         raise RuntimeError("source is not at first DNG key poll")
@@ -74,7 +75,13 @@ def main(key: int = 87, output: Path = OUTPUT,
                         if probe_move and target == 0x8E95:
                             points.append(wait_at(client, "candidate tile", (0x8E9B,)))
                             points.append(wait_at(client, "movement branch", (0x8EA7, 0x8EBE)))
-                        points.append(wait_at(client, "handler return", (0x8E0E,)))
+                        if probe_stair and target == 0x961B:
+                            points.append(wait_at(client, "stair facing check", (0x963F,)))
+                            points.append(wait_at(client, "stair gate or return", (0x9666, 0x8E0E)))
+                            if points[-1]["pc"] == "0x9666":
+                                raise RuntimeError("stair passed facing check; use transition tracer")
+                        else:
+                            points.append(wait_at(client, "handler return", (0x8E0E,)))
                 except RuntimeError as error:
                     timeout = str(error)
                     print(f"DNG key trace stopped: {timeout}", flush=True)
