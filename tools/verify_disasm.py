@@ -43,6 +43,7 @@ FRAGMENTS = (
     ("OUT-key-poll.s", "OUT", 0x8956, 0x8A6A, 0x8A76),
     ("OUT-space-handler.s", "OUT", 0x8956, 0x8A76, 0x8A7D),
     ("OUT-Q-save.s", "OUT", 0x8956, 0x92CA, 0x92E0),
+    ("OUT-object-insert.s", "OUT", 0x8956, 0x9927, 0x9958),
     ("OUT-enter-gate.s", "OUT", 0x8956, 0x90C8, 0x90DD),
     ("OUT-direction-entry.s", "OUT", 0x8956, 0x9351, 0x936D),
     ("OUT-tile-lookup.s", "OUT", 0x8956, 0x99D1, 0x99F8),

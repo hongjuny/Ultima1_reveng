@@ -14,6 +14,7 @@ CHECKS = (
     ("shared I/O vector table", ["tools/inspect_stuph_vectors.py", "--check"]),
     ("four castle gem flags and TM gate", ["tools/verify_quest_flags.py"]),
     ("controlled final craft world spawn", ["tools/verify_final_craft_spawn.py"]),
+    ("outdoor object arrays in player record", ["tools/verify_player_object_record.py"]),
     ("controlled first castle quest acceptance", ["tools/verify_cas_quest_accept.py"]),
     ("controlled outdoor landmark quest completion", ["tools/verify_out_landmark_quest.py"]),
     ("controlled first castle gem award", ["tools/verify_cas_gem_award.py"]),
