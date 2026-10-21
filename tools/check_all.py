@@ -25,6 +25,7 @@ CHECKS = (
     ("natural completed quest return and red gem award", ["tools/verify_odd_quest_natural_gem_award.py"]),
     ("TM gem, attack, victory gate and NIF load", ["tools/verify_tm_victory_gate.py"]),
     ("TM combat damage and flee transition", ["tools/verify_tm_phase_transition.py"]),
+    ("TM flee, recovery, distant attack, and re-engagement", ["tools/verify_tm_phase_cycle.py"]),
     ("reviewed assembly", ["tools/verify_disasm.py"]),
     ("TCMAPS records", ["tools/extract_data.py", "--check"]),
     ("intro support relocation", ["tools/verify_intro_support.py"]),
