@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Recompute outdoor HGR pixels from saved page-two RAM and compare PNG frames.
+"""Recompute complete outdoor HGR frames from saved page-two RAM.
 
 The 3-bit color-window rule and palette come from the local a2m video renderer.
 This verifies that the frame-ring observation follows from the saved Apple II
-video bytes, including the first two pixels of the neighboring byte.
+video bytes, including edge columns and pixels affected by neighboring bytes.
 """
 
 import json
@@ -59,7 +59,9 @@ def hgr_row_offset(y):
 
 def expected_column(ram, y, col):
     address = 0x4000 + hgr_row_offset(y) + col
-    previous, current, following = ram[address - 1:address + 2]
+    previous = ram[address - 1] if col else 0
+    current = ram[address]
+    following = ram[address + 1] if col < 39 else 0
     stream = ((following & 1) << 8) | ((current & 0x7F) << 1) | \
              ((previous >> 6) & 1)
     phase = (current >> 7) & 1
@@ -87,9 +89,9 @@ def main():
         ram = main_ram(snapshot)
         image = Path(trial["image"])
         raw, row_size = read_rgb_png(image)
-        for y in range(8, 24):
+        for y in range(192):
             row = raw[y * row_size + 1:(y + 1) * row_size]
-            for col in range(1, 4):
+            for col in range(40):
                 for i, expected in enumerate(expected_column(ram, y, col)):
                     x = col * 14 + i
                     actual = int.from_bytes(row[x * 3:x * 3 + 3], "big")
@@ -97,7 +99,7 @@ def main():
                         raise ValueError(f"{name}: pixel ({x},{y}) "
                                          f"${actual:06X} != ${expected:06X}")
                     total += 1
-    assert total == len(trials) * 16 * 3 * 14
+    assert total == len(trials) * 192 * 40 * 14
     assert report["terrain"]["tile06"]["pixel_bounds"][2] == 43
     assert report["terrain"]["tile0E"]["pixel_bounds"][2] == 43
     print(f"HGR byte/neighbor/phase palette predicts {total} retained-frame "

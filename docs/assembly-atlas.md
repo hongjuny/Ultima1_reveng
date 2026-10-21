@@ -2,7 +2,7 @@
 
 This index places every **byte-matched, reviewed fragment** at its original Apple II load address. Each link leads to a small, public annotation; full linear listings and binary assets remain private. An unlisted address is **unreviewed**, not proven to be data or unreachable code. Overlapping reviewed fragments count once in the unique-byte total.
 
-Current inventory: **91 fragments, 3604 unique bytes** across 11 modules. These are raw-file bytes, not a percentage of executable code: code and data are mixed.
+Current inventory: **93 fragments, 3946 unique bytes** across 11 modules. These are raw-file bytes, not a percentage of executable code: code and data are mixed.
 
 | Module | Load range | Reviewed fragments | Unique reviewed bytes |
 | --- | --- | ---: | ---: |
@@ -15,7 +15,7 @@ Current inventory: **91 fragments, 3604 unique bytes** across 11 modules. These 
 | [DNG](#dng) | `$8956–$B098` | 24 | 682 |
 | [TWN](#twn) | `$8956–$AA62` | 3 | 115 |
 | [CAS](#cas) | `$8956–$9EE9` | 14 | 464 |
-| [SPA](#spa) | `$8956–$B01F` | 1 | 28 |
+| [SPA](#spa) | `$8956–$B01F` | 3 | 370 |
 | [TM](#tm) | `$8956–$A910` | 4 | 222 |
 
 The `$8956` ranges below are **mutually exclusive overlays**. A call at `$8A00` must be interpreted with the loaded module named; these files do not form one combined address space. `MI.U1`'s final `$8956–$89BC` loader tail is overwritten after selection. See the [execution architecture](execution-architecture.md) and [Ghidra call atlas](ghidra-call-atlas.md).
@@ -156,6 +156,8 @@ The `$8956` ranges below are **mutually exclusive overlays**. A call at `$8A00` 
 | RAM address | File offset | Bytes | Reviewed source |
 | --- | --- | ---: | --- |
 | `$8A5F–$8A7A` | `$0109–$0124` | 28 | [SPA-key-dispatch.s](../disasm/SPA-key-dispatch.s) |
+| `$8FAD–$9099` | `$0657–$0743` | 237 | [SPA-direction-controls.s](../disasm/SPA-direction-controls.s) |
+| `$A154–$A1BC` | `$17FE–$1866` | 105 | [SPA-fuel-status.s](../disasm/SPA-fuel-status.s) |
 
 ## TM
 

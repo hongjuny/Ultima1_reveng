@@ -53,6 +53,10 @@ def main():
     from disassemble import FILES
     manifest = BUILD / "reviewed-entrypoints.tsv"
     entries = {(module, start) for _, module, _, start, _ in FRAGMENTS}
+    # JSR $8119 consumes inline display bytes; the JMP immediately after each
+    # SPA payload must be seeded separately so Ghidra resumes code there.
+    entries.update(("SPA", address) for address in
+                   (0x8FF1, 0x9043, 0x9071, 0x9097))
     for module, (table_address, _) in TABLES.items():
         base, size, _ = FILES[module]
         data = (ROOT / "extracted" / module).read_bytes()

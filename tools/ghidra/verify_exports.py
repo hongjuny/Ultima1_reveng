@@ -18,14 +18,16 @@ EXPECTED = {
     "U1.SYSTEM": (3, 8), "U1.INTRO": (28, 32), "MAKE.INDATA": (6, 6),
     "MI.U1": (38, 76), "STUPH": (78, 42), "GEN": (19, 74),
     "OUT": (54, 126), "CAS": (43, 117), "TWN": (39, 99),
-    "DNG": (63, 152), "SPA": (32, 101), "TM": (61, 136),
+    "DNG": (63, 152), "SPA": (36, 101), "TM": (61, 136),
 }
 REVIEWED_EDGES = {
     "MI.U1": {(0x8907, 0xB703), (0x88F8, 0x8870)},
     "OUT": {(0x89A1, 0x836E), (0x8A6C, 0x15C5), (0x89CB, 0x82A2)},
     "CAS": {(0x89EE, 0x836E), (0x8A27, 0x15C2), (0x8A1F, 0x82A2)},
     "TWN": {(0x89EC, 0x836E), (0x8A1E, 0x15C2), (0x8A16, 0x82A2)},
-    "SPA": {(0x8A5F, 0x15C2), (0x8A67, 0x82A2)},
+    "SPA": {(0x8A5F, 0x15C2), (0x8A67, 0x82A2),
+            (0x8FE8, 0xA154), (0x903A, 0xA154),
+            (0x9068, 0xA154), (0x908E, 0xA154)},
     "TM": {(0x8E6A, 0x836E), (0x8E8E, 0x82A2)},
 }
 
@@ -92,12 +94,12 @@ def main():
         verified_data_count += len(data)
         print(f"{name}: {actual[0]} functions, {actual[1]} calls, "
               f"{len(code)} verified code and {len(data)} verified data bytes recognized")
-    if (totals["function"], totals["call"]) != (464, 969):
+    if (totals["function"], totals["call"]) != (468, 969):
         raise ValueError(f"aggregate changed: {totals}")
-    if (verified_code_count, verified_data_count) != (3666, 378):
+    if (verified_code_count, verified_data_count) != (3980, 406):
         raise ValueError("verified code/data byte counts changed")
-    print("12 phase-separated programs; 464 function candidates, 969 direct calls, "
-          "3666 verified code and 378 verified data bytes recognized")
+    print("12 phase-separated programs; 468 function candidates, 969 direct calls, "
+          "3980 verified code and 406 verified data bytes recognized")
     return 0
 
 

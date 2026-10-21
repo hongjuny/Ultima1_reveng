@@ -1,4 +1,4 @@
-// Protect byte-matched inline arguments consumed after JSR from disassembly.
+// Protect byte-matched inline arguments and short embedded tables from disassembly.
 // These ranges were checked against reviewed ca65 fragments.
 // @category UltimaI
 import ghidra.app.script.GhidraScript;
@@ -14,7 +14,13 @@ public class MarkUltimaInlineData extends GhidraScript {
         {"MI.U1", "8926", "2", "other_filename_pointer"},
         {"GEN", "8A18", "4", "load_player_args"},
         {"GEN", "8F26", "6", "save_player_args"},
-        {"OUT", "92DA", "6", "save_player_args"}
+        {"OUT", "92DA", "6", "save_player_args"},
+        {"SPA", "8FEE", "3", "up_display_args"},
+        {"SPA", "8FF4", "8", "up_direction_deltas"},
+        {"SPA", "9040", "3", "down_display_args"},
+        {"SPA", "9046", "8", "down_direction_deltas"},
+        {"SPA", "906E", "3", "right_display_args"},
+        {"SPA", "9094", "3", "left_display_args"}
     };
 
     @Override

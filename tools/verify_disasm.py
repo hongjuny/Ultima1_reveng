@@ -96,6 +96,8 @@ FRAGMENTS = (
     ("DNG-ascend-regenerate.s", "DNG", 0x8956, 0x9728, 0x972C),
     ("DNG-exit-out.s", "DNG", 0x8956, 0x9716, 0x9728),
     ("SPA-key-dispatch.s", "SPA", 0x8956, 0x8A5F, 0x8A7B),
+    ("SPA-direction-controls.s", "SPA", 0x8956, 0x8FAD, 0x909A),
+    ("SPA-fuel-status.s", "SPA", 0x8956, 0xA154, 0xA1BD),
     ("TM-command-dispatch.s", "TM", 0x8956, 0x8E80, 0x8EA8),
     ("TM-flee-regeneration.s", "TM", 0x8956, 0x98E3, 0x9936),
     ("TM-flee-movement.s", "TM", 0x8956, 0x9936, 0x9971),
