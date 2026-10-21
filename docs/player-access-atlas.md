@@ -2,11 +2,11 @@
 
 `U1.VARS`의 458바이트는 게임 중 `$7E6D–$8036`에 놓인다. 이 지도는 Ghidra가 **명령 후보**로 해석한 코드의 직접 메모리 읽기·쓰기 참조만 모은 것이다. 인덱스 주소 지정으로 뒷부분 배열을 순회하거나 간접 포인터로 접근하는 경우는 여기에 주소별로 나타나지 않는다. 후보 참조가 실제 실행된다는 뜻도 아니다. 확인된 의미와 저장 왕복은 [레코드 형식](../disasm/U1.VARS.md), [플레이어 상태](player-state.md)에서 따로 본다.
 
-직접 참조 후보는 **347곳**, 서로 다른 레코드 주소는 **61곳**이다. 137바이트 접두부 `$7E6D–$7EF5` 중 직접 참조된 주소는 **60곳**이다. `MI.U1, GEN, OUT, CAS, TWN, DNG, SPA, TM`의 8개 게임 단계/공용 프로그램에서 추출했다.
+직접 참조 후보는 **349곳**, 서로 다른 레코드 주소는 **61곳**이다. 137바이트 접두부 `$7E6D–$7EF5` 중 직접 참조된 주소는 **60곳**이다. `MI.U1, GEN, OUT, CAS, TWN, DNG, SPA, TM`의 8개 게임 단계/공용 프로그램에서 추출했다.
 
 | 프로그램 | 직접 참조 후보 수 |
 | --- | ---: |
-| `MI.U1` | 29 |
+| `MI.U1` | 31 |
 | `GEN` | 30 |
 | `OUT` | 104 |
 | `CAS` | 35 |
@@ -15,15 +15,15 @@
 | `SPA` | 38 |
 | `TM` | 41 |
 
-접근 종류: 읽기 235, 쓰기 87, 읽기·쓰기 25. 주소별 칸의 `R/W/RW`는 Ghidra 참조 유형이다. 괄호는 명령 주소이며 각 모듈·접근 종류에서 앞의 세 곳만 표시한다.
+접근 종류: 읽기 235, 쓰기 89, 읽기·쓰기 25. 주소별 칸의 `R/W/RW`는 Ghidra 참조 유형이다. 괄호는 명령 주소이며 각 모듈·접근 종류에서 앞의 세 곳만 표시한다.
 
 | 레코드 주소 | 현재 필드 해석 | 직접 접근 후보 |
 | --- | --- | --- |
 | `$7E6D` | record header | `GEN` W($8A5E) |
 | `$7E6F` | world segment index 0..3, static | `OUT` R($94C1,$9503); `OUT` W($94C6); `OUT` RW($9496,$949F,$94A8 +3); `CAS` R($8977,$897A); `DNG` R($8C71) |
 | `$7E70` | world bits = index << 6, static | `OUT` R($9517,$975B,$993E +4); `OUT` W($9509) |
-| `$7E71` | unclassified prefix | `GEN` R($8A97) |
-| `$7E72` | unclassified prefix | `GEN` R($8AA0) |
+| `$7E71` | Ctrl-A setting mirrored to STUPH $1580 | `MI.U1` W($884D); `GEN` R($8A97) |
+| `$7E72` | sound enable mirrored to STUPH $1581 | `MI.U1` W($8863); `GEN` R($8AA0) |
 | `$7E73` | outdoor return position | `OUT` R($8956); `OUT` W($8EFE,$90CC,$92CE); `DNG` R($8C63) |
 | `$7E74` | outdoor return position | `OUT` R($895B); `OUT` W($8F01,$90CF,$92D1); `DNG` R($8C6C) |
 | `$7E75` | gems | `OUT` R($8D73) |

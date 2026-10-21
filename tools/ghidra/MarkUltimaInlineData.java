@@ -12,6 +12,8 @@ public class MarkUltimaInlineData extends GhidraScript {
         {"U1.INTRO", "0B5A", "6", "mi_filename"},
         {"U1.INTRO", "0F2B", "12", "support_filename"},
         {"MI.U1", "890A", "4", "gen_filename"},
+        {"MI.U1", "8855", "5", "option_off_text"},
+        {"MI.U1", "886B", "4", "option_on_text"},
         {"MI.U1", "8926", "2", "other_filename_pointer"},
         {"GEN", "8A18", "4", "load_player_args"},
         {"GEN", "8F26", "6", "save_player_args"},

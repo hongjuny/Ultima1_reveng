@@ -14,6 +14,7 @@ Load range: `$7000–$89BC`. A gameplay overlay at `$8956` replaces the final `$
 | `$8062–$8085` | Character/layout control dispatcher | Ordinary bytes call `STUPH` `$15B0`; `$7C–$7F` are handled as layout controls |
 | `$82E2–$8330` | Decimal-mode state update | Uses `$7E4F/$7E50` as amount bytes, subtracts from `$7EE4`, conditionally reduces `$7EE5/$7EE6`, adds to `$7EDA` with carry into following bytes |
 | `$837F–$83A8` | [Status values](MI.U1-status-values.s) | Renders HP, food, experience, and `Coin` from paired bytes |
+| `$8845–$886F` | [Ctrl-A/N option toggles](MI.U1-option-toggles.s) | Mirrors the two STUPH settings into saved `$7E71/$7E72`; inline ` on`/` off` display bytes are data |
 | `$888D–$88A0` | [Death reset](MI.U1-death-reset.s) | Clears three two-byte player fields before `OUT` resurrection |
 | `$88F8–$893E` | Overlay selection and transfer | Decoded below |
 | `$8956–$89BC` | Initial loader tail | Loads `STUPH`, then enters selector with A = 0 |
@@ -43,6 +44,8 @@ The separate Space replay returned from `$82A2` with carry clear and `X=$08`, tw
 The initial loader at `$8975` calls `$B703` with inline filename `STUPH`. After installing shared support, it executes `LDA #$00` at `$89B8` and `JMP $88FD` at `$89BA`. Next: trace `$B703` and `$B736`, and label the common state at `$7E00`.
 
 The common text-output chain is now byte-matched through three short fragments: [inline byte reader](MI.U1-inline-byte.s) `$8037–$8042`, [inline text interpreter](MI.U1-inline-text.s) `$8119–$8143`, and [character/layout dispatcher](MI.U1-text-control.s) `$8062–$8085`. `JSR $8119` consumes the following zero-terminated inline text by modifying its return address. The reader's `$8040/$8041` operand is self-modifying. Ordinary characters reach `STUPH` `$15B0`; `$7F` consumes the next byte as a column skip, while `$7C–$7E` change layout. Their exact screen effect must be compared with video memory; the byte-matched path by itself does not establish colors or pixels.
+
+The [43-byte option fragment](MI.U1-option-toggles.s) shows Ctrl-A inverting `$1580`, passing the value through STUPH `$15E0`, and saving the result at `$7E71`. N inverts `$1581` directly and saves the new value at `$7E72`. Both print ` on` or ` off` through `$8119`. The independent [SPA view replay](../tools/verify_spa_view_survey.py) observed `$7E71` and `$7E72` change `$FF→0` for the respective keys; GEN's load path copies those saved bytes back into STUPH. `$1581=0` prevents STUPH's sound selector `$1AC4` from dispatching an effect. The user-facing purpose and hardware impact of Ctrl-A's `$1580/$15E0` path remain open.
 
 The [controlled death record comparison](../docs/player-state.md) tracks all 458 live `U1.VARS` bytes across selector entry and the first resurrected `OUT` input. It found six changed bytes for that path; the other 452 matched.
 

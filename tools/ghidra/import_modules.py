@@ -54,6 +54,9 @@ def main():
     from disassemble import FILES
     manifest = BUILD / "reviewed-entrypoints.tsv"
     entries = {(module, start) for _, module, _, start, _ in FRAGMENTS}
+    # The option handlers return after inline strings; seed their RTS and
+    # second entry separately because ordinary flow analysis stops at data.
+    entries.update(("MI.U1", address) for address in (0x885A, 0x885B, 0x886F))
     # JSR $8119 consumes inline display bytes; the JMP immediately after each
     # SPA payload must be seeded separately so Ghidra resumes code there.
     entries.update(("SPA", address) for address in

@@ -19,6 +19,8 @@ FIELDS = (
     (0x7E6D, 0x7E6E, "record header"),
     (0x7E6F, 0x7E6F, "world segment index 0..3, static"),
     (0x7E70, 0x7E70, "world bits = index << 6, static"),
+    (0x7E71, 0x7E71, "Ctrl-A setting mirrored to STUPH $1580"),
+    (0x7E72, 0x7E72, "sound enable mirrored to STUPH $1581"),
     (0x7E73, 0x7E74, "outdoor return position"),
     (0x7E75, 0x7E78, "gems"),
     (0x7E7A, 0x7E7A, "attack damage input, partial"),

@@ -2,14 +2,14 @@
 
 This index places every **byte-matched, reviewed fragment** at its original Apple II load address. Each link leads to a small, public annotation; full linear listings and binary assets remain private. An unlisted address is **unreviewed**, not proven to be data or unreachable code. Overlapping reviewed fragments count once in the unique-byte total.
 
-Current inventory: **97 fragments, 4173 unique bytes** across 12 modules. These are raw-file bytes, not a percentage of executable code: code and data are mixed.
+Current inventory: **98 fragments, 4216 unique bytes** across 12 modules. These are raw-file bytes, not a percentage of executable code: code and data are mixed.
 
 | Module | Load range | Reviewed fragments | Unique reviewed bytes |
 | --- | --- | ---: | ---: |
 | [U1.SYSTEM](#u1system) | `$2000–$2691` | 1 | 77 |
 | [U1.INTRO](#u1intro) | `$0800–$11A4` | 5 | 137 |
 | [MAKE.INDATA](#makeindata) | `$1E00–$5434` | 1 | 69 |
-| [MI.U1](#miu1) | `$7000–$89BC` | 8 | 321 |
+| [MI.U1](#miu1) | `$7000–$89BC` | 9 | 364 |
 | [STUPH](#stuph) | `$0800–$1FFF` | 8 | 629 |
 | [GEN](#gen) | `$8956–$AC39` | 12 | 595 |
 | [OUT](#out) | `$8956–$9DC3` | 14 | 492 |
@@ -53,6 +53,7 @@ The `$8956` ranges below are **mutually exclusive overlays**. A call at `$8A00` 
 | `$8254–$8265` | `$1254–$1265` | 18 | [MI.U1-bounded-random.s](../disasm/MI.U1-bounded-random.s) |
 | `$82E2–$8330` | `$12E2–$1330` | 79 | [MI.U1-turn-update.s](../disasm/MI.U1-turn-update.s) |
 | `$837F–$83A8` | `$137F–$13A8` | 42 | [MI.U1-status-values.s](../disasm/MI.U1-status-values.s) |
+| `$8845–$886F` | `$1845–$186F` | 43 | [MI.U1-option-toggles.s](../disasm/MI.U1-option-toggles.s) |
 | `$888D–$88A0` | `$188D–$18A0` | 20 | [MI.U1-death-reset.s](../disasm/MI.U1-death-reset.s) |
 | `$88F8–$893E` | `$18F8–$193E` | 71 | [MI.U1-selector.s](../disasm/MI.U1-selector.s) |
 

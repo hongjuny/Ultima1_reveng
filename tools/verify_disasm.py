@@ -16,6 +16,7 @@ FRAGMENTS = (
     ("MI.U1-status-values.s", "MI.U1", 0x7000, 0x837F, 0x83A9),
     ("MI.U1-bounded-random.s", "MI.U1", 0x7000, 0x8254, 0x8266),
     ("MI.U1-text-control.s", "MI.U1", 0x7000, 0x8062, 0x8086),
+    ("MI.U1-option-toggles.s", "MI.U1", 0x7000, 0x8845, 0x8870),
     ("MI.U1-inline-text.s", "MI.U1", 0x7000, 0x8119, 0x8144),
     ("MI.U1-inline-byte.s", "MI.U1", 0x7000, 0x8037, 0x8043),
     ("STUPH-random.s", "STUPH", 0x0800, 0x1DF1, 0x1E18),
