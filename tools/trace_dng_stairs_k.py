@@ -27,7 +27,8 @@ def dungeon_state(client) -> dict:
 
 def main(source_report: Path = SOURCE, output: Path = OUTPUT,
          expected_tile: str = "07", expected_depth: str = "01",
-         branch: str = "descend") -> int:
+         branch: str = "descend", expected_position: str = "0307",
+         expected_facing: str = "0001") -> int:
     prior = json.loads(source_report.read_text())
     if prior["timeout"] is not None or cpu_pc(prior["final_cpu"]) != 0x8DDA:
         raise RuntimeError("source is not at dungeon key poll")
@@ -57,7 +58,8 @@ def main(source_report: Path = SOURCE, output: Path = OUTPUT,
                 if cpu_pc(client.ok("get-cpu")) != 0x8DDA:
                     raise RuntimeError("restored DNG poll differs")
                 before = dungeon_state(client)
-                if (before["position"] != "0307" or before["facing"] != "0001" or
+                if (before["position"] != expected_position or
+                        before["facing"] != expected_facing or
                         before["tile"] != expected_tile or before["depth"] != expected_depth):
                     raise RuntimeError(f"not at expected stairs: {before}")
                 client.ok("set-turbo 8")
