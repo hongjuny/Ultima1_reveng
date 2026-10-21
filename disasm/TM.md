@@ -7,7 +7,7 @@ Overlay range: `$8956–$A910`; entry `$8956`.
 | `$8956` | `JMP $8AD7` | Module entry redirects into main routine |
 | `$9052` | `JSR $B703`; inline `NIF` at `$9055` | Data file request |
 
-Visible text describes a time-machine sequence and Mondain confrontation. The controlled route into this module, its main loop, gem action, directional attack, and ending gate have now been traced. The full naturally acquired four-gem route and `NIF` structure remain open.
+Visible text describes a time-machine sequence and Mondain confrontation. The controlled route into this module, its main loop, gem action, directional attack, and ending gate have now been traced. The full naturally acquired four-gem route remains open; the `NIF` file structure and animation memory writes are documented below.
 
 The main cycle starts at `$8E5E`: it resets the stack, prints a control sequence, then `$8E67` runs local `$9844` and common display `$836E`. A zero HP/food gate jumps to shared `$88F8`; otherwise `$9815` handles input and returns a key. The [40-byte dispatch](TM-command-dispatch.s) at `$8E80–$8EA7` reassembles exactly: it handles the zero-key path locally, passes a nonzero key to common `$82A2`, patches a handler call from the local table `$8EA8`, calls `$8414`, and jumps back to `$8E5E`. `$9815` uses `$15C8` and `$15BF` through `$9827`, unlike the direct `$15C2` polls in several other overlays.
 
@@ -25,7 +25,7 @@ The 512-byte tail had the same contents at TM's first command and immediately af
 
 A paired controlled replay cleared only `$5E00–$5FFF` at the `NIF` loader return. At copy completion `$9094`, animation entry `$90AA`, and final key wait `$9132`, the `$6000` buffer differed in exactly 232 bytes while both display page regions `$2000–$3FFF` and `$4000–$5FFF` were byte-identical. Thus the inherited tail does not change either video page at these sampled points; intermediate animation frames and alternate entry states remain untested.
 
-The [NIF render trace](../tools/trace_tm_nif_render.py) resolves why this tail is absent from the displayed ending: the animation consumes 192 packed rows of 40 bytes from `$6000–$7DFF`, stopping with source pointer `$7E00`. The first row goes to HGR page 2 bottom-row address `$5FD0`, and the final HGR page 1 matches all 7,680 `NIF` bytes by scanline address. [NIF format and local extractor](NIF.md) document the exact file-to-frame transformation. Intermediate frame timing and page selection still need a visual differential test.
+The [NIF render trace](../tools/trace_tm_nif_render.py) resolves why this tail is absent from the final displayed ending: the animation consumes 192 packed rows of 40 bytes from `$6000–$7DFF`, stopping with source pointer `$7E00`. The first row goes to HGR page 2 bottom-row address `$5FD0`, and the final HGR page 1 matches all 7,680 `NIF` bytes by scanline address. [Intermediate-frame sampling](../tools/trace_tm_nif_frames.py) confirms that odd copies write page 2 and even copies write page 1; at nine checkpoints, the target page's bottom `n` rows reproduce the first `n` packed rows exactly. [NIF format and local extractor](NIF.md) document the file-to-frame transformation. Visible page selection, frame timing, color, and sound still need presentation checks.
 
 ## Mondain combat phases
 
