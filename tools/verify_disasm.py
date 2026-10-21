@@ -13,6 +13,7 @@ FRAGMENTS = (
     ("MI.U1-turn-update.s", "MI.U1", 0x7000, 0x82E2, 0x8331),
     ("MI.U1-death-reset.s", "MI.U1", 0x7000, 0x888D, 0x88A1),
     ("MI.U1-status-values.s", "MI.U1", 0x7000, 0x837F, 0x83A9),
+    ("MI.U1-bounded-random.s", "MI.U1", 0x7000, 0x8254, 0x8266),
     ("STUPH-random.s", "STUPH", 0x0800, 0x1DF1, 0x1E18),
     ("U1.INTRO-entry.s", "U1.INTRO", 0x0800, 0x0800, 0x0806),
     ("U1.INTRO-key-loop.s", "U1.INTRO", 0x0800, 0x1039, 0x1057),
