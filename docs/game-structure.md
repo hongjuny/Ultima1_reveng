@@ -12,7 +12,7 @@ For the shared engine, per-module main loops, keyboard, rendering, and I/O bound
 | `TWN` | Town map, buying, equipment, combat | Refers to `TCMAPS` and `MAPCHARS`; `$8ABF` jumps to the shared `OUT` entry. |
 | `CAS` | Castle map and princess sequence, shops and combat | Refers to `TCMAPS` and `MAPCHARS`; `$8BFD` jumps to the shared `OUT` entry. |
 | `SPA` | Spacecraft, shield, fuel, docking, navigation | Controlled OUT B transition reached its loop and one Space turn; `$8FAA` jumps to the shared `OUT` entry. |
-| `TM` | Time machine sequence and Mondain confrontation | Controlled OUT B transition reached `$8AD7`, four Space-gated pages, its loop and one Space turn. Refers to `NIF`; completion path not yet traced. |
+| `TM` | Time machine sequence and Mondain confrontation | Controlled OUT B transition reached `$8AD7`, four Space-gated pages, and the input loop. A controlled low-HP victory passed the gem gate and loaded `NIF`; natural-play completion and final display remain open. |
 
 ```mermaid
 flowchart LR

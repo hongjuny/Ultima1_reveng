@@ -6,7 +6,7 @@
 - Verified that files contain their memory image directly, without a four-byte BIN header.
 - Located startup jumps and inline filenames with hex inspection and `da65`.
 - Identified the shared `$8956` load address for seven mutually exclusive gameplay modules.
-- Corrected `STUPH`'s classification after finding its 33-entry executable jump table at `$1583–$15E5` and the loader call that installs it.
+- Corrected `STUPH`'s classification after finding its executable jump table and the loader call that installs it. A later complete scan established 34 entries at `$1583–$15E8`; see [shared services](shared-services.md).
 - Traced the `$88FD` selector's name table and its initial `GEN` path; identified an `OUT` exit that returns to it.
 - Mapped direct returns from `GEN`, `DNG`, `TWN`, `CAS`, and `SPA` into `OUT`, plus `OUT` selector values for space, castle, town, and dungeon transitions.
 - Added a local listing generator. Its output is an unreviewed aid, not a reconstructed source or a publication artifact.

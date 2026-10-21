@@ -1,5 +1,7 @@
 # Evidence needed for a faithful macOS port
 
+This inventory began as an early planning snapshot. For the current verified scope, including Ghidra cross-checks and the controlled `TM` victory path, read the [consolidated report](consolidated-report-2026-10-21.md). The evidence levels and acceptance principle below remain applicable.
+
 The target is the observable behavior of this Apple II ProDOS release: game rules, state transitions, data, input, presentation, persistence, and timing. A plausible rewrite is insufficient when the original behavior can be measured.
 
 ## Evidence levels

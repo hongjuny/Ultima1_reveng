@@ -17,21 +17,22 @@ The generated listings are **linear drafts**. They interpret embedded text, grap
 
 ## Reading order
 
-1. [File and memory map](docs/file-map.md)
-2. [Dependency map](docs/dependency-map.md)
-3. [Execution architecture (Korean)](docs/execution-architecture.md)
-4. [Ghidra call atlas](docs/ghidra-call-atlas.md) and [reviewed assembly address atlas](docs/assembly-atlas.md)
-5. [Command dispatch matrix (Korean)](docs/command-dispatch-matrix.md) and [memory and zero-page lifetimes (Korean)](docs/memory-and-zero-page.md)
-6. [Shared I/O service vectors (Korean)](docs/shared-services.md)
-7. [File-by-file disassembly](disasm/README.md)
-8. [Porting fidelity and evidence](docs/porting-fidelity.md)
-9. [Roadmap to a faithful macOS port](docs/porting-roadmap.md)
-10. [Progress and effort audit (2026-10-21, Korean)](docs/progress-audit-2026-10-21.md)
-11. [Local disk and emulator baseline](docs/baseline.md)
-12. [Startup and module loading](docs/startup.md)
-13. [Gameplay module dispatch](docs/module-dispatch.md)
-14. [Game structure map](docs/game-structure.md)
-15. [Analysis log](docs/analysis-log.md)
+1. [Consolidated progress and gap report (Korean)](docs/consolidated-report-2026-10-21.md)
+2. [File and memory map](docs/file-map.md)
+3. [Dependency map](docs/dependency-map.md)
+4. [Execution architecture (Korean)](docs/execution-architecture.md)
+5. [Ghidra call atlas](docs/ghidra-call-atlas.md) and [reviewed assembly address atlas](docs/assembly-atlas.md)
+6. [Command dispatch matrix (Korean)](docs/command-dispatch-matrix.md) and [memory and zero-page lifetimes (Korean)](docs/memory-and-zero-page.md)
+7. [Shared I/O service vectors (Korean)](docs/shared-services.md)
+8. [File-by-file disassembly](disasm/README.md)
+9. [Porting fidelity and evidence](docs/porting-fidelity.md)
+10. [Roadmap to a faithful macOS port](docs/porting-roadmap.md)
+11. [Progress and effort audit (2026-10-21, Korean)](docs/progress-audit-2026-10-21.md)
+12. [Local disk and emulator baseline](docs/baseline.md)
+13. [Startup and module loading](docs/startup.md)
+14. [Gameplay module dispatch](docs/module-dispatch.md)
+15. [Game structure map](docs/game-structure.md)
+16. [Analysis log](docs/analysis-log.md)
 
 The `extracted/`, `disk/`, and `build/` directories and Ghidra project files are ignored. Review any future annotated assembly before publication: even text form can contain substantial original game material.
 

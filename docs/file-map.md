@@ -23,7 +23,7 @@ Load addresses come from the ProDOS `Aux` field in the disk catalog. The extract
 
 The seven gameplay modules have identical load addresses and are mutually exclusive in the main address space. `MI.U1` extends to `$89BC`, so loading a module at `$8956` also replaces its final `$67` bytes. This is a phase change in the loader, not one continuous static memory image. Likewise the data files and intro share load ranges; their contents belong to different moments of execution.
 
-`STUPH` needs special care: much of its early area looks like graphics, but `$1583–$15E5` is a 33-entry jump table used by `MI.U1` and gameplay modules. It is part of the executable game's shared support code.
+`STUPH` needs special care: much of its early area looks like graphics, but `$1583–$15E8` is a 34-entry jump table used by `MI.U1` and gameplay modules. It is part of the executable game's shared support code.
 
 `MAKE.INDATA` is loaded at `$1E00` and executed before its loader call returns. Its entry copies `$2000–$27FF` to `$8700–$8EFF` and `$27BD–$4DBC` to `$6000–$85FF`. Both copies match the original bytes in the private runtime snapshot, while the original `$2000` range is reused. Thus the file's catalog load range is not its post-execution residence map.
 

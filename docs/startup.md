@@ -29,7 +29,7 @@ flowchart TD
 - Race choice `A` set `$7ED6=1` and increased the sixth value 10→15 before reaching the sex input at `$8D72`. The class input is later at `$8DEA`; the initial runtime label for `$8D72` was corrected.
 - Sex choice `A` stored zero at `$7EB7` and reached the class input at `$8DEA`. The following class bonus code and name input remain to be observed at runtime.
 - `MI.U1` starts with a jump to `$8956`. At `$7E16` it contains zero-terminated names `GEN`, `OUT`, `DNG`, `TWN`, `CAS`, `SPA`, and `TM` in that order. The routine near `$88FD` loads `GEN` and transfers control to `$8956`.
-- The initial `MI.U1` loader at `$8956` loads `STUPH` by inline filename, then reaches the module selector at `$88FD` with accumulator value zero. `STUPH` has 33 three-byte jump stubs at `$1583–$15E5`; these are called throughout the common engine.
+- The initial `MI.U1` loader at `$8956` loads `STUPH` by inline filename, then reaches the module selector at `$88FD` with accumulator value zero. `STUPH` has 34 three-byte jump stubs at `$1583–$15E8`; these are called throughout the common engine.
 - The original `MI.U1` bytes at `$8956` form startup/loader code. Each gameplay module is loaded at the same address and overwrites that code. Each module's first bytes are 6502 code; `TM` starts with a jump to `$8AD7`.
 - `TWN` and `CAS` refer to `TCMAPS` and `MAPCHARS`. `TM` refers to `NIF`. The exact load conditions need tracing.
 
@@ -41,7 +41,7 @@ The common engine keeps shared state and utility routines below `$8956`, with ex
 
 1. `U1.INTRO` `$1039` and the special key cases: inspect the paths beyond the confirmed early animation key transition.
 2. `$B70C` and `MAKE.INDATA` `$1E03`, `$8700`: classify the loader's run contract, decoder, copied code, and display effects.
-3. `MI.U1` `$88FD–$8955`: name the later selection states and module return convention, and inspect the `$1583–$15E5` stubs in `STUPH`.
+3. `MI.U1` `$88FD–$8955`: name the later selection states and module return convention, and inspect the `$1583–$15E8` stubs in `STUPH`.
 4. `GEN` `$8956`, menu key read `$89FD`, and `OUT` `$8956`: follow character creation into outdoor play.
 
 The first pass through the module selector is documented in [Gameplay module dispatch](module-dispatch.md).
