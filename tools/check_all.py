@@ -25,6 +25,8 @@ CHECKS = (
     ("natural odd quest completion on dungeon level three", ["tools/verify_odd_quest_natural_completion.py"]),
     ("natural completed quest return and red gem award", ["tools/verify_odd_quest_natural_gem_award.py"]),
     ("TM gem, attack, victory gate and NIF load", ["tools/verify_tm_victory_gate.py"]),
+    ("TM packed NIF image and final HGR page", ["tools/verify_tm_nif_render.py"]),
+    ("NIF local monochrome decode", ["tools/extract_nif.py", "--check"]),
     ("TM combat damage and flee transition", ["tools/verify_tm_phase_transition.py"]),
     ("TM flee, recovery, distant attack, and re-engagement", ["tools/verify_tm_phase_cycle.py"]),
     ("TCMAPS final-slot copy and tail effect", ["tools/verify_tcmaps_last_slot.py"]),

@@ -25,6 +25,8 @@ The 512-byte tail had the same contents at TM's first command and immediately af
 
 A paired controlled replay cleared only `$5E00–$5FFF` at the `NIF` loader return. At copy completion `$9094`, animation entry `$90AA`, and final key wait `$9132`, the `$6000` buffer differed in exactly 232 bytes while both display page regions `$2000–$3FFF` and `$4000–$5FFF` were byte-identical. Thus the inherited tail does not change either video page at these sampled points; intermediate animation frames and alternate entry states remain untested.
 
+The [NIF render trace](../tools/trace_tm_nif_render.py) resolves why this tail is absent from the displayed ending: the animation consumes 192 packed rows of 40 bytes from `$6000–$7DFF`, stopping with source pointer `$7E00`. The first row goes to HGR page 2 bottom-row address `$5FD0`, and the final HGR page 1 matches all 7,680 `NIF` bytes by scanline address. [NIF format and local extractor](NIF.md) document the exact file-to-frame transformation. Intermediate frame timing and page selection still need a visual differential test.
+
 ## Mondain combat phases
 
 The first ordinary A/East hit reduced Mondain HP `1000→970`; at the next TM input the player had lost `28→10` HP. A second A/East missed (`$8F73`) and the next input had player HP `5`, Mondain HP `970`. The retaliation at `$99BF–$99E6` computes `floor(current player HP / 32) + random(0..19)` and subtracts it through `$9B15`. This formula matches both ordinary hits and all 36 phase-one retaliation turns in the controlled run below.
