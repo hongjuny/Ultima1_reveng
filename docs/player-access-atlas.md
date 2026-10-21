@@ -20,8 +20,8 @@
 | 레코드 주소 | 현재 필드 해석 | 직접 접근 후보 |
 | --- | --- | --- |
 | `$7E6D` | record header | `GEN` W($8A5E) |
-| `$7E6F` | unclassified prefix | `OUT` R($94C1,$9503); `OUT` W($94C6); `OUT` RW($9496,$949F,$94A8 +3); `CAS` R($8977,$897A); `DNG` R($8C71) |
-| `$7E70` | unclassified prefix | `OUT` R($9517,$975B,$993E +4); `OUT` W($9509) |
+| `$7E6F` | world segment index 0..3, static | `OUT` R($94C1,$9503); `OUT` W($94C6); `OUT` RW($9496,$949F,$94A8 +3); `CAS` R($8977,$897A); `DNG` R($8C71) |
+| `$7E70` | world bits = index << 6, static | `OUT` R($9517,$975B,$993E +4); `OUT` W($9509) |
 | `$7E71` | unclassified prefix | `GEN` R($8A97) |
 | `$7E72` | unclassified prefix | `GEN` R($8AA0) |
 | `$7E73` | outdoor return position | `OUT` R($8956); `OUT` W($8EFE,$90CC,$92CE); `DNG` R($8C63) |
