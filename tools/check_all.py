@@ -63,6 +63,7 @@ CHECKS = (
     ("DNG K exit to OUT", ["tools/verify_dng_exit.py"]),
     ("DNG first descent to level two", ["tools/verify_dng_stairs.py"]),
     ("DNG second descent to level three", ["tools/verify_dng_level3.py"]),
+    ("DNG level-two double monster hit", ["tools/verify_dng_level2_heavy_hit.py"]),
 )
 
 

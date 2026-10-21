@@ -22,3 +22,9 @@ The ordinary damage path at `$9A95` initializes a bound with `$A506`, then calls
 The [byte-matched subtraction](../disasm/DNG-monster-hp.s) at `$9B05–$9B1F` applies the two-byte damage to `$7EC6/$7EC7`. HP changed `$0096→$0094`, and the next input poll retained `$0094`. A later blocked movement input from `(3,1)` was followed by HP `$0092` at its next poll; that second attack's roll was not individually captured.
 
 The code at `$9A72–$9A94` has several special branches before the ordinary draw. Larger bounds and 16-bit random handling also need runtime tests. The observed attack and controlled miss establish both threshold outcomes for this state only.
+
+## Two hits in one second-floor turn
+
+During the ordinary route across level 2, a direction-turn input from `(3,5)` left HP at 126 through the command handler. Before the next key poll, [an independent combat replay](../tools/verify_dng_level2_heavy_hit.py) recorded two hit paths and matched the ordinary next-poll RAM byte-for-byte. Both attacks used threshold `$45`; hit rolls `$B6` and `$4C` took `$9A72`. The attacker slots at `$A4FE` were 5 and 1. These are array slots, not identified monster species.
+
+The [byte-matched bound accumulator](../disasm/DNG-damage-bound.s) at `$9CBC–$9CD1` adds `$A60D[depth]` to a 16-bit value once for each actor-slot index. At depth 2, `$A60F=4`, yielding bounds `2 + 4×5 = 22` and `2 + 4×1 = 6`. The accepted draws were 11 and 3, so the [draw loop](../disasm/DNG-monster-damage-roll.s) applied damage 12 and 4. HP changed `126→114→110` at the two `$9B1A` checkpoints. This verifies two sequential ordinary hits and larger bounds in one observed state. It does not establish the species, movement rules, or all depth scaling values.
