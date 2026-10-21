@@ -94,10 +94,10 @@ def main():
               f"{len(code)} verified code and {len(data)} verified data bytes recognized")
     if (totals["function"], totals["call"]) != (464, 969):
         raise ValueError(f"aggregate changed: {totals}")
-    if (verified_code_count, verified_data_count) != (3367, 378):
+    if (verified_code_count, verified_data_count) != (3666, 378):
         raise ValueError("verified code/data byte counts changed")
     print("12 phase-separated programs; 464 function candidates, 969 direct calls, "
-          "3367 verified code and 378 verified data bytes recognized")
+          "3666 verified code and 378 verified data bytes recognized")
     return 0
 
 

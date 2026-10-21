@@ -21,6 +21,7 @@ FRAGMENTS = (
     ("STUPH-keyboard-latch.s", "STUPH", 0x0800, 0x1D64, 0x1D7F),
     ("STUPH-input-dispatch.s", "STUPH", 0x0800, 0x1D7E, 0x1DD6),
     ("STUPH-input-prelude.s", "STUPH", 0x0800, 0x1DD6, 0x1DF1),
+    ("STUPH-outdoor-draw.s", "STUPH", 0x0800, 0x1C39, 0x1D64),
     ("U1.INTRO-entry.s", "U1.INTRO", 0x0800, 0x0800, 0x0806),
     ("U1.INTRO-key-loop.s", "U1.INTRO", 0x0800, 0x1039, 0x1057),
     ("U1.INTRO-load-mi.s", "U1.INTRO", 0x0800, 0x0B50, 0x0B6A),
