@@ -8,7 +8,7 @@ import sys
 from baseline import describe
 from disassemble import ROOT
 from trace_spa_command_survey import COMMANDS, OUTPUT
-from trace_spa_long_commands import STAGES
+from trace_spa_long_commands import CONTINUE, STAGES
 from verify_intro_support import main_ram
 
 
@@ -63,10 +63,15 @@ def main():
     require(set(stages["runs"]) == set(STAGES), "SPA internal stages missing")
     for name, (key, addresses) in STAGES.items():
         run = stages["runs"][name]
+        expected_path = (["0x8A62"] + [f"0x{address:04X}" for address in addresses] +
+                         ([f"0x{CONTINUE[name][1]:04X}"] if name in CONTINUE else []) +
+                         ({"i": ["0x90D8"],
+                           "v": ["0x93D8", "0x95BF"]}.get(name, [])))
         require(run["key"] == key and
-                [point["pc"] for point in run["checkpoints"]] ==
-                ["0x8A62"] + [f"0x{address:04X}" for address in addresses],
+                [point["pc"] for point in run["checkpoints"]] == expected_path,
                 f"{name}: internal stage path changed")
+    require(stages["runs"]["v"]["subcommand_target"] == "$95BF",
+            "V Space: patched subcommand target changed")
     print("SPA six distinct command targets verified; I/V/Z remain bounded observations")
     return 0
 

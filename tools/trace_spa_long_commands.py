@@ -13,10 +13,11 @@ from trace_startup import cpu_pc, wait_at
 
 
 STAGES = {
-    "i": (ord("I"), (0x90D5, 0x90DE, 0x911F)),
-    "v": (ord("V"), (0x9298, 0x92D5, 0x935B)),
+    "i": (ord("I"), (0x90D5, 0x90DE, 0x911F, 0x9175)),
+    "v": (ord("V"), (0x9298, 0x92D5, 0x935B, 0x9361)),
     "z": (ord("Z"), (0x91C3, 0x85A2)),
 }
+CONTINUE = {"i": (32, 0x91A1), "v": (32, 0x93B5)}
 
 
 def run(name, key, addresses, emulator, disk, snapshot, Ctl):
@@ -41,6 +42,19 @@ def run(name, key, addresses, emulator, disk, snapshot, Ctl):
                 points = [{"label": "key return", "pc": "0x8A62", "cpu": cpu}]
                 for index, address in enumerate(addresses):
                     points.append(wait_at(client, f"{name} stage {index}", (address,)))
+                if name in CONTINUE:
+                    next_key, expected = CONTINUE[name]
+                    client.ok(f"key {next_key}")
+                    points.append(wait_at(client, f"{name} follow-up Space", (expected,)))
+                    if name == "i":
+                        points.append(wait_at(client, "i scan return", (0x90D8,)))
+                    elif name == "v":
+                        points.append(wait_at(client, "v patched subcommand", (0x93D8,)))
+                        target = int.from_bytes(client.mem(0x93D9, 2), "little")
+                        points.append(wait_at(client, "v subcommand handler", (target,)))
+                        return {"key": key, "checkpoints": points,
+                                "subcommand_target": f"${target:04X}",
+                                "final_cpu": client.ok("get-cpu")}
                 return {"key": key, "checkpoints": points,
                         "final_cpu": client.ok("get-cpu")}
             finally:
