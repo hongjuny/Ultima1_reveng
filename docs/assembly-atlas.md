@@ -2,14 +2,14 @@
 
 This index places every **byte-matched, reviewed fragment** at its original Apple II load address. Each link leads to a small, public annotation; full linear listings and binary assets remain private. An unlisted address is **unreviewed**, not proven to be data or unreachable code. Overlapping reviewed fragments count once in the unique-byte total.
 
-Current inventory: **93 fragments, 3946 unique bytes** across 11 modules. These are raw-file bytes, not a percentage of executable code: code and data are mixed.
+Current inventory: **96 fragments, 4096 unique bytes** across 11 modules. These are raw-file bytes, not a percentage of executable code: code and data are mixed.
 
 | Module | Load range | Reviewed fragments | Unique reviewed bytes |
 | --- | --- | ---: | ---: |
 | [U1.INTRO](#u1intro) | `$0800–$11A4` | 5 | 137 |
 | [MAKE.INDATA](#makeindata) | `$1E00–$5434` | 1 | 69 |
 | [MI.U1](#miu1) | `$7000–$89BC` | 8 | 321 |
-| [STUPH](#stuph) | `$0800–$1FFF` | 5 | 479 |
+| [STUPH](#stuph) | `$0800–$1FFF` | 8 | 629 |
 | [GEN](#gen) | `$8956–$AC39` | 12 | 595 |
 | [OUT](#out) | `$8956–$9DC3` | 14 | 492 |
 | [DNG](#dng) | `$8956–$B098` | 24 | 682 |
@@ -53,6 +53,9 @@ The `$8956` ranges below are **mutually exclusive overlays**. A call at `$8A00` 
 
 | RAM address | File offset | Bytes | Reviewed source |
 | --- | --- | ---: | --- |
+| `$1AB2–$1B01` | `$12B2–$1301` | 80 | [STUPH-sound-dispatch.s](../disasm/STUPH-sound-dispatch.s) |
+| `$1B02–$1B31` | `$1302–$1331` | 48 | [STUPH-sound-queue.s](../disasm/STUPH-sound-queue.s) |
+| `$1B32–$1B47` | `$1332–$1347` | 22 | [STUPH-sound-two-pulses.s](../disasm/STUPH-sound-two-pulses.s) |
 | `$1C39–$1D63` | `$1439–$1563` | 299 | [STUPH-outdoor-draw.s](../disasm/STUPH-outdoor-draw.s) |
 | `$1D64–$1D7E` | `$1564–$157E` | 27 | [STUPH-keyboard-latch.s](../disasm/STUPH-keyboard-latch.s) |
 | `$1D7E–$1DD5` | `$157E–$15D5` | 88 | [STUPH-input-dispatch.s](../disasm/STUPH-input-dispatch.s) |

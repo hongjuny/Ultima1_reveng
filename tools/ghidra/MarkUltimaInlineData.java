@@ -20,7 +20,8 @@ public class MarkUltimaInlineData extends GhidraScript {
         {"SPA", "9040", "3", "down_display_args"},
         {"SPA", "9046", "8", "down_direction_deltas"},
         {"SPA", "906E", "3", "right_display_args"},
-        {"SPA", "9094", "3", "left_display_args"}
+        {"SPA", "9094", "3", "left_display_args"},
+        {"STUPH", "1AB2", "18", "sound_effect_return_addresses"}
     };
 
     @Override

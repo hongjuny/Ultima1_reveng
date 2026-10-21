@@ -57,6 +57,11 @@ def main():
     # SPA payload must be seeded separately so Ghidra resumes code there.
     entries.update(("SPA", address) for address in
                    (0x8FF1, 0x9043, 0x9071, 0x9097))
+    # STUPH's effect table stores address-minus-one targets for stack/RTS
+    # dispatch; no ordinary JSR edge reaches these entries.
+    entries.update(("STUPH", address) for address in
+                   (0x1BF4, 0x1BEE, 0x1BCE, 0x1B4E, 0x1BBD,
+                    0x1B48, 0x1BA9, 0x1B32, 0x1B42))
     for module, (table_address, _) in TABLES.items():
         base, size, _ = FILES[module]
         data = (ROOT / "extracted" / module).read_bytes()

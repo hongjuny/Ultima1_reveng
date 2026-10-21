@@ -16,12 +16,15 @@ from build_code_data_ledger import verified_sets
 
 EXPECTED = {
     "U1.SYSTEM": (3, 8), "U1.INTRO": (28, 32), "MAKE.INDATA": (6, 6),
-    "MI.U1": (38, 76), "STUPH": (78, 42), "GEN": (19, 74),
+    "MI.U1": (38, 76), "STUPH": (89, 45), "GEN": (19, 74),
     "OUT": (54, 126), "CAS": (43, 117), "TWN": (39, 99),
     "DNG": (63, 152), "SPA": (36, 101), "TM": (61, 136),
 }
 REVIEWED_EDGES = {
     "MI.U1": {(0x8907, 0xB703), (0x88F8, 0x8870)},
+    "STUPH": {(0x1AE6, 0x1AF0), (0x1AF2, 0x1AF7),
+              (0x1B13, 0x1AC4), (0x1B27, 0x1B02),
+              (0x1B37, 0x1608)},
     "OUT": {(0x89A1, 0x836E), (0x8A6C, 0x15C5), (0x89CB, 0x82A2)},
     "CAS": {(0x89EE, 0x836E), (0x8A27, 0x15C2), (0x8A1F, 0x82A2)},
     "TWN": {(0x89EC, 0x836E), (0x8A1E, 0x15C2), (0x8A16, 0x82A2)},
@@ -94,12 +97,12 @@ def main():
         verified_data_count += len(data)
         print(f"{name}: {actual[0]} functions, {actual[1]} calls, "
               f"{len(code)} verified code and {len(data)} verified data bytes recognized")
-    if (totals["function"], totals["call"]) != (468, 969):
+    if (totals["function"], totals["call"]) != (479, 972):
         raise ValueError(f"aggregate changed: {totals}")
-    if (verified_code_count, verified_data_count) != (3980, 406):
+    if (verified_code_count, verified_data_count) != (4112, 424):
         raise ValueError("verified code/data byte counts changed")
-    print("12 phase-separated programs; 468 function candidates, 969 direct calls, "
-          "3980 verified code and 406 verified data bytes recognized")
+    print("12 phase-separated programs; 479 function candidates, 972 direct calls, "
+          "4112 verified code and 424 verified data bytes recognized")
     return 0
 
 
