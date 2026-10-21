@@ -69,6 +69,7 @@ CHECKS = (
     ("OUT return after Space", ["tools/verify_out_after_space.py"]),
     ("OUT text-to-video rendering path", ["tools/verify_out_render_pipeline.py"]),
     ("OUT four direction keys", ["tools/verify_out_directions.py"]),
+    ("OUT controlled world-segment crossing", ["tools/verify_out_world_boundary.py"]),
     ("OUT terrain and CAS entry", ["tools/verify_out_terrain_entry.py"]),
     ("CAS first input", ["tools/verify_cas_first_input.py"]),
     ("CAS left-edge exit", ["tools/verify_cas_exit_left.py"]),
