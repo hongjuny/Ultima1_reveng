@@ -24,7 +24,7 @@ Do not mark a module or data format complete because its first entry and visible
 | Dungeon/town/castle/space/finale | Entry and some exits identified | Complete commands, combat, shops, quests, vehicles, victory path |
 | Data and graphics | `TCMAPS` has ten 764-byte packed slots, but town/castle copy 768-byte windows | Explain four-byte overlap and last-window overread; decode map layout, tiles, glyphs, `MAPCHARS`, `NIF`, `STUPH` display regions |
 | Apple II behavior | Keyboard/soft-switch accesses visible in code | Key mapping, display pages and modes, sound, timing, integer/decimal behavior |
-| Persistence | File and disk operations visible but not traced | Save/load layout, write timing, disk error behavior |
+| Persistence | GEN initial save/load and one changed OUT `Q` save → GEN `B` reload are byte-for-byte confirmed for the 458-byte `U1.VARS` span | Classify remaining fields, other save triggers, restart timing, and disk errors |
 
 ## Repeatable comparisons
 

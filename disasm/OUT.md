@@ -15,6 +15,7 @@ The `GEN`→`OUT` handoff loaded all 5230 bytes into `$8956–$9DC3`, confirmed 
 | `$8A6A–$8A75` | 12-byte bounded poll: `X=$80`, call STUPH `$15C5` (`JMP $1DA3`), decrement X on zero, return A in X | First outdoor input call reached at `$8A6C`; health `$0096`, food `$00C8` |
 | `$89CB–$89DF` | Calls shared `$82A2` command lookup; carry set skips the selected handler | `P` (`$50`) took the skip branch at `$89DF`; health and food unchanged at that checkpoint |
 | `$8A76–$8A7C` | `LDY #$05`; `LDA #$50`; `JMP $82E2` | Space handler: `$7EE4` `$95→$90`, `$7EDA` `$00→$50` at return; health and food unchanged |
+| `$92CA–$92DF` | [Byte-matched Q save](OUT-Q-save.s): store outdoor coordinates, call `$83B4`, then `$B724` with inline source `$7E6D`, length `$01CA`, path pointer `$7E38` | Outdoor `Q` saves the 458-byte player record |
 | `$9351–$936C` | Loads `$00/$01` into X/Y; four entries decrement or increment one register, then share `$936D` | All four keys were replayed from the same `$00/$01=($27,$21)` snapshot; results are below |
 | `$99D1–$99F7` | Bounds X/Y to `$00–$3F`, reads `$6000 + Y×64 + X`, restores Y through a patched immediate operand, then shifts the byte right | All four direction replays reached this lookup; each read raw `$02` and returned tile code `$01` |
 | `$90C8–$90DC` | E saves `$00/$01` to `$7E73/$7E74`, calls `$99F8` for the current tile, and admits codes `$04–$07` | On code `$04` at `($1E,$1F)`, runtime reached `$90FF`, chose A=`$10`, and entered `CAS` |
@@ -25,6 +26,8 @@ The `GEN`→`OUT` handoff loaded all 5230 bytes into `$8956–$9DC3`, confirmed 
 | `$9927–$9958` | Dynamic world-object writer, statically checked | Doubles a tile code, saves prior map cell, and writes the new raw tile |
 
 The [landmark quest replay](../tools/verify_out_landmark_quest.py) changed only starting coordinates to a real map tile `(59,3)` and quest byte `$7EA9` from 0 to accepted state 1. Ordinary `E` input reached `$913A`, selected location id 2, and changed that quest byte to `$FF` at `$915F`. This validates one even-quest producer with controlled prerequisites; the normal route to that landmark remains open.
+
+From the first ordinary outdoor Space turn, `Q` mapped through command index `$24` and pointer `$9ACE` to `$92CA`. The save call returned at `$92E0` with carry clear on a disposable `U1.PLAYER` disk. The new `U1.VARS` differed from GEN's initial save only at `$7EDA:00→50` and `$7EE4:95→90`, matching the live record at the save call byte-for-byte. A separate GEN menu `B` reload read this new file at `$6000`, copied all 458 bytes to `$7E6D–$8036`, and reached the OUT handoff. The [save/reload verifier](../tools/verify_out_player_save_reload.py) checks the input, code bytes, file extraction, RAM, and snapshot ancestry. The continuation after the Q save message, additional fields, and failure behavior remain untraced.
 | `$8EFA` | Saves pointers, page-copies state, preserves A | Transition helper |
 | `$8F1C` | `JMP $88FD` | Common overlay selector |
 | `$90FF–$9137` | Sets A to `$10`, `$0C`, or `$08` before `$8EFA` | Selects `CAS`, `TWN`, or `DNG` |
