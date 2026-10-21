@@ -60,6 +60,7 @@ CHECKS = (
     ("DNG first map generation", ["tools/verify_dng_generation.py"]),
     ("DNG first monster turn", ["tools/verify_dng_monster_turn.py"]),
     ("DNG controlled monster miss", ["tools/verify_dng_monster_miss.py"]),
+    ("DNG K exit to OUT", ["tools/verify_dng_exit.py"]),
 )
 
 

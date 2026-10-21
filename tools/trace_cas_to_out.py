@@ -17,7 +17,7 @@ OUTPUT = ROOT / "build" / "traces" / "cas-to-out"
 
 
 def main(source_report: Path = SOURCE, output: Path = OUTPUT,
-         death_path: bool = False) -> int:
+         death_path: bool = False, expected_coords: str = "1e1f") -> int:
     prior = json.loads(source_report.read_text())
     if prior["timeout"] is not None or cpu_pc(prior["final_cpu"]) != 0x88FD:
         raise RuntimeError("source trace is not at module selector")
@@ -52,7 +52,7 @@ def main(source_report: Path = SOURCE, output: Path = OUTPUT,
                 if cpu_pc(client.ok("get-cpu")) != 0x88FD or " a=04 " not in client.ok("get-cpu"):
                     raise RuntimeError("restored OUT selector differs")
                 saved_coords = client.mem(0x7E73, 2).hex()
-                if saved_coords != "1e1f":
+                if saved_coords != expected_coords:
                     raise RuntimeError("outdoor coordinates were not retained")
                 client.ok("set-turbo 8")
                 try:

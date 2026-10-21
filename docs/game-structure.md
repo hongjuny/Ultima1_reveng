@@ -6,7 +6,7 @@ This is a working map from file names, entry code, visible text, and static tran
 | --- | --- | --- |
 | `GEN` | New character and previous-game menu; character attributes and choices | Input at `$89FD` distinguishes `A` and `B`. The observed continue path at `$8AC0` jumps to the shared `OUT` entry `$88FB`. |
 | `OUT` | Outdoor map, movement, encounters, craft, and spells | `$8EFA` dispatches to other modules. `$8D6E` selects `SPA`; `$90FF–$9137` selects `CAS`, `TWN`, or `DNG`. |
-| `DNG` | Dungeon directions, levels, combat, containers | `$9725` jumps to the shared `OUT` entry. |
+| `DNG` | Dungeon directions, levels, combat, containers | `K` on the first entrance tile `$08` lowers depth 1→0; runtime reached `$9725` and reloaded `OUT`, restoring outdoor `(43,15)`. |
 | `TWN` | Town map, buying, equipment, combat | Refers to `TCMAPS` and `MAPCHARS`; `$8ABF` jumps to the shared `OUT` entry. |
 | `CAS` | Castle map and princess sequence, shops and combat | Refers to `TCMAPS` and `MAPCHARS`; `$8BFD` jumps to the shared `OUT` entry. |
 | `SPA` | Spacecraft, shield, fuel, docking, navigation | `$8FAA` jumps to the shared `OUT` entry. |

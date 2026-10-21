@@ -35,6 +35,7 @@ flowchart TD
 | `MI.U1` | `CAS` | Outdoor tile code `$04` and E command select A=`$10` at `$88FD`; filename `CAS` at `$8920`, carry-clear return `$892B`, entry `$8956` | Runtime confirmed; 5524-byte match at entry |
 | `MI.U1` | `TWN` | Outdoor tile code `$06` and E command select A=`$0C`; filename `TWN` at `$8920`, entry `$8956` | Runtime confirmed; 8461-byte match at entry |
 | `MI.U1` | `DNG` | Outdoor tile code `$07` and E command select A=`$08`; filename `DNG` at `$8920`, entry `$8956` | Runtime confirmed; 10051-byte match at entry |
+| `DNG` | `OUT` | `K` on initial tile `$08` at depth 1 reaches `$9716 → $88FB`; selector reloads `OUT` and restores outdoor `(43,15)` | Runtime confirmed; 5230-byte match and first input |
 | `MI.U1` | remaining gameplay modules | Name table at `$7E16`; selector at `$88FD–$893E` | High for names and selector; individual transitions pending |
 | `TWN` | `TCMAPS`, `MAPCHARS` | `$898B` and `$89A1` call `$B733`; inline names follow | High |
 | `CAS` | `TCMAPS`, `MAPCHARS` | Runtime `$898D → $89A3 → $89CE → $8A31 → $8A27`; both loaded files match extraction and first 768-byte map copy matches `$4014–$4313` | Runtime confirmed for first castle entry |
