@@ -110,6 +110,28 @@ def main():
     require(len(visible_offsets) == 7680 and len(tail_visible) == 480 and
             sum(copy_ram[0x6000 + offset] != 0 for offset in tail_visible) == 232,
             "NIF overread tail HGR-layout coverage differs")
+    comparison = json.loads((TRACE / "tm-nif-tail-effect/handoff.json").read_text())
+    require(comparison["source_snapshot"] == nif["snapshot"] and
+            comparison["intervention"] == {"address": "0x5E00", "length": 512,
+                                            "tail_cleared_only_in": "tail-cleared"} and
+            comparison["differing_bytes"] == {
+                stage: {"page_2000": 0, "page_4000": 0, "page_6000": 232}
+                for stage in ("after_move", "animation", "final_wait")},
+            "TM NIF tail video comparison differs")
+    for label in ("intact", "tail-cleared"):
+        trial = comparison["trials"][label]
+        item = trial["snapshot"]
+        require(describe(Path(item["path"])) == {"size": item["size"],
+                                                  "sha256": item["sha256"]} and
+                trial["tail_nonzero"] == 232 and
+                pcs(trial) == ["0x9094", "0x90AA", "0x9132"],
+                f"TM NIF tail trial differs: {label}")
+    intact_ram = main_ram(Path(comparison["trials"]["intact"]["snapshot"]["path"]))
+    cleared_ram = main_ram(Path(comparison["trials"]["tail-cleared"]["snapshot"]["path"]))
+    require(intact_ram[0x2000:0x6000] == cleared_ram[0x2000:0x6000] and
+            sum(a != b for a, b in zip(intact_ram[0x6000:0x8000],
+                                       cleared_ram[0x6000:0x8000])) == 232,
+            "TM final wait pages differ from live comparison")
     final, _ = checked("tm-final-wait")
     require(final["source_snapshot"] == copied["snapshot"] and
             final["input"] == 32 and
@@ -118,7 +140,7 @@ def main():
     print("TM: 10 east moves, G destroys gem, A+east damages Mondain 1000→970;")
     print("controlled 1-HP branches by gem flag to $9034 or $9033; NIF loads at $4000")
     print("finale moves $4000-$5FFF to $6000-$7FFF, clears source, then loops on keys")
-    print("extra 512 source bytes persisted from TM entry; 480 are HGR-layout positions")
+    print("extra 512 source bytes persisted; clearing them leaves sampled video pages unchanged")
     return 0
 
 
