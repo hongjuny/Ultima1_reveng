@@ -20,6 +20,9 @@ The `GEN`→`OUT` handoff loaded all 5230 bytes into `$8956–$9DC3`, confirmed 
 | `$90C8–$90DC` | E saves `$00/$01` to `$7E73/$7E74`, calls `$99F8` for the current tile, and admits codes `$04–$07` | On code `$04` at `($1E,$1F)`, runtime reached `$90FF`, chose A=`$10`, and entered `CAS` |
 | `$8D6E` | `LDA #$14`; `JMP $8EFA` | Selects `SPA` |
 | `$8D61–$8D8D` | [B-command boarding gate](OUT-board-transition.s) | Craft code `$06` selects `SPA`; `$07+` with `$7E75–$7E78` set selects `TM` |
+| `$913A–$9169` | Landmark match and state write, statically checked | Completes a positive even-numbered castle quest by storing `$FF` |
+| `$9565–$9596` | One-shot `$7EB5` check and `$0F` craft placement, statically checked | After a qualifying `CAS` exit, creates raw `$1E` world tile and clears the request |
+| `$9927–$9958` | Dynamic world-object writer, statically checked | Doubles a tile code, saves prior map cell, and writes the new raw tile |
 | `$8EFA` | Saves pointers, page-copies state, preserves A | Transition helper |
 | `$8F1C` | `JMP $88FD` | Common overlay selector |
 | `$90FF–$9137` | Sets A to `$10`, `$0C`, or `$08` before `$8EFA` | Selects `CAS`, `TWN`, or `DNG` |

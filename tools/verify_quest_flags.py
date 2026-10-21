@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check the four castle gem-award writes and the outdoor TM gate."""
+"""Check quest completion, castle rewards, vehicle creation, and TM gate."""
 
 from disassemble import ROOT
 
@@ -13,6 +13,33 @@ AWARDS = ((0x95DE, 0x963A, 0x7E75, b"red gem"),
 def main():
     castle = (ROOT / "extracted/CAS").read_bytes()
     outdoor = (ROOT / "extracted/OUT").read_bytes()
+    dungeon = (ROOT / "extracted/DNG").read_bytes()
+
+    def has(payload, base, start, end, sequence):
+        assert sequence in payload[start-base:end-base], f"missing opcode at ${start:04X}"
+
+    # Castle's local index is derived from the world location ($7EED) and
+    # world group ($7E6F). Odd indices give gems; even indices give strength.
+    has(castle, 0x8956, 0x8969, 0x898D, b"\xAD\xED\x7E\xC9\x15")
+    has(castle, 0x8956, 0x8975, 0x898D, b"\x6D\x6F\x7E\x6D\x6F\x7E\x8D\x3B\x9E")
+    has(castle, 0x8956, 0x8975, 0x898D, b"\xA9\x06\x38\xED\x3B\x9E\x8D\x3B\x9E")
+    assert castle[0x92CC-0x8956:0x92D7-0x8956] == bytes.fromhex(
+        "ae 3b 9e bd a9 7e 10 03 4c e7 94")
+    has(castle, 0x8956, 0x9437, 0x9447, b"\xFE\xA9\x7E")
+    has(castle, 0x8956, 0x94E7, 0x94F4, b"\xA9\x00\x9D\xA9\x7E")
+    # Landmark visits can complete only the even numbered castle quests.
+    ids = outdoor[0x9D9C-0x8956:0x9DA4-0x8956]
+    targets = outdoor[0x9DAC-0x8956:0x9DB4-0x8956]
+    assert ids == bytes((0x42, 0x41, 0x2D, 0x2C, 0x18, 0x17, 0x03, 0x02))
+    assert targets == bytes((0xFF, 6, 0xFF, 4, 0xFF, 2, 0xFF, 0))
+    has(outdoor, 0x8956, 0x90F0, 0x9172, b"\xBC\xAC\x9D\x30")
+    has(outdoor, 0x8956, 0x9151, 0x9172, b"\xB9\xA9\x7E\xF0")
+    has(outdoor, 0x8956, 0x9151, 0x9172, b"\xA9\xFF\x99\xA9\x7E")
+    # Dungeon monster type five, at depths 3+ in pairs, completes odd quests.
+    assert dungeon[0x94A7-0x8956:0x94C9-0x8956] == bytes.fromhex(
+        "ad 2e a5 c9 05 d0 32 ad 06 a5 38 e9 01 4a f0 29 0a aa ca "
+        "bd a9 7e f0 21 30 1f a9 ff 9d a9 7e 20 19 81")
+    assert [((depth - 1) >> 1) * 2 - 1 for depth in (3, 5, 7, 9)] == [1, 3, 5, 7]
     assert castle[0x95BC-0x8956:0x95C0-0x8956] == b"\xAD\x6F\x7E\x0A"
     for slot, (entry, pc, flag, color) in enumerate(AWARDS):
         pointer_at = 0x95D6 + slot * 2 - 0x8956
@@ -28,7 +55,18 @@ def main():
     for flag in range(0x75, 0x79):
         assert bytes((0xAD, flag, 0x7E)) in gate
     assert outdoor[0x8D87-0x8956:0x8D89-0x8956] == b"\xA9\x18"
-    print("CAS four gem-award writes and OUT four-flag TM gate match local extraction")
+    # Castle rescue exit arms a one-shot world rebuild that plants code $0F
+    # (raw map byte $1E), the craft admitted to TM after the four-gem gate.
+    has(castle, 0x8956, 0x8B59, 0x8B7B, b"\xAD\xB6\x7E\xC9\x14")
+    has(castle, 0x8956, 0x8B59, 0x8B7B, b"\xAD\xE7\x7E\xC9\x58\xAD\xE8\x7E\xE9\x1B")
+    has(castle, 0x8956, 0x8BF4, 0x8C00, b"\xA9\x01\x8D\xB5\x7E")
+    has(outdoor, 0x8956, 0x9565, 0x9597, b"\xAD\xB5\x7E\xF0")
+    has(outdoor, 0x8956, 0x956C, 0x9597, b"\xAD\xA8\x7E\xC9\x07\xB0")
+    has(outdoor, 0x8956, 0x958C, 0x9597, b"\xA9\x0F\x20\x27\x99")
+    has(outdoor, 0x8956, 0x958C, 0x9597, b"\xA9\x00\x8D\xB5\x7E")
+    has(outdoor, 0x8956, 0x9927, 0x9959, b"\x0A\x9D\x97\x7F")
+    has(outdoor, 0x8956, 0x9927, 0x9959, b"\x68\x91\x72\xEE\xF6\x7E")
+    print("Quest producer → castle reward → TM gate and rescue → craft producer match extraction")
 
 
 if __name__ == "__main__":
