@@ -11,14 +11,14 @@ ROOT = Path(__file__).resolve().parents[2]
 EXPORTS = ROOT / "build/ghidra-project"
 sys.path.insert(0, str(ROOT / "tools"))
 from disassemble import FILES
-from verify_disasm import FRAGMENTS
 from build_command_matrix import KEY_ADDRESS, KEYS, TABLES
+from build_code_data_ledger import verified_sets
 
 EXPECTED = {
-    "U1.SYSTEM": (3, 8), "U1.INTRO": (26, 32), "MAKE.INDATA": (6, 6),
-    "MI.U1": (35, 76), "STUPH": (25, 24), "GEN": (19, 69),
-    "OUT": (39, 80), "CAS": (27, 91), "TWN": (24, 72),
-    "DNG": (48, 126), "SPA": (10, 40), "TM": (37, 81),
+    "U1.SYSTEM": (3, 8), "U1.INTRO": (28, 32), "MAKE.INDATA": (6, 6),
+    "MI.U1": (38, 76), "STUPH": (78, 42), "GEN": (19, 74),
+    "OUT": (54, 126), "CAS": (43, 117), "TWN": (39, 99),
+    "DNG": (63, 152), "SPA": (32, 101), "TM": (61, 136),
 }
 REVIEWED_EDGES = {
     "MI.U1": {(0x8907, 0xB703), (0x88F8, 0x8870)},
@@ -32,7 +32,8 @@ REVIEWED_EDGES = {
 
 def main():
     totals = Counter()
-    reviewed_as_instruction = 0
+    verified_code_count = 0
+    verified_data_count = 0
     for name, expected in EXPECTED.items():
         path = EXPORTS / f"{name}-calls.tsv"
         if not path.is_file():
@@ -73,19 +74,30 @@ def main():
                                for row in memory_rows if row["kind"] == "pointer"]
             if actual_pointers != expected_pointers:
                 raise ValueError(f"{name}: Ghidra handler pointers differ from extracted bytes")
-        reviewed = {address for _, module, _, start, end in FRAGMENTS
-                    if module == name for address in range(start, end)}
-        recovered = sum(len(reviewed.intersection(range(start, end)))
-                        for start, end, kind in spans if kind == "instruction")
-        reviewed_as_instruction += recovered
+        code, data = verified_sets(name, *FILES[name][:2])
+        instruction = {address for start, end, kind in spans
+                       if kind == "instruction" for address in range(start, end)}
+        defined = {address for start, end, kind in spans
+                   if kind == "defined_data" for address in range(start, end)}
+        if code - instruction:
+            raise ValueError(f"{name}: Ghidra missed verified code at ${min(code-instruction):04X}")
+        if data - defined:
+            raise ValueError(f"{name}: Ghidra missed verified data at ${min(data-defined):04X}")
+        if name in TABLES:
+            local_targets = {target for _, target in expected_pointers
+                             if FILES[name][0] <= target < FILES[name][0] + FILES[name][1]}
+            if local_targets - instruction:
+                raise ValueError(f"{name}: indirect handler target not decoded as code")
+        verified_code_count += len(code)
+        verified_data_count += len(data)
         print(f"{name}: {actual[0]} functions, {actual[1]} calls, "
-              f"{recovered}/{len(reviewed)} reviewed bytes seen as instructions")
-    if (totals["function"], totals["call"]) != (299, 705):
+              f"{len(code)} verified code and {len(data)} verified data bytes recognized")
+    if (totals["function"], totals["call"]) != (464, 969):
         raise ValueError(f"aggregate changed: {totals}")
-    if reviewed_as_instruction != 3081:
-        raise ValueError(f"reviewed-byte classification changed: {reviewed_as_instruction}")
-    print("12 phase-separated programs; 299 function candidates, 705 calls, "
-          "3081/3191 reviewed bytes classified as instructions")
+    if (verified_code_count, verified_data_count) != (3367, 378):
+        raise ValueError("verified code/data byte counts changed")
+    print("12 phase-separated programs; 464 function candidates, 969 direct calls, "
+          "3367 verified code and 378 verified data bytes recognized")
     return 0
 
 

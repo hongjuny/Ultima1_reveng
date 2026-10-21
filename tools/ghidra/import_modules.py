@@ -49,9 +49,22 @@ def main():
     ).strip()
     sys.path.insert(0, str(ROOT / "tools"))
     from verify_disasm import FRAGMENTS
+    from build_command_matrix import KEYS, TABLES
+    from disassemble import FILES
     manifest = BUILD / "reviewed-entrypoints.tsv"
-    entries = sorted({(module, start) for _, module, _, start, _ in FRAGMENTS})
-    manifest.write_text("".join(f"{module}\t{start:04X}\n" for module, start in entries))
+    entries = {(module, start) for _, module, _, start, _ in FRAGMENTS}
+    for module, (table_address, _) in TABLES.items():
+        base, size, _ = FILES[module]
+        data = (ROOT / "extracted" / module).read_bytes()
+        offset = table_address - base
+        for i in range(len(KEYS)):
+            target = int.from_bytes(data[offset + 2*i:offset + 2*i + 2], "little")
+            if base <= target < base + size:
+                entries.add((module, target))
+            elif not 0x7000 <= target < 0x8956:
+                raise ValueError(f"{module}: handler ${target:04X} is not resident")
+    entries.update(("STUPH", address) for address in range(0x1583, 0x15E9, 3))
+    manifest.write_text("".join(f"{module}\t{start:04X}\n" for module, start in sorted(entries)))
     selected = sys.argv[1:] or list(MODULES)
     for name in selected:
         if name not in MODULES:
@@ -68,6 +81,7 @@ def main():
                    "-processor", "6502:LE:16:default",
                    "-scriptPath", str(SCRIPT_DIR),
                    "-preScript", "MarkUltimaDispatch.java",
+                   "-preScript", "MarkUltimaInlineData.java",
                    "-preScript", "SeedUltimaEntrypoints.java", str(manifest),
                    "-postScript", "ExportUltimaCalls.java", str(output),
                    "-postScript", "ExportUltimaMemory.java", str(memory_output),

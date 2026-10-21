@@ -21,7 +21,7 @@ The generated listings are **linear drafts**. They interpret embedded text, grap
 2. [File and memory map](docs/file-map.md)
 3. [Dependency map](docs/dependency-map.md)
 4. [Execution architecture (Korean)](docs/execution-architecture.md)
-5. [Ghidra call atlas](docs/ghidra-call-atlas.md) and [reviewed assembly address atlas](docs/assembly-atlas.md)
+5. [Code/data evidence ledger (Korean)](docs/code-data-ledger.md), [Ghidra call atlas](docs/ghidra-call-atlas.md), and [reviewed assembly address atlas](docs/assembly-atlas.md)
 6. [Command dispatch matrix (Korean)](docs/command-dispatch-matrix.md) and [memory and zero-page lifetimes (Korean)](docs/memory-and-zero-page.md)
 7. [Shared I/O service vectors (Korean)](docs/shared-services.md)
 8. [File-by-file disassembly](disasm/README.md)
