@@ -16,6 +16,8 @@ CHECKS = (
     ("controlled final craft world spawn", ["tools/verify_final_craft_spawn.py"]),
     ("controlled first castle quest acceptance", ["tools/verify_cas_quest_accept.py"]),
     ("controlled outdoor landmark quest completion", ["tools/verify_out_landmark_quest.py"]),
+    ("controlled first castle gem award", ["tools/verify_cas_gem_award.py"]),
+    ("controlled dungeon odd quest completion", ["tools/verify_dng_odd_quest.py"]),
     ("reviewed assembly", ["tools/verify_disasm.py"]),
     ("TCMAPS records", ["tools/extract_data.py", "--check"]),
     ("intro support relocation", ["tools/verify_intro_support.py"]),

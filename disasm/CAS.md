@@ -56,6 +56,8 @@ Four castle reward paths increment consecutive shared bytes: `$963A → $7E75` (
 
 A controlled first-castle replay set only the local player coordinates to the king's `$6C` tile `(31,6)`. `T` entered `$927C`; `S` passed the service choice at `$93FB` and incremented quest byte `$7EAF` at `$9437`, from 0 to 1. The [runtime verifier](../tools/verify_cas_quest_accept.py) checks the source snapshot and result. The walking route and later quest completion remain separate work.
 
+A second controlled replay set the king-tile coordinates, odd castle index 1, and quest byte `$7EAA=$FF`. `T` reached the completed-quest branch `$94E7`, reset `$7EAA` to zero, and dispatched through `$95BC` to the red gem write at `$963A`. The `$7E75` counter changed `0→1`, confirmed by [the gem-award verifier](../tools/verify_cas_gem_award.py). The intervened castle index and completion flag mean this is a branch test, not a natural dungeon-to-castle route.
+
 Visible text also includes a princess sequence, shops, and combat. The runtime conditions and repeat-award behavior of the four gem paths remain to trace.
 
 The reviewed [map copy](CAS-map-copy.s) at `$89BB–$89DF` reassembles byte-for-byte. It reads the address table starting at entry 0, patches its own source operand, and copies 768 bytes to `$B400`. The packed pointer stride is only 764 bytes; see [TCMAPS](TCMAPS.md) for the overlap. The [key poll](CAS-key-poll.s), [left-edge exit](CAS-left-edge.s), [movement check](CAS-move-check.s), [tile check](CAS-map-tile-check.s), [actor lookup](CAS-actor-lookup.s), [collision wrapper](CAS-collision-wrapper.s), and [movement commit](CAS-move-commit.s) also reassemble byte-for-byte.
