@@ -19,6 +19,7 @@ The `GEN`→`OUT` handoff loaded all 5230 bytes into `$8956–$9DC3`, confirmed 
 | `$99D1–$99F7` | Bounds X/Y to `$00–$3F`, reads `$6000 + Y×64 + X`, restores Y through a patched immediate operand, then shifts the byte right | All four direction replays reached this lookup; each read raw `$02` and returned tile code `$01` |
 | `$90C8–$90DC` | E saves `$00/$01` to `$7E73/$7E74`, calls `$99F8` for the current tile, and admits codes `$04–$07` | On code `$04` at `($1E,$1F)`, runtime reached `$90FF`, chose A=`$10`, and entered `CAS` |
 | `$8D6E` | `LDA #$14`; `JMP $8EFA` | Selects `SPA` |
+| `$8D61–$8D8D` | [B-command boarding gate](OUT-board-transition.s) | Craft code `$06` selects `SPA`; `$07+` with `$7E75–$7E78` set selects `TM` |
 | `$8EFA` | Saves pointers, page-copies state, preserves A | Transition helper |
 | `$8F1C` | `JMP $88FD` | Common overlay selector |
 | `$90FF–$9137` | Sets A to `$10`, `$0C`, or `$08` before `$8EFA` | Selects `CAS`, `TWN`, or `DNG` |

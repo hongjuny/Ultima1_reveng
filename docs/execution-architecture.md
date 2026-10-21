@@ -12,7 +12,7 @@ flowchart TD
     OUT --> TWN["TWN $8956<br/>마을 루프"]
     OUT --> DNG["DNG $8956<br/>던전 루프"]
     OUT --> SPA["SPA $8956<br/>우주 루프: 통제 실행"]
-    MI --> TM["TM $8956<br/>결말 입력: PC 주입 실행"]
+    OUT --> TM["TM $8956<br/>B 명령 통제 진입"]
     STUPH["STUPH $1583–$15E8<br/>34개 공용 I/O 진입 벡터"] --> MI
     STUPH --> OUT
     STUPH --> CAS
@@ -24,7 +24,7 @@ flowchart TD
     SPA --> OUT
 ```
 
-`CAS`·`TWN`·`DNG`·`SPA`에서 `OUT`으로 가는 코드는 확인되었지만, 모든 복귀 조건을 실행한 것은 아니다. `TM`으로 들어가는 실제 플레이 경로와 결말은 미확인이다. 파일 로드·메모리 교체의 근거는 [의존 관계](dependency-map.md)와 [모듈 선택](module-dispatch.md)에 있다.
+`CAS`·`TWN`·`DNG`·`SPA`에서 `OUT`으로 가는 코드는 확인되었지만, 모든 복귀 조건을 실행한 것은 아니다. `OUT`의 B 명령으로 `TM`에 들어가는 조건부 분기를 통제 실행했으며, 탈것과 네 플래그를 실제 플레이에서 얻는 경로 및 결말은 미확인이다. 파일 로드·메모리 교체의 근거는 [의존 관계](dependency-map.md)와 [모듈 선택](module-dispatch.md)에 있다.
 
 ## 루프의 공통 형태
 
