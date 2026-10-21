@@ -36,14 +36,15 @@ def route(ram: bytes, start: tuple[int, int]):
     raise RuntimeError("no mapped land route to code-$07 tile")
 
 
-def main() -> int:
-    source = SOURCE
+def main(source_report: Path = SOURCE, output: Path = OUTPUT,
+         required_quest: int | None = None) -> int:
+    source = source_report
     prior = json.loads(source.read_text())
     ram = main_ram(Path(prior["snapshot"]["path"]))
     steps = route(ram, (ram[0], ram[1]))
     print(f"mapped route: {len(steps)} steps to {steps[-1][1]}", flush=True)
     for index, (key, position, code) in enumerate(steps, 1):
-        target = OUTPUT / f"step-{index:02d}"
+        target = output / f"step-{index:02d}"
         if replay(key, source, target):
             return 1
         report = json.loads((target / "handoff.json").read_text())
@@ -53,10 +54,12 @@ def main() -> int:
                 report["tile_lookup"]["code"] != code:
             raise RuntimeError(f"step {index}: expected {position} code {code}; got "
                                f"{actual} code {report['tile_lookup']['code']}")
+        if required_quest is not None and current[0x7EAA] != required_quest:
+            raise RuntimeError(f"quest changed at outdoor step {index}")
         print(f"route step {index}/{len(steps)}: {actual} code ${code:02X}", flush=True)
         source = target / "handoff.json"
-    (OUTPUT / "route.json").write_text(json.dumps({
-        "source": str(SOURCE), "steps": len(steps), "end_report": str(source),
+    (output / "route.json").write_text(json.dumps({
+        "source": str(source_report), "steps": len(steps), "end_report": str(source),
         "end_position": steps[-1][1], "end_code": 7,
     }, indent=2) + "\n")
     return 0

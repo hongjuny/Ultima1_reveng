@@ -16,8 +16,8 @@ SOURCE = ROOT / "build" / "traces" / "cas-first-input" / "handoff.json"
 OUTPUT = ROOT / "build" / "traces" / "cas-exit-left"
 
 
-def main() -> int:
-    prior = json.loads(SOURCE.read_text())
+def main(source_report: Path = SOURCE, output: Path = OUTPUT) -> int:
+    prior = json.loads(source_report.read_text())
     if prior["timeout"] is not None or cpu_pc(prior["final_cpu"]) != 0x8A27:
         raise RuntimeError("source trace is not at castle input")
     source = prior["snapshot"]
@@ -32,12 +32,12 @@ def main() -> int:
     sys.path.insert(0, str(ROOT / "build" / "emulator" / "a2m" / "tools"))
     from a2m_control_client import Ctl
 
-    OUTPUT.mkdir(parents=True, exist_ok=True)
-    pending = OUTPUT / f"exit-left.pending-{os.getpid()}.a2state"
+    output.mkdir(parents=True, exist_ok=True)
+    pending = output / f"exit-left.pending-{os.getpid()}.a2state"
     pending.unlink(missing_ok=True)
     points = []
     timeout = None
-    with (OUTPUT / "a2m.log").open("w") as log:
+    with (output / "a2m.log").open("w") as log:
         process = launch(emulator, disk, None, log)
         try:
             client = connect(Ctl, process)
@@ -88,7 +88,7 @@ def main() -> int:
                 client.s.close()
         finally:
             stop(process)
-    final = OUTPUT / "exit-left.a2state"
+    final = output / "exit-left.a2state"
     pending.replace(final)
     report = {"source_snapshot": source, "working_game_disk": disk_item,
               "input": {"key_ascii": 8, "at_pc": "0x8A27"},
@@ -97,7 +97,7 @@ def main() -> int:
               "edge_tile_B6BD": edge, "saved_outdoor_coords": saved_outdoor_coords,
               "final_cpu": final_cpu, "final_state": final_state,
               "snapshot": {"path": str(final), **describe(final)}}
-    path = OUTPUT / "handoff.json"
+    path = output / "handoff.json"
     path.write_text(json.dumps(report, indent=2) + "\n")
     print(f"private trace: {path}")
     return 0 if timeout is None else 1
