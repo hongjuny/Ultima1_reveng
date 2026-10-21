@@ -88,6 +88,11 @@ def main():
             pcs(nif) == ["0x9052", "0xB703", "0x9059"] and nif["nif_match"] is True and
             ram[0x4000:0x5E00] == (ROOT / "extracted/NIF").read_bytes(),
             "TM controlled victory NIF load differs")
+    intro = json.loads((TRACE / "tm-intro-pages/probe.json").read_text())
+    intro_ram = main_ram(Path(intro["snapshot"]["path"]))
+    require(ram[0x5E00:0x6000] == intro_ram[0x5E00:0x6000] and
+            sum(value != 0 for value in ram[0x5E00:0x6000]) == 232,
+            "NIF overread tail changed after TM entry")
     copied, copy_ram = checked("tm-nif-copy")
     require(copied["source_snapshot"] == nif["snapshot"] and
             pcs(copied) == ["0x9073", "0x9094"] and
@@ -98,6 +103,13 @@ def main():
                                   "prior_target_changed_bytes": 7954} and
             copy_ram[0x4000:0x6000] == bytes(8192),
             "TM NIF 8-KiB move differs")
+    visible_offsets = {((y & 7) << 10) + (((y >> 3) & 7) << 7) +
+                       ((y >> 6) * 40) + x
+                       for y in range(192) for x in range(40)}
+    tail_visible = [offset for offset in visible_offsets if offset >= 0x1E00]
+    require(len(visible_offsets) == 7680 and len(tail_visible) == 480 and
+            sum(copy_ram[0x6000 + offset] != 0 for offset in tail_visible) == 232,
+            "NIF overread tail HGR-layout coverage differs")
     final, _ = checked("tm-final-wait")
     require(final["source_snapshot"] == copied["snapshot"] and
             final["input"] == 32 and
@@ -106,6 +118,7 @@ def main():
     print("TM: 10 east moves, G destroys gem, A+east damages Mondain 1000→970;")
     print("controlled 1-HP branches by gem flag to $9034 or $9033; NIF loads at $4000")
     print("finale moves $4000-$5FFF to $6000-$7FFF, clears source, then loops on keys")
+    print("extra 512 source bytes persisted from TM entry; 480 are HGR-layout positions")
     return 0
 
 
