@@ -47,7 +47,16 @@ At the next poll in each replay, `$7EE4` was `$45` (from `$95`) and `$7EDB` was 
 
 ### World-segment boundary
 
-`$9477–$94C8` tests coordinates after a move, adjusts the two-bit world index `$7E6F`, and replaces local X/Y with the entry edge. `$9503–$950B` derives object world bits `$7E70` from that index. In one [controlled replay](../tools/trace_out_world_boundary.py), the first ordinary Up key reached movement commit `$9416` with pending `(39,32)`. Changing **only pending X `$0C` to `$4A`** then followed `$9477→$9496→$94C1→$9503→$952C→$8A6C`. World index changed `0→1`, local X became `$F6`, `$7E70` became `$40`, and the `$6000–$6FFF` world-map SHA-256 changed. The [verifier](../tools/verify_out_world_boundary.py) checks the intervention and all boundaries. This confirms the east-crossing branch and map replacement in a controlled state; an ordinary-input route to the edge and the other three edges remain open.
+`$9477–$94C8` tests coordinates after a move, adjusts the two-bit world index `$7E6F`, and replaces local X/Y with the entry edge. `$9503–$950B` derives object world bits `$7E70` from that index. [Four independent controlled replays](../tools/trace_out_world_boundaries.py) started from the same ordinary Up key at move commit `$9416`, then changed **only one pending coordinate byte**. Each reached its edge branch, `$94C1` index mask, `$9503` world-bit encoding, `$952C` map-ready checkpoint, and the next `$8A6C` input. The [verifier](../tools/verify_out_world_boundaries.py) checks the one-byte intervention, exact path, and changed `$6000–$6FFF` map hash in every case.
+
+| Edge | Pending-coordinate trigger | Segment `0→` | New local `(X,Y)` | `$7E70` |
+| --- | --- | ---: | --- | ---: |
+| East | X `$4A` | 1 | `($F6,$20)` | `$40` |
+| West | X `$F5` | 3 | `($48,$20)` | `$C0` |
+| South | Y `$4A` | 2 | `($27,$FB)` | `$80` |
+| North | Y `$F5` | 2 | `($27,$43)` | `$80` |
+
+The north and south result is the same two-bit segment from starting segment 0; they enter at opposite local Y edges. The negative west and south arithmetic first produces `$FF` and `$FE`; `$94C1` masks these to 3 and 2. This establishes the branch and resulting map state for controlled crossings. A route using only ordinary movement to reach a real boundary remains to test.
 
 A second `$0A` move from `($27,$22)` entered raw tile `$04`/code `$02` at `($27,$23)`; food changed `$C8→$C7` while health stayed unchanged. An 11-move path from the first outdoor input reached raw tile `$08`/code `$04` at `($1E,$1F)` and remained in `OUT` at its next key poll. Pressing `E` there dispatched to `$90C8`; it saved the coordinates, read code `$04`, selected A=`$10` through `$90FF–$9137`, and loaded `CAS`. The entire 5,524-byte `CAS` overlay matched the extracted file at `$8956` before entry. [The route verifier](../tools/verify_out_terrain_entry.py) checks the private snapshots and exact handoff. Other terrain codes and entry conditions remain to test.
 
