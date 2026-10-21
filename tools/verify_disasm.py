@@ -61,6 +61,9 @@ FRAGMENTS = (
     ("CAS-map-copy.s", "CAS", 0x8956, 0x89BB, 0x89E0),
     ("DNG-key-poll.s", "DNG", 0x8956, 0x8DDA, 0x8DE6),
     ("DNG-move-commit.s", "DNG", 0x8956, 0x8EBE, 0x8ECE),
+    ("DNG-map-access.s", "DNG", 0x8956, 0x9D32, 0x9D49),
+    ("DNG-candidate-position.s", "DNG", 0x8956, 0xA432, 0xA449),
+    ("DNG-map-write.s", "DNG", 0x8956, 0xA41F, 0xA432),
 )
 
 

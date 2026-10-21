@@ -16,8 +16,8 @@ SOURCE = ROOT / "build/traces/dng-key-up/handoff.json"
 OUTPUT = ROOT / "build/traces/dng-after-up"
 
 
-def main() -> int:
-    prior = json.loads(SOURCE.read_text())
+def main(source_report: Path = SOURCE, output: Path = OUTPUT) -> int:
+    prior = json.loads(source_report.read_text())
     if prior["timeout"] is not None or cpu_pc(prior["final_cpu"]) != 0x8E0E:
         raise RuntimeError("source is not at DNG Up handler return")
     source, disk_item = prior["snapshot"], prior["working_game_disk"]
@@ -30,12 +30,12 @@ def main() -> int:
     sys.path.insert(0, str(ROOT / "build/emulator/a2m/tools"))
     from a2m_control_client import Ctl
 
-    OUTPUT.mkdir(parents=True, exist_ok=True)
-    pending = OUTPUT / f"after-up.pending-{os.getpid()}.a2state"
+    output.mkdir(parents=True, exist_ok=True)
+    pending = output / f"after-input.pending-{os.getpid()}.a2state"
     pending.unlink(missing_ok=True)
     points = []
     timeout = None
-    with (OUTPUT / "a2m.log").open("w") as log:
+    with (output / "a2m.log").open("w") as log:
         process = launch(emulator, disk, None, log)
         try:
             client = connect(Ctl, process)
@@ -63,13 +63,13 @@ def main() -> int:
                 client.s.close()
         finally:
             stop(process)
-    final = OUTPUT / "after-up.a2state"
+    final = output / "after-input.a2state"
     pending.replace(final)
     report = {"source_snapshot": source, "working_game_disk": disk_item,
               "checkpoints": points, "timeout": timeout, "state": state,
               "final_cpu": final_cpu, "final_state": final_state,
               "snapshot": {"path": str(final), **describe(final)}}
-    path = OUTPUT / "handoff.json"
+    path = output / "handoff.json"
     path.write_text(json.dumps(report, indent=2) + "\n")
     print(f"private trace: {path}")
     return 0 if timeout is None else 1

@@ -16,8 +16,9 @@ SOURCE = ROOT / "build/traces/dng-first-input/handoff.json"
 OUTPUT = ROOT / "build/traces/dng-key-w"
 
 
-def main(key: int = 87, output: Path = OUTPUT) -> int:
-    prior = json.loads(SOURCE.read_text())
+def main(key: int = 87, output: Path = OUTPUT,
+         source_report: Path = SOURCE, probe_move: bool = False) -> int:
+    prior = json.loads(source_report.read_text())
     if prior["timeout"] is not None or cpu_pc(prior["final_cpu"]) != 0x8DDA:
         raise RuntimeError("source is not at first DNG key poll")
     source, disk_item = prior["snapshot"], prior["working_game_disk"]
@@ -70,6 +71,9 @@ def main(key: int = 87, output: Path = OUTPUT) -> int:
                         patched = client.mem(0x8E0B, 3).hex()
                         target = int.from_bytes(client.mem(0x8E0C, 2), "little")
                         points.append(wait_at(client, "command handler", (target,)))
+                        if probe_move and target == 0x8E95:
+                            points.append(wait_at(client, "candidate tile", (0x8E9B,)))
+                            points.append(wait_at(client, "movement branch", (0x8EA7, 0x8EBE)))
                         points.append(wait_at(client, "handler return", (0x8E0E,)))
                 except RuntimeError as error:
                     timeout = str(error)

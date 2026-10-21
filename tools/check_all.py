@@ -56,6 +56,8 @@ CHECKS = (
     ("TWN food-shop purchase boundary", ["tools/verify_twn_food_shop.py"]),
     ("OUT-to-DNG route and first input", ["tools/verify_out_to_dng.py"]),
     ("DNG first key dispatch and move", ["tools/verify_dng_first_keys.py"]),
+    ("DNG directions and wall", ["tools/verify_dng_directions.py"]),
+    ("DNG first map generation", ["tools/verify_dng_generation.py"]),
 )
 
 
