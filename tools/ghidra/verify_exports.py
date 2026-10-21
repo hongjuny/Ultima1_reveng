@@ -12,13 +12,14 @@ EXPORTS = ROOT / "build/ghidra-project"
 sys.path.insert(0, str(ROOT / "tools"))
 from disassemble import FILES
 from build_command_matrix import KEY_ADDRESS, KEYS, TABLES
+from build_spa_view_matrix import TABLE as SPA_VIEW_TABLE
 from build_code_data_ledger import verified_sets
 
 EXPECTED = {
     "U1.SYSTEM": (3, 8), "U1.INTRO": (28, 32), "MAKE.INDATA": (6, 6),
     "MI.U1": (38, 76), "STUPH": (89, 45), "GEN": (19, 74),
     "OUT": (54, 126), "CAS": (43, 117), "TWN": (39, 99),
-    "DNG": (63, 152), "SPA": (36, 101), "TM": (61, 136),
+    "DNG": (63, 152), "SPA": (61, 174), "TM": (61, 136),
 }
 REVIEWED_EDGES = {
     "MI.U1": {(0x8907, 0xB703), (0x88F8, 0x8870)},
@@ -75,6 +76,12 @@ def main():
             expected_pointers = [(table_address + 2*i,
                                   int.from_bytes(source[offset + 2*i:offset + 2*i + 2], "little"))
                                  for i in range(len(KEYS))]
+            if name == "SPA":
+                view_offset = SPA_VIEW_TABLE - FILES[name][0]
+                expected_pointers += [(SPA_VIEW_TABLE + 2*i,
+                                       int.from_bytes(source[view_offset + 2*i:
+                                                             view_offset + 2*i + 2], "little"))
+                                      for i in range(len(KEYS))]
             actual_pointers = [(int(row["from"], 16), int(row["to"], 16))
                                for row in memory_rows if row["kind"] == "pointer"]
             if actual_pointers != expected_pointers:
@@ -97,12 +104,12 @@ def main():
         verified_data_count += len(data)
         print(f"{name}: {actual[0]} functions, {actual[1]} calls, "
               f"{len(code)} verified code and {len(data)} verified data bytes recognized")
-    if (totals["function"], totals["call"]) != (479, 972):
+    if (totals["function"], totals["call"]) != (504, 1045):
         raise ValueError(f"aggregate changed: {totals}")
-    if (verified_code_count, verified_data_count) != (4112, 424):
+    if (verified_code_count, verified_data_count) != (4112, 476):
         raise ValueError("verified code/data byte counts changed")
-    print("12 phase-separated programs; 479 function candidates, 972 direct calls, "
-          "4112 verified code and 424 verified data bytes recognized")
+    print("12 phase-separated programs; 504 function candidates, 1045 direct calls, "
+          "4112 verified code and 476 verified data bytes recognized")
     return 0
 
 

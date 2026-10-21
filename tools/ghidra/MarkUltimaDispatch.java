@@ -33,6 +33,14 @@ public class MarkUltimaDispatch extends GhidraScript {
             }
             createLabel(toAddr(base), "command_handlers", true);
             println(name + ": defined 26 handler pointers at $" + row[1]);
+            if (name.equals("SPA")) {
+                int viewBase = 0x9BCB;
+                for (int i = 0; i < 26; i++) {
+                    createData(toAddr(viewBase + 2*i), new PointerDataType());
+                }
+                createLabel(toAddr(viewBase), "view_command_handlers", true);
+                println("SPA: defined 26 view handler pointers at $9BCB");
+            }
             return;
         }
     }

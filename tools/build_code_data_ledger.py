@@ -8,6 +8,7 @@ from pathlib import Path
 import sys
 
 from build_command_matrix import KEY_ADDRESS, KEYS, TABLES
+from build_spa_view_matrix import TABLE as SPA_VIEW_TABLE
 from disassemble import FILES, ROOT
 from verify_disasm import FRAGMENTS
 
@@ -82,6 +83,8 @@ def verified_sets(name, base, size):
     if name in TABLES:
         table, _ = TABLES[name]
         data.update(range(table, table + 2*len(KEYS)))
+    if name == "SPA":
+        data.update(range(SPA_VIEW_TABLE, SPA_VIEW_TABLE + 2*len(KEYS)))
     if name == "STUPH":
         code.update(range(0x1583, 0x15E9))  # inspect_stuph_vectors.py
     if code & data:
@@ -109,6 +112,13 @@ def render():
                              for i in range(len(KEYS))}
             local_targets = {address for address in local_targets
                              if base <= address < base + size}
+            if name == "SPA":
+                view_offset = SPA_VIEW_TABLE - base
+                local_targets.update(int.from_bytes(source[view_offset + 2*i:
+                                                            view_offset + 2*i + 2], "little")
+                                     for i in range(len(KEYS)))
+                local_targets = {address for address in local_targets
+                                 if base <= address < base + size}
             if any(kinds[address-base] != "instruction" for address in local_targets):
                 raise ValueError(f"{name}: an indirect handler target was not decoded")
             local_target_total += len(local_targets)
@@ -145,7 +155,7 @@ def render():
     lines = [
         "# 파일별 코드·데이터 증거 장부", "",
         "이 장부는 [종합 리포트](consolidated-report-2026-10-21.md)의 첫 빈칸을 주소 단위로 추적한다. 12개 게임 실행 파일을 각 파일의 로드 주소로 분리하고, 파일의 **모든 바이트를 한 범주에만** 넣었다. `$8956`을 공유하는 오버레이는 서로 다른 행이다. 원본 데이터 파일 `MAPCHARS/TCMAPS/NIF`와 `PRODOS`는 이 Ghidra 실행 프로그램 집계에서 제외한다.", "",
-        f"**검증 코드**는 재조립이 일치하는 검토 조각에서 인라인 인자·짧은 표 바이트를 뺀 범위와 34개 `STUPH` JMP 벡터다. **검증 데이터**는 재조립된 JSR 뒤 인라인 인자와 방향표 {sum(end-start for ranges in INLINE_DATA.values() for start, end in ranges)}바이트, 공용 키 26바이트, 여섯 모듈의 핸들러 포인터 312바이트다. 후자의 대상 주소 156개는 [명령 행렬](command-dispatch-matrix.md)과 추출 파일·Ghidra가 일치한다. 중복을 뺀 오버레이 내부 대상 {local_target_total}곳도 Ghidra에서 명령 시작으로 확인하지만, 이 사실만으로 핸들러 효과는 검증되지 않는다. 나머지 `Ghidra 명령 후보/데이터 후보/미분류`는 **검증된 의미가 아니다**. 자동 분석의 함수 수나 후보 바이트 수를 완료율로 읽지 않는다.", "",
+        f"**검증 코드**는 재조립이 일치하는 검토 조각에서 인라인 인자·짧은 표 바이트를 뺀 범위와 34개 `STUPH` JMP 벡터다. **검증 데이터**는 재조립된 JSR 뒤 인라인 인자와 방향표 {sum(end-start for ranges in INLINE_DATA.values() for start, end in ranges)}바이트, 공용 키 26바이트, 여섯 모듈의 핸들러 포인터 312바이트, `SPA` 항법 화면의 별도 포인터 52바이트다. 대상 주소 182개는 [일반 명령 행렬](command-dispatch-matrix.md)·[항법 화면 표](spa-view-commands.md)와 추출 파일·Ghidra가 일치한다. 중복을 뺀 오버레이 내부 대상 {local_target_total}곳도 Ghidra에서 명령 시작으로 확인하지만, 이 사실만으로 핸들러 효과는 검증되지 않는다. 나머지 `Ghidra 명령 후보/데이터 후보/미분류`는 **검증된 의미가 아니다**. 자동 분석의 함수 수나 후보 바이트 수를 완료율로 읽지 않는다.", "",
         "| 파일 | 길이 | 검증 코드 | 검증 데이터 | Ghidra 명령 후보 | Ghidra 데이터 후보 | 미분류 |",
         "| --- | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]

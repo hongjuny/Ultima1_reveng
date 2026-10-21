@@ -50,6 +50,7 @@ def main():
     sys.path.insert(0, str(ROOT / "tools"))
     from verify_disasm import FRAGMENTS
     from build_command_matrix import KEYS, TABLES
+    from build_spa_view_matrix import TABLE as SPA_VIEW_TABLE
     from disassemble import FILES
     manifest = BUILD / "reviewed-entrypoints.tsv"
     entries = {(module, start) for _, module, _, start, _ in FRAGMENTS}
@@ -72,6 +73,15 @@ def main():
                 entries.add((module, target))
             elif not 0x7000 <= target < 0x8956:
                 raise ValueError(f"{module}: handler ${target:04X} is not resident")
+    spa_data = (ROOT / "extracted/SPA").read_bytes()
+    spa_base, spa_size, _ = FILES["SPA"]
+    for i in range(len(KEYS)):
+        offset = SPA_VIEW_TABLE - spa_base + 2*i
+        target = int.from_bytes(spa_data[offset:offset+2], "little")
+        if spa_base <= target < spa_base + spa_size:
+            entries.add(("SPA", target))
+        elif not 0x7000 <= target < 0x8956:
+            raise ValueError(f"SPA view handler ${target:04X} is not resident")
     entries.update(("STUPH", address) for address in range(0x1583, 0x15E9, 3))
     manifest.write_text("".join(f"{module}\t{start:04X}\n" for module, start in sorted(entries)))
     selected = sys.argv[1:] or list(MODULES)
