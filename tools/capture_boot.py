@@ -57,7 +57,7 @@ def require_pc(reply):
     return reply[1]
 
 
-def launch(executable: Path, disk: Path, snapshot: Path | None, log):
+def launch(executable: Path, disk: Path, snapshot: Path | None, log, *, inspector=False):
     socketpair_mode = os.environ.get("ULTIMA_A2M_SOCKETPAIR") == "1"
     if socketpair_mode:
         if not SOCKETPAIR_EMULATOR.is_file():
@@ -70,6 +70,8 @@ def launch(executable: Path, disk: Path, snapshot: Path | None, log):
                f"--disk={disk}", "--log-level=warn"]
     if snapshot is not None:
         command.append(f"--sna={snapshot}")
+    if inspector:
+        command.append("--inspector")
     if not socketpair_mode:
         return subprocess.Popen(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT)
     parent, child = socket.socketpair()

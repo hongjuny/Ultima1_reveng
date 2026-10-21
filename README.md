@@ -23,7 +23,7 @@ The generated listings are **linear drafts**. They interpret embedded text, grap
 4. [Execution architecture (Korean)](docs/execution-architecture.md)
 5. [Code/data evidence ledger (Korean)](docs/code-data-ledger.md), [Ghidra call atlas](docs/ghidra-call-atlas.md), and [reviewed assembly address atlas](docs/assembly-atlas.md)
 6. [Command dispatch matrix (Korean)](docs/command-dispatch-matrix.md) and [memory and zero-page lifetimes (Korean)](docs/memory-and-zero-page.md)
-7. [Shared I/O service vectors (Korean)](docs/shared-services.md)
+7. [Shared I/O service vectors (Korean)](docs/shared-services.md) and [outdoor tile-to-pixel rendering (Korean)](docs/outdoor-rendering.md)
 8. [File-by-file disassembly](disasm/README.md)
 9. [Porting fidelity and evidence](docs/porting-fidelity.md)
 10. [Roadmap to a faithful macOS port](docs/porting-roadmap.md)

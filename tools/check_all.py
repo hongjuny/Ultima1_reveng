@@ -60,6 +60,8 @@ CHECKS = (
     ("OUT entry", ["tools/verify_out_entry.py"]),
     ("OUT first input", ["tools/verify_out_first_input.py"]),
     ("STUPH first outdoor draw", ["tools/verify_stuph_outdoor_draw.py"]),
+    ("OUT one-tile video and pixel controls", ["tools/verify_outdoor_tile_pixels.py"]),
+    ("OUT HGR neighbor/phase palette", ["tools/verify_outdoor_hgr_palette.py"]),
     ("OUT unknown P key", ["tools/verify_out_key_p.py"]),
     ("OUT Space dispatch", ["tools/verify_out_key_space.py"]),
     ("OUT Space immediate effect", ["tools/verify_out_space_effect.py"]),
