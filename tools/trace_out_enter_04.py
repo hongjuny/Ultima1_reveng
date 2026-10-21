@@ -16,8 +16,9 @@ SOURCE = ROOT / "build" / "traces" / "out-route-to-04" / "step-11" / "handoff.js
 OUTPUT = ROOT / "build" / "traces" / "out-enter-04"
 
 
-def main() -> int:
-    prior = json.loads(SOURCE.read_text())
+def main(source_report: Path = SOURCE, output: Path = OUTPUT,
+         expected_coords: bytes = bytes((30, 31))) -> int:
+    prior = json.loads(source_report.read_text())
     if prior["timeout"] is not None or cpu_pc(prior["final_cpu"]) != 0x8A6C:
         raise RuntimeError("source trace is not at outdoor input")
     source = prior["snapshot"]
@@ -32,12 +33,12 @@ def main() -> int:
     sys.path.insert(0, str(ROOT / "build" / "emulator" / "a2m" / "tools"))
     from a2m_control_client import Ctl
 
-    OUTPUT.mkdir(parents=True, exist_ok=True)
-    pending = OUTPUT / f"enter.pending-{os.getpid()}.a2state"
+    output.mkdir(parents=True, exist_ok=True)
+    pending = output / f"enter.pending-{os.getpid()}.a2state"
     pending.unlink(missing_ok=True)
     points = []
     timeout = None
-    with (OUTPUT / "a2m.log").open("w") as log:
+    with (output / "a2m.log").open("w") as log:
         process = launch(emulator, disk, None, log)
         try:
             client = connect(Ctl, process)
@@ -48,7 +49,7 @@ def main() -> int:
                 if cpu_pc(client.ok("get-cpu")) != 0x8A6C:
                     raise RuntimeError("restored PC differs")
                 coords_before = client.mem(0x00, 2).hex()
-                if coords_before != "1e1f":
+                if coords_before != expected_coords.hex():
                     raise RuntimeError(f"not on intended map tile: {coords_before}")
                 client.ok("set-turbo 8")
                 client.ok_or_data("break-clear-all")
@@ -92,7 +93,7 @@ def main() -> int:
                 client.s.close()
         finally:
             stop(process)
-    final = OUTPUT / "enter-04.a2state"
+    final = output / "enter-04.a2state"
     pending.replace(final)
     report = {"source_snapshot": source, "working_game_disk": disk_item,
               "input": {"key_ascii": 69, "at_pc": "0x8A6C"},
@@ -101,7 +102,7 @@ def main() -> int:
               "saved_coords_7E73": saved_coords,
               "final_cpu": final_cpu, "final_state": final_state,
               "snapshot": {"path": str(final), **describe(final)}}
-    path = OUTPUT / "handoff.json"
+    path = output / "handoff.json"
     path.write_text(json.dumps(report, indent=2) + "\n")
     print(f"private trace: {path}")
     return 0 if timeout is None else 1

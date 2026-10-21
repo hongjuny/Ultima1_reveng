@@ -19,6 +19,7 @@ CHECKS = (
     ("controlled first castle gem award", ["tools/verify_cas_gem_award.py"]),
     ("controlled dungeon odd quest completion", ["tools/verify_dng_odd_quest.py"]),
     ("level-three actual slot-five quest kill", ["tools/verify_dng_level3_quest_hunt.py"]),
+    ("natural second castle odd quest acceptance", ["tools/verify_odd_castle_quest_accept.py"]),
     ("reviewed assembly", ["tools/verify_disasm.py"]),
     ("TCMAPS records", ["tools/extract_data.py", "--check"]),
     ("intro support relocation", ["tools/verify_intro_support.py"]),
