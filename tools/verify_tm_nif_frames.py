@@ -34,10 +34,10 @@ def main():
     require(len(nif) == 7680 and
             report["nif_sha256"] == hashlib.sha256(nif).hexdigest(),
             "NIF source bytes changed")
-    require(report["breakpoint_hits"] == 192 and
+    require(report["row_copy_hits"] == 192 and
             report["sample_rows"] == sorted(SAMPLE_ROWS) and
             len(report["samples"]) == len(SAMPLE_ROWS) and
-            report["final_cpu"].startswith("pc=90FE"),
+            report["final_cpu"].startswith("pc=9101"),
             "NIF frame sample coverage changed")
     for sample, consumed in zip(report["samples"], sorted(SAMPLE_ROWS)):
         target = "$4000" if consumed & 1 else "$2000"
@@ -47,10 +47,17 @@ def main():
                 sample["remaining_before_decrement"] == 193 - consumed and
                 sample["next_source"] == f"${0x6000 + 40 * consumed:04X}" and
                 sample["last_destination"] == address and
-                sample["matching_lower_rows"][target] == consumed,
+                sample["matching_lower_rows"][target] == consumed and
+                sample["video_switches"] == {"TEXT": 0, "MIXED": 0,
+                                             "PAGE2": 0 if consumed & 1 else 1,
+                                             "HIRES": 1} and
+                sample["after_flip_cpu"].startswith("pc=9101") and
+                sample["video_after_flip"] == {"TEXT": 0, "MIXED": 0,
+                                               "PAGE2": 1 if consumed & 1 else 0,
+                                               "HIRES": 1},
                 f"NIF row {consumed} frame or page differs")
     print("TM NIF frames: nine sampled row counts across 192 copies; "
-          "alternating HGR pages each contain the complete lower-row prefix")
+          "alternating HGR writes precede the video page flip")
     return 0
 
 

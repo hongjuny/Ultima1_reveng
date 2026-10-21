@@ -65,19 +65,37 @@ def main():
                         continue
                     pages = {f"${base:04X}": matching_rows(client.mem(base, 8192), packed, consumed)
                              for base in (0x2000, 0x4000)}
+                    switches = client.get_softswitches()
                     sample = {"consumed": consumed, "cpu": cpu,
                               "remaining_before_decrement": client.mem(0x006D, 1)[0],
                               "next_source": f"${word(client, 0x90E8):04X}",
                               "last_destination": f"${word(client, 0x90EB):04X}",
                               "matching_lower_rows": pages,
+                              "video_switches": {key: switches[key]
+                                                 for key in ("TEXT", "MIXED", "PAGE2", "HIRES")},
                               "state": client.ok("get-state")}
+                    client.ok_or_data("break-clear-all")
+                    client.ok_or_data("break-exec $9101")
+                    client.ok("run")
+                    client.ok("wait-paused 15000")
+                    after_cpu = client.ok("get-cpu")
+                    if cpu_pc(after_cpu) != 0x9101:
+                        raise RuntimeError(f"row {consumed}: page flip did not return: {after_cpu}")
+                    after_switches = client.get_softswitches()
+                    sample["after_flip_cpu"] = after_cpu
+                    sample["video_after_flip"] = {key: after_switches[key]
+                                                  for key in ("TEXT", "MIXED", "PAGE2", "HIRES")}
+                    client.ok_or_data("break-clear-all")
+                    client.ok_or_data("break-exec $90FE")
                     samples.append(sample)
                     print(f"NIF row {consumed}: target {sample['last_destination']} "
-                          f"lower-row matches {pages}", flush=True)
+                          f"lower-row matches {pages}; page2 "
+                          f"{sample['video_switches']['PAGE2']}→"
+                          f"{sample['video_after_flip']['PAGE2']}", flush=True)
                 report = {"source_snapshot": source, "working_game_disk": disk_item,
                           "nif_sha256": hashlib.sha256(packed).hexdigest(),
                           "sample_rows": sorted(SAMPLE_ROWS), "samples": samples,
-                          "breakpoint_hits": 192, "final_cpu": client.ok("get-cpu")}
+                          "row_copy_hits": 192, "final_cpu": client.ok("get-cpu")}
             finally:
                 client.s.close()
         finally:
