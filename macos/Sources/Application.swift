@@ -2,6 +2,11 @@ import AppKit
 
 @MainActor
 final class GameView: NSView {
+    var begin: (() -> Void)?
+    override var acceptsFirstResponder: Bool { true }
+    override func keyDown(with event: NSEvent) {
+        if event.keyCode == 36 || event.keyCode == 49 { begin?() } else { super.keyDown(with: event) }
+    }
     var frameImage: CGImage? { didSet { needsDisplay = true } }
     override var isOpaque: Bool { true }
     override func draw(_ dirtyRect: NSRect) {
@@ -38,9 +43,9 @@ final class ApplicationDelegate: NSObject, NSApplicationDelegate, NSToolbarDeleg
         let playbackItem = NSMenuItem(); menu.addItem(playbackItem)
         let playback = NSMenu(title: "재생"); playbackItem.submenu = playback
         playback.addItem(withTitle: "처음부터 다시 보기", action: #selector(restart), keyEquivalent: "r").target = self
-        let skipItem = playback.addItem(withTitle: "타이틀로 바로 이동", action: #selector(skipToTitle), keyEquivalent: "\r")
+        let skipItem = playback.addItem(withTitle: "타이틀로 바로 이동", action: #selector(skipToTitle), keyEquivalent: "")
         skipItem.target = self; skipItem.keyEquivalentModifierMask = []
-        let pauseItem = playback.addItem(withTitle: "일시 정지 / 계속", action: #selector(togglePause), keyEquivalent: " ")
+        let pauseItem = playback.addItem(withTitle: "일시 정지 / 계속", action: #selector(togglePause), keyEquivalent: "")
         pauseItem.target = self; pauseItem.keyEquivalentModifierMask = []
         playback.addItem(withTitle: "전체 화면", action: #selector(toggleFullscreen), keyEquivalent: "f").target = self
         app.mainMenu = menu
@@ -52,6 +57,11 @@ final class ApplicationDelegate: NSObject, NSApplicationDelegate, NSToolbarDeleg
         window.subtitle = "The First Age of Darkness"
         window.minSize = NSSize(width: 560, height: 440)
         window.contentView = screen
+        screen.begin = { [weak self] in
+            guard let self else { return }
+            if self.machine?.titleReady == true { self.createCharacter() } else { self.skipToTitle() }
+        }
+        window.makeFirstResponder(screen)
         window.backgroundColor = .black
         window.collectionBehavior = [.fullScreenPrimary]
         let toolbar = NSToolbar(identifier: "Playback")
@@ -83,8 +93,24 @@ final class ApplicationDelegate: NSObject, NSApplicationDelegate, NSToolbarDeleg
 
     @objc func restart() {
         do {
+            window.contentView = screen
+            window.makeFirstResponder(screen)
             machine = try StartupMachine(resources: resources)
             paused = false; resumeAt = .distantPast
+        } catch { show(error) }
+    }
+    @objc func createCharacter() {
+        do {
+            let session = try CharacterSession(resources: resources)
+            paused = true
+            let view = CharacterView(session: session, finished: { [weak self] in
+                guard let self else { return }
+                self.window.contentView = self.screen
+                self.window.makeFirstResponder(self.screen)
+                self.skipToTitle()
+            }, reportError: { [weak self] in self?.show($0) })
+            window.contentView = view
+            window.makeFirstResponder(view)
         } catch { show(error) }
     }
     @objc func togglePause() {
@@ -106,11 +132,12 @@ final class ApplicationDelegate: NSObject, NSApplicationDelegate, NSToolbarDeleg
         toolbarDefaultItemIdentifiers(toolbar)
     }
     func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-        [.flexibleSpace, .init("pause"), .init("skip"), .init("replay"), .init("fullscreen")]
+        [.init("character"), .flexibleSpace, .init("pause"), .init("skip"), .init("replay"), .init("fullscreen")]
     }
     func toolbar(_ toolbar: NSToolbar, itemForItemIdentifier id: NSToolbarItem.Identifier,
                  willBeInsertedIntoToolbar flag: Bool) -> NSToolbarItem? {
         let definitions: [String: (String, String, Selector)] = [
+            "character": ("새 인물 만들기", "person.crop.circle.badge.plus", #selector(createCharacter)),
             "pause": ("일시 정지 / 계속", "pause.fill", #selector(togglePause)),
             "skip": ("타이틀로 바로 이동", "forward.end.fill", #selector(skipToTitle)),
             "replay": ("처음부터 다시 보기", "arrow.counterclockwise", #selector(restart)),
@@ -135,7 +162,7 @@ final class ApplicationDelegate: NSObject, NSApplicationDelegate, NSToolbarDeleg
     }
     func show(_ error: Error) {
         let alert = NSAlert()
-        alert.messageText = "시작 화면을 불러올 수 없습니다"
+        alert.messageText = "Ultima I 작업을 완료할 수 없습니다"
         alert.informativeText = String(describing: error)
         alert.runModal()
     }
@@ -151,6 +178,11 @@ struct UltimaStartupApplication {
             resources = URL(fileURLWithPath: arguments[index + 1])
         } else {
             resources = Bundle.main.resourceURL!.appendingPathComponent("OriginalData")
+        }
+        if let index = arguments.firstIndex(of: "--check-character"), index + 1 < arguments.count {
+            do { try checkCharacterCreation(resources: resources, output: URL(fileURLWithPath: arguments[index+1])) }
+            catch { fputs("Character checks failed: \(error)\n", stderr); exit(1) }
+            return
         }
         if let index = arguments.firstIndex(of: "--capture"), index + 1 < arguments.count {
             do {

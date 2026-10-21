@@ -8,11 +8,11 @@ import sys
 from import_modules import ROOT, SCRIPT_DIR, analyzer
 
 BUILD = ROOT / "build/macos-startup"
-PROGRAMS = {"U1.INTRO": (0x0800, ROOT / "extracted/U1.INTRO"),
+PROGRAMS = {"GEN": (0x8956, ROOT / "extracted/GEN"),"U1.INTRO": (0x0800, ROOT / "extracted/U1.INTRO"),
             "MAKE.INDATA": (0x1E00, ROOT / "extracted/MAKE.INDATA"),
             "INTRO.RELOC": (0x8700, BUILD / "INTRO.RELOC")}
 # MAKE.INDATA $1F17 copies $2000-$27FF to $8700-$8EFF before executing it.
-SEEDS = {"INTRO.RELOC": (0x8700, 0x8748),
+SEEDS = {"GEN": (0x8CFA, 0x8E12),"INTRO.RELOC": (0x8700, 0x8748),
          "U1.INTRO": (0x0ACA, 0x0B08, 0x0DFD, 0x0E00, 0x0E03, 0x0E7E,
                        0x10EB, 0x110D, 0x1112),
          "MAKE.INDATA": ()}

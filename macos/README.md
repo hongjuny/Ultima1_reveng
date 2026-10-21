@@ -8,15 +8,18 @@ open "build/Ultima I.app"
 ```
 
 The first build uses the installed Ghidra and Swift compiler. Keep the locally
-extracted `U1.INTRO` and `MAKE.INDATA` in `extracted/`. Use `--ghidra` to refresh
+extracted `U1.INTRO`, `MAKE.INDATA`, `MI.U1`, and `GEN` in `extracted/`. Use `--ghidra` to refresh
 the startup analysis. The generated Swift, application bundle, original assets,
 and captured frames stay under ignored `build/`.
 
 The native app presents the Origin splash, runs the original intro animation,
 and holds a complete Ultima I title frame. The toolbar and Playback menu provide
-pause, skip to title (Return), replay (Command-R), and fullscreen (Command-F).
-This version implements the startup scene. Character creation and gameplay are
-the next translation units.
+pause, skip to title, replay (Command-R), and fullscreen (Command-F).
+Press Return/Space on the title or use the person toolbar button to create a
+character. The native wizard covers attributes, race, sex, class, name and local
+saving. Outdoor gameplay is the next translation unit. See
+[character creation](../docs/native-character-creation.md) for translation boundaries
+and save-format limitations.
 
 The address-preserving Swift blocks come from Ghidra's instruction export,
 including the support code relocated to `$8700`. The native host supplies file

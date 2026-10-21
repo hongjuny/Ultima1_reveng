@@ -22,6 +22,9 @@ def main():
     if args.ghidra or not (build / "U1.INTRO-alternates.tsv").is_file() or not all((build / f"{name}-instructions.tsv").is_file()
                               for name in ("U1.INTRO", "MAKE.INDATA", "INTRO.RELOC")):
         subprocess.run([sys.executable, "tools/ghidra/export_startup.py"], cwd=ROOT, check=True)
+    if args.ghidra or not (build / "GEN-instructions.tsv").is_file():
+        subprocess.run([sys.executable, "tools/ghidra/export_startup.py", "GEN"], cwd=ROOT, check=True)
+    subprocess.run([sys.executable, "tools/transcribe_character.py"], cwd=ROOT, check=True)
     subprocess.run([sys.executable, "tools/transcribe_startup.py"], cwd=ROOT, check=True)
     app = ROOT / "build/Ultima I.app"
     contents = app / "Contents"
@@ -29,7 +32,7 @@ def main():
     data = contents / "Resources/OriginalData"
     executable.parent.mkdir(parents=True, exist_ok=True)
     data.mkdir(parents=True, exist_ok=True)
-    for name in ("U1.INTRO", "MAKE.INDATA"):
+    for name in ("U1.INTRO", "MAKE.INDATA", "GEN", "MI.U1"):
         shutil.copyfile(ROOT / "extracted" / name, data / name)
     env = os.environ.copy()
     cache = str(build / "module-cache")
@@ -37,6 +40,7 @@ def main():
     env["SWIFT_MODULE_CACHE_PATH"] = cache
     sources = sorted((ROOT / "macos/Sources").glob("*.swift"))
     sources.append(build / "StartupTranslated.swift")
+    sources.append(build / "CharacterTranslated.swift")
     command = ["swiftc", "-O", "-module-name", "UltimaIStartup",
                "-target", f"{platform.machine()}-apple-macos13.0",
                "-module-cache-path", cache, "-framework", "AppKit", "-framework", "ImageIO",
@@ -49,7 +53,7 @@ def main():
             "NSHighResolutionCapable": True, "NSPrincipalClass": "NSApplication"}
     (contents / "Info.plist").write_bytes(plistlib.dumps(info))
     subprocess.run(["codesign", "--force", "--sign", "-", str(app)], check=True)
-    inputs = sources + [ROOT / "tools/transcribe_startup.py", ROOT / "tools/build_macos_app.py"]
+    inputs = sources + [ROOT / "tools/transcribe_character.py", ROOT / "tools/transcribe_startup.py", ROOT / "tools/build_macos_app.py"]
     (build / "app-build.json").write_text(json.dumps({
         "source_sha256": {str(path.relative_to(ROOT)): hashlib.sha256(path.read_bytes()).hexdigest()
                           for path in inputs},
