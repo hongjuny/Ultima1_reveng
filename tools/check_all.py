@@ -65,6 +65,7 @@ CHECKS = (
     ("DNG second descent to level three", ["tools/verify_dng_level3.py"]),
     ("DNG level-two combat turns", ["tools/verify_dng_level2_heavy_hit.py"]),
     ("DNG multi-level map generation", ["tools/verify_dng_generation_levels.py"]),
+    ("DNG random $05/$06 cell", ["tools/verify_dng_random_tile.py"]),
 )
 
 
