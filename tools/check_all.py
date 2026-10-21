@@ -23,6 +23,7 @@ CHECKS = (
     ("natural odd quest carried to dungeon", ["tools/verify_odd_quest_to_dng.py"]),
     ("natural odd quest completion on dungeon level three", ["tools/verify_odd_quest_natural_completion.py"]),
     ("natural completed quest return and red gem award", ["tools/verify_odd_quest_natural_gem_award.py"]),
+    ("TM gem, attack, victory gate and NIF load", ["tools/verify_tm_victory_gate.py"]),
     ("reviewed assembly", ["tools/verify_disasm.py"]),
     ("TCMAPS records", ["tools/extract_data.py", "--check"]),
     ("intro support relocation", ["tools/verify_intro_support.py"]),
