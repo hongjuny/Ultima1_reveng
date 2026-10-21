@@ -2,6 +2,8 @@
 
 This is a working map from file names, entry code, visible text, and static transitions. The category names describe observed screen or code content; precise game rules still require routine-level tracing.
 
+For the shared engine, per-module main loops, keyboard, rendering, and I/O boundaries, see [execution architecture](execution-architecture.md).
+
 | Module | Visible responsibility | Observed transition evidence |
 | --- | --- | --- |
 | `GEN` | New character and previous-game menu; character attributes and choices | Input at `$89FD` distinguishes `A` and `B`. The observed continue path at `$8AC0` jumps to the shared `OUT` entry `$88FB`. |

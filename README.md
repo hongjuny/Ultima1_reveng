@@ -18,15 +18,16 @@ The generated listings are **linear drafts**. They interpret embedded text, grap
 
 1. [File and memory map](docs/file-map.md)
 2. [Dependency map](docs/dependency-map.md)
-3. [File-by-file disassembly](disasm/README.md)
-4. [Porting fidelity and evidence](docs/porting-fidelity.md)
-5. [Roadmap to a faithful macOS port](docs/porting-roadmap.md)
-6. [Progress and effort audit (2026-10-21, Korean)](docs/progress-audit-2026-10-21.md)
-7. [Local disk and emulator baseline](docs/baseline.md)
-8. [Startup and module loading](docs/startup.md)
-9. [Gameplay module dispatch](docs/module-dispatch.md)
-10. [Game structure map](docs/game-structure.md)
-11. [Analysis log](docs/analysis-log.md)
+3. [Execution architecture (Korean)](docs/execution-architecture.md)
+4. [File-by-file disassembly](disasm/README.md)
+5. [Porting fidelity and evidence](docs/porting-fidelity.md)
+6. [Roadmap to a faithful macOS port](docs/porting-roadmap.md)
+7. [Progress and effort audit (2026-10-21, Korean)](docs/progress-audit-2026-10-21.md)
+8. [Local disk and emulator baseline](docs/baseline.md)
+9. [Startup and module loading](docs/startup.md)
+10. [Gameplay module dispatch](docs/module-dispatch.md)
+11. [Game structure map](docs/game-structure.md)
+12. [Analysis log](docs/analysis-log.md)
 
 The `extracted/`, `disk/`, and `build/` directories and Ghidra project files are ignored. Review any future annotated assembly before publication: even text form can contain substantial original game material.
 

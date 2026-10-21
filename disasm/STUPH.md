@@ -13,8 +13,11 @@ Load range: `$0800–$1FFF`. Early regions are patterned display data. Later reg
 | `$15B9` | `JMP $1DF1` | Shared random-byte entry used by castle combat |
 | `$15E3` | `JMP $1670` | Last stub |
 | `$1DF1–$1E17` | [Reviewed 39-byte routine](STUPH-random.s), byte-matched | Mutates 16-byte state at `$1E18–$1E27`; returns byte at `$1E18` |
+| `$1D64–$1D7E` | [Reviewed keyboard latch routine](STUPH-keyboard-latch.s), byte-matched | Reads `$C000`, buffers up to four high-bit key bytes at `$74–$77`, clears strobe through `$C010` |
 
 The jump table makes this file an executable dependency, despite its graphics-heavy beginning. Next: identify each target routine and its callers without treating earlier image data as code.
+
+The bounded input stub `$15C2` jumps to `$1D97`, which calls `$1D7F` and in turn `$1D64`. `$15C5` jumps to `$1DA3`, a separate input path also used by `OUT`. At `$1D64`, a high-bit-clear read from `$C000` returns immediately. A high-bit-set key is appended to `$74–$77` while `$78<4`; the `$A0` value first resets `$78` to zero. An accepted key reads `$C010` to clear the keyboard strobe. The 27-byte fragment matches the extracted file; the precise differences between `$1D97` and `$1DA3`, including timeout and presentation effects, still need a dedicated trace.
 
 The random-byte entry `$15B9` jumps to `$1DF1`. The routine starts with the byte at `$1E27`, accumulates it backward through state bytes `$1E26–$1E18` while preserving ADC carry, adds `$1E27` once more into `$1E18`, then increments the 16-byte state backward until the increment does not wrap. It returns the resulting `$1E18` byte. The [reviewed source](STUPH-random.s) reassembles exactly. A castle guard-hit replay returned `$9D`. In a separate controlled replay, changing only `$1E27` from `$A6` to `$59` immediately before the call made the routine return `$02`. The latter is a counterfactual branch test, not an unmodified gameplay observation; the [private verifier](../tools/verify_cas_guard_miss.py) checks that the two intervention snapshots differ in exactly that byte.
 
