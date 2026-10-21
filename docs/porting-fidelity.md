@@ -30,6 +30,6 @@ Do not mark a module or data format complete because its first entry and visible
 
 For a behavior under study, preserve the input sequence and a known initial game state. Record branch addresses and changed memory after each action; capture the corresponding screen and sound where relevant. A macOS implementation should run the same scenario and compare state and output. For data files, extract records with checked pointers and lengths, and keep checksums in a local manifest so a conversion can be reproduced without committing original assets.
 
-`TCMAPS` is an example of why the port must follow code as well as file boundaries: the pointer stride is 764 bytes, while the runtime copy is 768 bytes. The four bytes read past the final file payload require an emulator memory trace before deciding how to model them.
+`TCMAPS` is an example of why the port must follow code as well as file boundaries: the pointer stride is 764 bytes, while the runtime copy is 768 bytes. A controlled castle replay found that the final copy appends four inherited RAM bytes, and clearing the four destination bytes left the first input state otherwise identical. The castle's 38×18 map and five 16-entry actor arrays account for the 764 packed bytes; later consumers of the padding remain to be checked.
 
 The [dependency map](dependency-map.md) describes the changing memory image. The [file-by-file record](../disasm/README.md) tracks instruction and data coverage. This inventory should be revised whenever a trace changes an assumption.
