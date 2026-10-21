@@ -18,6 +18,10 @@ SCENARIOS = {
             0x89DC, 0x89DF, 0x8995, 0x89A1, 0x8A6C),
     "DNG": ("dng-first-input", 0x8DDA, 0x8DE4, 0x8DD4, 0x8DD7,
             0x8E0B, 0x8E0E, 0x8DE6, 0x8982, 0x8DDA),
+    "CAS": ("cas-first-input", 0x8A27, 0x8A2F, 0x8A4A, None,
+            0x8A56, 0x8A59, 0x8A31, None, 0x8A27),
+    "TWN": ("twn-first-input", 0x8A1E, 0x8A26, 0x8A41, None,
+            0x8A4D, 0x8A50, 0x8A28, None, 0x8A1E),
 }
 
 
@@ -32,6 +36,7 @@ def diff(before: bytes, after: bytes, base: int) -> dict:
 def sample(client) -> dict:
     frame = client.get_frame()
     return {"player": client.mem(0x7E00, 0x200),
+            "zero_page": client.mem(0x00, 0x80),
             "dungeon": client.mem(0xA4E8, 8),
             "video": client.mem(0x2000, 0x4000, "main"),
             "frame": {"number": frame["frame"],
@@ -71,17 +76,15 @@ def trace(name: str, config: tuple, emulator: Path, Ctl) -> dict:
                 points.append({"label": "key return", "pc": f"${key_return:04X}", "cpu": cpu})
                 for label, address in (("lookup", lookup), ("decoded", decoded),
                                        ("handler call", handler_call)):
-                    points.append(wait_at(client, f"{name} {label}", (address,)))
+                    if address is not None:
+                        points.append(wait_at(client, f"{name} {label}", (address,)))
                 target = int.from_bytes(client.mem(handler_call + 1, 2), "little")
                 points.append(wait_at(client, f"{name} handler", (target,)))
                 points.append(wait_at(client, f"{name} handler return", (handler_return,)))
                 handled = sample(client)
-                if name == "OUT":
-                    points.append(wait_at(client, "OUT frame", (loop,)))
-                    points.append(wait_at(client, "OUT main loop", (render,)))
-                else:
-                    points.append(wait_at(client, "DNG main loop", (loop,)))
-                    points.append(wait_at(client, "DNG render", (render,)))
+                points.append(wait_at(client, f"{name} loop", (loop,)))
+                if render is not None:
+                    points.append(wait_at(client, f"{name} display", (render,)))
                 points.append(wait_at(client, f"{name} next poll", (next_poll,)))
                 completed = sample(client)
                 final_cpu = client.ok("get-cpu")
@@ -92,10 +95,12 @@ def trace(name: str, config: tuple, emulator: Path, Ctl) -> dict:
     return {"source_snapshot_sha256": source["sha256"], "key": 11,
             "checkpoints": points, "handler": f"${target:04X}",
             "after_handler": {"player": diff(before["player"], handled["player"], 0x7E00),
+                              "zero_page": diff(before["zero_page"], handled["zero_page"], 0),
                               "dungeon": diff(before["dungeon"], handled["dungeon"], 0xA4E8),
                               "video": diff(before["video"], handled["video"], 0x2000),
                               "frame": handled["frame"]},
             "after_next_poll": {"player": diff(before["player"], completed["player"], 0x7E00),
+                                "zero_page": diff(before["zero_page"], completed["zero_page"], 0),
                                 "dungeon": diff(before["dungeon"], completed["dungeon"], 0xA4E8),
                                 "video": diff(before["video"], completed["video"], 0x2000),
                                 "frame": completed["frame"]},

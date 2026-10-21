@@ -22,7 +22,9 @@ def main():
         return
     turns, loops, memory, boarding, page1 = (json.loads(path.read_text()) for path in FILES)
     expected = {"OUT": ("0x8A6C", "$9357", "$7E4F"),
-                "DNG": ("0x8DDA", "$8E95", "$A4E9")}
+                "DNG": ("0x8DDA", "$8E95", "$A4E9"),
+                "CAS": ("0x8A27", "$8A93", "$7EDA"),
+                "TWN": ("0x8A1E", "$8A8A", "$7EDA")}
     for name, (poll, handler, state_addr) in expected.items():
         trace = turns[name]
         assert trace["handler"] == handler
@@ -49,7 +51,9 @@ def main():
     assert page1["checkpoints"][0]["pc"] == "0x881E"
     assert " a=20 " in page1["checkpoints"][0]["cpu"]
     assert page1["checkpoints"][1]["pc"] == "0x882A"
-    print("OUT/DNG Up turns, controlled B transitions, TM page 1, loops, and residency verified")
+    assert turns["CAS"]["after_next_poll"]["player"]["addresses"] == turns["TWN"]["after_next_poll"]["player"]["addresses"]
+    assert turns["CAS"]["after_next_poll"]["zero_page"]["addresses"] == turns["TWN"]["after_next_poll"]["zero_page"]["addresses"]
+    print("OUT/CAS/TWN/DNG Up turns, controlled B transitions, TM page 1, loops, and residency verified")
 
 
 if __name__ == "__main__":
