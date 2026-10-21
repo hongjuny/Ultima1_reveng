@@ -10,6 +10,8 @@ Controlled runtime selection with A=`$14` at common `$88FD` loaded all 9,930 byt
 
 A second controlled replay sent the real OUT B key after changing only the current world tile to craft code `$06`. It passed `$8D6E`, loaded SPA with all bytes matching, and reached `$8A53`. This confirms the B-command transition mechanism; the ordinary acquisition and placement of this craft remain unknown.
 
+The original bytes at `$9700–$973F` connect a hit path to the castle's qualification field: the code reduces `$B099,Y` by `$40`, adds 100 to experience `$7EE7/$7EE8` with a 9999 cap, increments `$7EB6` with saturation at 255, then compares it with 20. The exactly-20 branch begins at `$9766` and prints a special message. These bytes match the extraction in [quest verification](../tools/verify_quest_flags.py). Their full entry conditions and the effect of one natural enemy kill still need a combat replay; the [castle numeric gate](../docs/quest-and-final-craft.md#최종-탈것의-생산-경로) separately confirms that `$7EB6=20` qualifies at the castle.
+
 From that entry, Space returned through `$8A62`, decoded to X=`$08`, jumped via patched `$8AB0` to handler `$9207`, and reached `$8AB3 → $8A53 → $8A5F` for the next input. See the [first SPA turn](../docs/turn-contracts.md). Other movement, fuel, shield, docking, and exit rules remain to trace.
 
 ## Direction controls and fuel: byte-matched static contract

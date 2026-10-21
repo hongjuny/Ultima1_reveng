@@ -60,4 +60,6 @@ A second controlled replay set the king-tile coordinates, odd castle index 1, an
 
 Visible text also includes a princess sequence, shops, and combat. The runtime conditions and repeat-award behavior of the four gem paths remain to trace.
 
+The princess-side left exit checks the edge tile at `$8AB3–$8AC1`. After its narrative block, `$8B38–$8B64` adds 500 to HP, Coin, and experience, each capped at 9999. `$8B65–$8B7A` requires `$7EB6 ≥ 20` and post-reward experience `$7EE7/$7EE8 ≥ $1B58` (7000); `$8BF5–$8BF9` sets the one-shot craft request `$7EB5=1`. A [three-case controlled replay](../docs/quest-and-final-craft.md#최종-탈것의-생산-경로) established both numeric boundaries. The replay skipped the long narrative call, so natural access to this exit and the princess rescue sequence remain open.
+
 The reviewed [map copy](CAS-map-copy.s) at `$89BB–$89DF` reassembles byte-for-byte. It reads the address table starting at entry 0, patches its own source operand, and copies 768 bytes to `$B400`. The packed pointer stride is only 764 bytes; see [TCMAPS](TCMAPS.md) for the overlap. The [key poll](CAS-key-poll.s), [left-edge exit](CAS-left-edge.s), [movement check](CAS-move-check.s), [tile check](CAS-map-tile-check.s), [actor lookup](CAS-actor-lookup.s), [collision wrapper](CAS-collision-wrapper.s), and [movement commit](CAS-move-commit.s) also reassemble byte-for-byte.

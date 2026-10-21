@@ -12,6 +12,7 @@ AWARDS = ((0x95DE, 0x963A, 0x7E75, b"red gem"),
 
 def main():
     castle = (ROOT / "extracted/CAS").read_bytes()
+    space = (ROOT / "extracted/SPA").read_bytes()
     outdoor = (ROOT / "extracted/OUT").read_bytes()
     dungeon = (ROOT / "extracted/DNG").read_bytes()
 
@@ -60,6 +61,10 @@ def main():
     has(castle, 0x8956, 0x8B59, 0x8B7B, b"\xAD\xB6\x7E\xC9\x14")
     has(castle, 0x8956, 0x8B59, 0x8B7B, b"\xAD\xE7\x7E\xC9\x58\xAD\xE8\x7E\xE9\x1B")
     has(castle, 0x8956, 0x8BF4, 0x8C00, b"\xA9\x01\x8D\xB5\x7E")
+    # The space hit path awards 100 experience and increments the same byte
+    # consumed by CAS; it saturates at 255 and singles out count 20.
+    has(space, 0x8956, 0x9700, 0x9732, b"\xAD\xE7\x7E\x69\x64\x8D\xE7\x7E")
+    has(space, 0x8956, 0x9732, 0x9740, b"\xEE\xB6\x7E\xD0\x03\xCE\xB6\x7E\xAD\xB6\x7E\xC9\x14")
     has(outdoor, 0x8956, 0x9565, 0x9597, b"\xAD\xB5\x7E\xF0")
     has(outdoor, 0x8956, 0x956C, 0x9597, b"\xAD\xA8\x7E\xC9\x07\xB0")
     has(outdoor, 0x8956, 0x958C, 0x9597, b"\xA9\x0F\x20\x27\x99")
