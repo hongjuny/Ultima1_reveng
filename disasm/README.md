@@ -7,7 +7,7 @@ Each page records **verified instruction ranges and evidence**, using the origin
 | Startup | [U1.SYSTEM](U1.SYSTEM.md), [U1.INTRO](U1.INTRO.md), [MAKE.INDATA](MAKE.INDATA.md) | `U1.INTRO` entry, both key polls, two file requests, and `MAKE.INDATA` page copy setup reassembled |
 | Shared engine | [MI.U1](MI.U1.md), [STUPH](STUPH.md) | Module selector, 34 support vectors, keyboard latch, and inline text-output chain identified; one glyph's screen-memory write traced |
 | Gameplay | [GEN](GEN.md), [OUT](OUT.md), [DNG](DNG.md), [TWN](TWN.md), [CAS](CAS.md), [SPA](SPA.md), [TM](TM.md) | All six gameplay overlays have a traced first command turn. `SPA`/`TM` entry used controlled craft/map/flag values; ordinary acquisition and full rule coverage remain open |
-| Data | `MAPCHARS`, [TCMAPS](TCMAPS.md), `NIF`, generated [U1.VARS](U1.VARS.md) | `TCMAPS` packed slots and overlapping runtime copy windows verified; `U1.VARS` save image and initial fields verified |
+| Data | [MAPCHARS](MAPCHARS.md), [TCMAPS](TCMAPS.md), `NIF`, generated [U1.VARS](U1.VARS.md) | `MAPCHARS` 128×8 scanline planes and castle font swap traced; `TCMAPS` packed slots and final-copy padding observed; `U1.VARS` save image and initial fields verified |
 | Operating system | `PRODOS` | External dependency, not game disassembly |
 
 ## Recording convention

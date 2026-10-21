@@ -27,6 +27,8 @@ CHECKS = (
     ("TM combat damage and flee transition", ["tools/verify_tm_phase_transition.py"]),
     ("TM flee, recovery, distant attack, and re-engagement", ["tools/verify_tm_phase_cycle.py"]),
     ("TCMAPS final-slot copy and tail effect", ["tools/verify_tcmaps_last_slot.py"]),
+    ("MAPCHARS scanline-plane format", ["tools/extract_mapchars.py", "--check"]),
+    ("MAPCHARS castle draw and font swap", ["tools/verify_mapchars_render.py"]),
     ("reviewed assembly", ["tools/verify_disasm.py"]),
     ("TCMAPS records", ["tools/extract_data.py", "--check"]),
     ("intro support relocation", ["tools/verify_intro_support.py"]),
