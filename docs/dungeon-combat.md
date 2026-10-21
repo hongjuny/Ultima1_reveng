@@ -23,8 +23,16 @@ The [byte-matched subtraction](../disasm/DNG-monster-hp.s) at `$9B05–$9B1F` ap
 
 The code at `$9A72–$9A94` has several special branches before the ordinary draw. Larger bounds and 16-bit random handling also need runtime tests. The observed attack and controlled miss establish both threshold outcomes for this state only.
 
-## Two hits in one second-floor turn
+## Five hits across the observed second-floor route
 
-During the ordinary route across level 2, a direction-turn input from `(3,5)` left HP at 126 through the command handler. Before the next key poll, [an independent combat replay](../tools/verify_dng_level2_heavy_hit.py) recorded two hit paths and matched the ordinary next-poll RAM byte-for-byte. Both attacks used threshold `$45`; hit rolls `$B6` and `$4C` took `$9A72`. The attacker slots at `$A4FE` were 5 and 1. These are array slots, not identified monster species.
+During the ordinary route across level 2, four turns reduced HP from 131 to 108. [Independent combat replays](../tools/verify_dng_level2_heavy_hit.py) show five hit paths; each replay's full main RAM matches its ordinary next-poll snapshot. All five used threshold `$45` and took the `$9A72` hit branch. The values at `$A4FE` below are actor array slots, not identified monster species.
 
-The [byte-matched bound accumulator](../disasm/DNG-damage-bound.s) at `$9CBC–$9CD1` adds `$A60D[depth]` to a 16-bit value once for each actor-slot index. At depth 2, `$A60F=4`, yielding bounds `2 + 4×5 = 22` and `2 + 4×1 = 6`. The accepted draws were 11 and 3, so the [draw loop](../disasm/DNG-monster-damage-roll.s) applied damage 12 and 4. HP changed `126→114→110` at the two `$9B1A` checkpoints. This verifies two sequential ordinary hits and larger bounds in one observed state. It does not establish the species, movement rules, or all depth scaling values.
+| Route input | Actor slot | Hit roll | Bound | Accepted draw | Damage | HP |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 | 5 | `$6F` | 22 | 0 | 1 | 131→130 |
+| 3 | 1 | `$83` | 6 | 3 | 4 | 130→126 |
+| 4, first hit | 5 | `$B6` | 22 | 11 | 12 | 126→114 |
+| 4, second hit | 1 | `$4C` | 6 | 3 | 4 | 114→110 |
+| 9 | 5 | `$71` | 22 | 1 | 2 | 110→108 |
+
+The [byte-matched bound accumulator](../disasm/DNG-damage-bound.s) at `$9CBC–$9CD1` adds `$A60D[depth]` to a 16-bit value once for each actor-slot index. At depth 2, `$A60F=4`, yielding bounds `2 + 4×5 = 22` and `2 + 4×1 = 6`. The [draw loop](../disasm/DNG-monster-damage-roll.s) adds one to each accepted draw for damage. In route input 4, the two `$9B1A` checkpoints changed HP `126→114→110`. These observations establish five ordinary hits in four turns of one route; they do not establish actor species, movement rules, or all depth scaling values.

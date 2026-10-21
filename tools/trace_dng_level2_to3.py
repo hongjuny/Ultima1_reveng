@@ -10,6 +10,7 @@ from disassemble import ROOT
 from trace_dng_after_up import main as next_poll
 from trace_dng_descend import direction_key, observe, route
 from trace_dng_key_w import main as press_key
+from trace_dng_level2_heavy_hit import main as trace_combat
 from trace_dng_stairs_k import main as stair_k
 from trace_startup import cpu_pc
 
@@ -88,6 +89,11 @@ def main(max_actions: int = 80) -> int:
                branch="descend", expected_position="0703",
                expected_facing=expected_facing):
         raise RuntimeError("level-three descent K replay failed")
+    for index in (1, 3, 4, 9):
+        combat_output = (ROOT / "build/traces/dng-level2-heavy-hit" if index == 4 else
+                         ROOT / f"build/traces/dng-level2-loss-{index:03d}")
+        if trace_combat(OUTPUT / f"action-{index:03d}/key/handoff.json", combat_output):
+            raise RuntimeError(f"level-two combat replay failed for action {index}")
     print("third-floor entry captured", flush=True)
     return 0
 

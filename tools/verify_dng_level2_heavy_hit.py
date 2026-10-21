@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify two ordinary monster hits and their bounds on dungeon level two."""
+"""Verify every ordinary monster hit on the observed level-two route."""
 
 import json
 from pathlib import Path
@@ -18,6 +18,13 @@ NEXT = TRACE / "dng-level2-to3/action-004/poll/handoff.json"
 EVENT_PCS = ("0x9A0A", "0x9A62", "0x9A72", "0x9A95", "0x9AAC",
              "0x9B0C", "0x9B1A", "0x9A0A", "0x9A62", "0x9A72",
              "0x9A95", "0x9AAC", "0x9B0C", "0x9B1A", "0x8DDA")
+SINGLE_PCS = ("0x9A0A", "0x9A62", "0x9A72", "0x9A95", "0x9AAC",
+              "0x9B0C", "0x9B1A", "0x8DDA")
+OTHER = (
+    (1, "8300", "8200", "05", "6F", "1600", "0000", "0100"),
+    (3, "8200", "7e00", "01", "83", "0600", "0300", "0400"),
+    (9, "6e00", "6c00", "05", "71", "1600", "0100", "0200"),
+)
 
 
 def checked_ram(item: dict) -> bytes:
@@ -28,8 +35,10 @@ def checked_ram(item: dict) -> bytes:
 
 
 def main() -> int:
-    if not all(path.is_file() for path in (SOURCE, COMBAT, NEXT)):
-        print("PENDING DNG level-two two-hit replay")
+    other_paths = tuple(TRACE / f"dng-level2-loss-{index:03d}/handoff.json"
+                        for index, *_ in OTHER)
+    if not all(path.is_file() for path in (SOURCE, COMBAT, NEXT, *other_paths)):
+        print("PENDING DNG level-two combat-turn replays")
         return 0
     source, combat, next_poll = [json.loads(path.read_text())
                                  for path in (SOURCE, COMBAT, NEXT)]
@@ -66,9 +75,29 @@ def main() -> int:
             2 + before[0xA60F] * 5 == 22 and
             2 + before[0xA60F] * 1 == 6,
             "level-two hit rolls, bounds, damage, or HP stores differ")
+    for index, initial_hp, final_hp, actor, hit, bound, draw, damage in OTHER:
+        key_report = json.loads((TRACE / f"dng-level2-to3/action-{index:03d}/key/handoff.json").read_text())
+        poll_report = json.loads((TRACE / f"dng-level2-to3/action-{index:03d}/poll/handoff.json").read_text())
+        hit_report = json.loads((TRACE / f"dng-level2-loss-{index:03d}/handoff.json").read_text())
+        events = hit_report["events"]
+        require(hit_report["timeout"] is None and
+                hit_report["source_snapshot"] == poll_report["source_snapshot"] == key_report["snapshot"] and
+                hit_report["working_game_disk"] == poll_report["working_game_disk"] == disk and
+                checked_ram(hit_report["snapshot"]) == checked_ram(poll_report["snapshot"]) and
+                tuple(event["pc"] for event in events) == SINGLE_PCS and
+                all(event["depth"] == "02" and event["threshold"] == "45" and
+                    event["actor_index"] == actor for event in events[:7]) and
+                f" a={hit} " in events[1]["cpu"] and
+                events[4]["damage"] == bound and
+                events[5]["roll"] == draw and events[5]["damage"] == damage and
+                events[0]["hp"] == events[5]["hp"] == initial_hp and
+                events[6]["hp"] == events[7]["hp"] == final_hp and
+                hit_report["before_hp"] == initial_hp and hit_report["after_hp"] == final_hp and
+                cpu_pc(hit_report["final_cpu"]) == 0x8DDA,
+                f"level-two action {index} hit differs")
     print("DNG level-two actor slots 5 and 1 hit: rolls $B6/$4C ≥ threshold $45")
     print("bounds 2+4×5=22 and 2+4×1=6; draws 11/3 → damage 12/4; HP 126→114→110")
-    print("independent combat replay RAM matches the ordinary next-poll snapshot")
+    print("other level-two route hits: damage 1, 4, 2; all four turns match ordinary next-poll RAM")
     return 0
 
 
