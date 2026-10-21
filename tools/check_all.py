@@ -67,6 +67,7 @@ CHECKS = (
     ("DNG multi-level map generation", ["tools/verify_dng_generation_levels.py"]),
     ("DNG random $05/$06 cell", ["tools/verify_dng_random_tile.py"]),
     ("DNG actor slots in map", ["tools/verify_dng_actor_map.py"]),
+    ("DNG actor move and map restoration", ["tools/verify_dng_actor_move.py"]),
 )
 
 
