@@ -11,7 +11,7 @@ from transcribe_startup import translate
 
 build = ROOT / 'build/macos-startup'
 lines = ['// Generated locally from Ghidra. Do not publish.', 'extension StartupMachine {']
-for name,base in [('MI.U1',0x7000),('STUPH',0x0800),('GEN',0x8956),('OUT',0x8956),('TWN',0x8956)]:
+for name,base in [('MI.U1',0x7000),('STUPH',0x0800),('GEN',0x8956),('OUT',0x8956),('TWN',0x8956),('CAS',0x8956)]:
     raw = (ROOT / 'extracted' / name).read_bytes()
     groups = defaultdict(list)
     rows = csv.DictReader((build / f'{name}-runtime.tsv').open(), delimiter='\t')

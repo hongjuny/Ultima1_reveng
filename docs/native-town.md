@@ -11,7 +11,7 @@ From the initial outdoor position `(39,33)`, press Up twice, Left ten times,
 then Down once. This reaches the town tile at `(29,32)`; press E to enter
 Britain. This route starts from a newly created character, not an arbitrary
 saved position. The neighboring tile `(30,31)` is a castle and requires the CAS
-overlay, which is not yet included.
+overlay, which is now connected; see [castle entry](native-castle.md).
 
 The town entrance is local `(19,17)`. Up moves into town. Walking Down off the
 southern map edge returns to Sosaria at the saved outdoor position `(29,32)`.
@@ -60,6 +60,7 @@ input timing and random state with each original replay remains separate work.
 
 The app now covers town entry, basic movement and outdoor return. Full shop,
 conversation, combat and all-town validation are not established by this test.
-Castles, dungeons, space and time-machine overlays remain outside this app build.
+Castles are also connected; see [castle entry](native-castle.md). Dungeons,
+space and time-machine overlays remain outside this app build.
 Audio and cycle-accurate timing are still pending. Generated source, original
 assets, captures and the application bundle remain under ignored `build/`.

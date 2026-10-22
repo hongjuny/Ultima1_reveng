@@ -16,9 +16,9 @@ intro animation, and Ultima I title from the original data at runtime. It then
 executes MI.U1/STUPH/GEN to render the original English character creation
 screens, including their font, input routines and confirmation/save flow. GEN B
 loads the saved character into Sosaria with original OUT rendering, directional
-movement and Q saving. Town tiles now enter the original TWN screen and return
+movement and Q saving. Town/castle tiles now enter the original TWN/CAS screens and return
 to Sosaria through the map exit. See [Sosaria entry](docs/native-sosaria.md) and
-[town entry](docs/native-town.md).
+[town entry](docs/native-town.md) and [castle entry](docs/native-castle.md).
 See the [original-screen comparison](docs/native-character-creation.md).
 See [build and controls](macos/README.md) and the [startup translation report](docs/native-startup.md).
 The local app bundle contains original assets and stays under ignored `build/`.

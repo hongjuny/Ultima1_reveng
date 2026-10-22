@@ -1,6 +1,6 @@
 import Foundation
 
-func captureGEN(resources: URL, output: URL, enterOut: Bool = false, resumeOnly: Bool = false, enterTown: Bool = false) throws {
+func captureGEN(resources: URL, output: URL, enterOut: Bool = false, resumeOnly: Bool = false, enterTown: Bool = false, enterCastle: Bool = false) throws {
     try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
     let machine = try StartupMachine(resources: resources)
     // Valid packed-decimal inputs cover the number formatter's arithmetic.
@@ -70,6 +70,33 @@ func captureGEN(resources: URL, output: URL, enterOut: Bool = false, resumeOnly:
     if enterOut {
         try key(66); try capture("out-first-input")
         guard machine.overlay == "OUT" else { throw StartupFailure.unsupported("OUT not loaded") }
+        if enterCastle {
+            for c: UInt8 in [11,11] + Array(repeating: 8, count: 9) { try key(c) }
+            try capture("castle-tile")
+            try key(69); try capture("castle-first-input")
+            guard machine.overlay == "CAS" else { throw StartupFailure.unsupported("Castle overlay not entered") }
+            let origin = machine.memory
+            let cpu = (machine.a, machine.x, machine.y, machine.sp, machine.p, machine.pc, machine.page)
+            try key(21); try capture("castle-right")
+            machine.memory = origin
+            (machine.a, machine.x, machine.y, machine.sp, machine.p, machine.pc, machine.page) = cpu
+            let kingRoute: [UInt8] = Array(repeating: 21, count: 5) + Array(repeating: 11, count: 3)
+                + Array(repeating: 21, count: 9) + Array(repeating: 10, count: 2)
+                + Array(repeating: 21, count: 17) + Array(repeating: 11, count: 2)
+            for c in kingRoute { try key(c) }
+            try capture("castle-king")
+            guard machine.memory[0] == 31, machine.memory[1] == 6 else {
+                throw StartupFailure.unsupported("Walking route did not reach king")
+            }
+            try key(84); try capture("castle-talk")
+            try key(83); try capture("castle-service")
+            guard machine.memory[0x7EAF] == 1 else { throw StartupFailure.unsupported("King service did not assign quest") }
+            machine.memory = origin
+            (machine.a, machine.x, machine.y, machine.sp, machine.p, machine.pc, machine.page) = cpu
+            try key(8); try capture("castle-exit")
+            guard machine.overlay == "OUT" else { throw StartupFailure.unsupported("Castle exit did not restore OUT") }
+            return
+        }
         if enterTown {
             let route: [UInt8] = [11,11] + Array(repeating: 8, count: 10) + [10]
             for c in route { try key(c) }
