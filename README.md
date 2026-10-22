@@ -9,6 +9,17 @@ ChatGPT and Codex have provided substantial help with reverse engineering,
 implementation and testing. Project direction, fidelity decisions and hands-on
 playtesting are guided by the maintainer.
 
+## Screenshots
+
+Actual gameplay captures from the native macOS app, retaining the Apple II
+artwork, English text and screen layout. Click an image for the full-size view.
+
+[![Ultima I title screen in the native macOS window](screenshots/title.png)](screenshots/title.png)
+
+| Exploring Sosaria | The Castle of Lord British | First-person dungeon exploration |
+| --- | --- | --- |
+| [![Sosaria outdoor map with player and status panel](screenshots/sosaria.png)](screenshots/sosaria.png) | [![Inside the Castle of Lord British](screenshots/lord-british-castle.png)](screenshots/lord-british-castle.png) | [![A thief encounter on dungeon level one](screenshots/dungeon.png)](screenshots/dungeon.png) |
+
 ## Current state
 
 The native app connects the intro, character creation and save/load, Sosaria,
@@ -54,6 +65,7 @@ Those remain local. It does not provide a self-contained download of the game.
 - `disasm/`: reviewed assembly fragments and file-by-file evidence.
 - `docs/`: implementation reports, reference material and historical research.
 - `tools/`: Ghidra export, translation, extraction, tracing and verification tools.
+- `screenshots/`: gameplay screenshots supplied by the maintainer for this preview.
 - `port-prototype/`: earlier focused experiments; not the current application.
 - `extracted/`, `disk/`, `build/`: private local inputs and outputs, ignored by Git.
 

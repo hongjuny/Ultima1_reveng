@@ -70,5 +70,7 @@ counts and implementation gaps are historical snapshots.
 - [Progress and effort audit, 2026-10-21](progress-audit-2026-10-21.md) — Korean.
 - [Analysis log](analysis-log.md) — English chronological research entries.
 
-No original game files, snapshots, generated translations or screenshots are
-included in this documentation. Local evidence lives under ignored `build/`.
+Original game files, reference snapshots and generated translations remain local
+under ignored paths. Maintainer-supplied gameplay screenshots are published in
+the [project preview](../README.md#screenshots); private reference captures stay
+under ignored `build/`.
