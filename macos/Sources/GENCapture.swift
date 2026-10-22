@@ -1,6 +1,6 @@
 import Foundation
 
-func captureGEN(resources: URL, output: URL, enterOut: Bool = false, resumeOnly: Bool = false, enterTown: Bool = false, enterCastle: Bool = false, enterDungeon: Bool = false) throws {
+func captureGEN(resources: URL, output: URL, enterOut: Bool = false, resumeOnly: Bool = false, enterTown: Bool = false, enterCastle: Bool = false, enterDungeon: Bool = false, enterSpace: Bool = false) throws {
     try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
     let machine = try StartupMachine(resources: resources)
     // Valid packed-decimal inputs cover the number formatter's arithmetic.
@@ -70,6 +70,54 @@ func captureGEN(resources: URL, output: URL, enterOut: Bool = false, resumeOnly:
     if enterOut {
         try key(66); try capture("out-first-input")
         guard machine.overlay == "OUT" else { throw StartupFailure.unsupported("OUT not loaded") }
+        if enterSpace {
+            // Controlled test fixture only: supply a shuttle on the current tile.
+            // The interactive application still requires original acquisition rules.
+            let tile = 0x6000 + Int(machine.memory[1])*64 + Int(machine.memory[0])
+            machine.memory[0x7E7C] = 0
+            machine.memory[tile] = 0x1C
+            try capture("space-board-fixture")
+            try key(66); try capture("space-first-input")
+            guard machine.overlay == "SPA" else { throw StartupFailure.unsupported("SPA not entered") }
+            let origin = machine.memory
+            let cpu = (machine.a, machine.x, machine.y, machine.sp, machine.p, machine.pc, machine.page)
+            for direction: UInt8 in [11,10,21,8] {
+                machine.memory = origin
+                (machine.a, machine.x, machine.y, machine.sp, machine.p, machine.pc, machine.page) = cpu
+                try key(direction); try capture(String(format:"space-direction-%02x", direction))
+            }
+            machine.memory = origin
+            (machine.a, machine.x, machine.y, machine.sp, machine.p, machine.pc, machine.page) = cpu
+            try key(86); try capture("space-view")
+            try key(70); try capture("space-fire-message")
+            if machine.pc == 0x15BF { try key(32) }
+            try capture("space-fire")
+            try key(86)
+            for _ in 0..<3 where machine.pc == 0x15BF { try key(32) }
+            try capture("space-view-exit")
+            guard machine.pc == 0x8A5F else { throw StartupFailure.unsupported("V did not leave space view") }
+            machine.memory = origin
+            (machine.a, machine.x, machine.y, machine.sp, machine.p, machine.pc, machine.page) = cpu
+            machine.captureInputBoundaries = false
+            machine.sendKey(21)
+            for _ in 0..<120 { _ = try machine.nextFrame(budget: 6_000) }
+            guard machine.overlay == "SPA", machine.memory[0x923F] == 0,
+                  machine.word(at: 0x7EE9) == 998 else {
+                throw StartupFailure.unsupported("Live space polling did not accept Right")
+            }
+            try capture("space-live")
+            machine.captureInputBoundaries = true
+            // Controlled approach fixture: move the native ship to an existing
+            // planet; retain the original drawing, collision and landing code.
+            machine.memory = origin
+            (machine.a, machine.x, machine.y, machine.sp, machine.p, machine.pc, machine.page) = cpu
+            machine.memory[0x6E] = machine.memory[0x926C]
+            machine.memory[0x6F] = machine.memory[0x9276]
+            try capture("space-landing-fixture")
+            try key(32); try capture("space-landed")
+            guard machine.overlay == "OUT" else { throw StartupFailure.unsupported("Planet landing did not restore OUT") }
+            return
+        }
         if enterDungeon {
             for c: UInt8 in [11,11] + Array(repeating: 8, count: 9) { try key(c) }
             let route: [UInt8] = Array(repeating: 11, count: 9) + [21,21,21,11,21]

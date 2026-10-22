@@ -17,7 +17,7 @@ extension StartupMachine {
         switch name {
         case "MI.U1": address = 0x7000; engineLoaded = true
         case "STUPH": address = 0x0800
-        case "GEN", "OUT", "TWN", "CAS", "DNG": address = 0x8956; overlay = name
+        case "GEN", "OUT", "TWN", "CAS", "DNG", "SPA": address = 0x8956; overlay = name
         case "TCMAPS": address = 0x4000
         case "MAPCHARS": address = 0x0800
         default: throw StartupFailure.unsupported("Module not yet translated: \(name)")
@@ -31,7 +31,7 @@ extension StartupMachine {
         for _ in 0..<budget {
             // Only reference captures freeze at this boundary. Interactive runs
             // execute the original cursor, polling and normalization loops.
-            if captureInputBoundaries && engineLoaded && (pc == 0x15BF || (overlay == "OUT" && pc == 0x8A6C) || (overlay == "TWN" && pc == 0x8A1E) || (overlay == "CAS" && pc == 0x8A27) || (overlay == "DNG" && pc == 0x8DDA)) && keyboard & 0x80 == 0 {
+            if captureInputBoundaries && engineLoaded && (pc == 0x15BF || (overlay == "OUT" && pc == 0x8A6C) || (overlay == "TWN" && pc == 0x8A1E) || (overlay == "CAS" && pc == 0x8A27) || (overlay == "DNG" && pc == 0x8DDA) || (overlay == "SPA" && [0x8A5F, 0x9361, 0x9175].contains(pc))) && keyboard & 0x80 == 0 && memory[0x78] == 0 {
                 awaitingInput = true
                 return true
             }
@@ -65,6 +65,7 @@ extension StartupMachine {
                     case "TWN": try stepTWN()
                     case "CAS": try stepCAS()
                     case "DNG": try stepDNG()
+                    case "SPA": try stepSPA()
                     default: throw StartupFailure.unsupported("Untranslated overlay: \(overlay)")
                     }
                 }

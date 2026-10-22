@@ -60,7 +60,7 @@ the common OUT loader and restores outdoor `(43,15)` and its world map.
 
 These tests cover entry, selected first-floor controls, the save restriction and
 outdoor return. They do not claim validation of every generated floor, monster,
-spell, attack, ladder condition or quest. Space and time-machine overlays are
-not yet included. Audio and cycle-accurate pacing remain pending. Original
+spell, attack, ladder condition or quest. Space is also connected; see [SPA integration](native-space.md). TM remains
+unconnected. Audio and cycle-accurate pacing remain pending. Original
 assets, generated Swift, map data, player records and captured frames remain
 private under ignored `build/`.

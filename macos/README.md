@@ -8,7 +8,7 @@ open "build/Ultima I.app"
 ```
 
 The first build uses the installed Ghidra and Swift compiler. Keep the locally
-extracted `U1.INTRO`, `MAKE.INDATA`, `MI.U1`, `STUPH`, `GEN`, `OUT`, `TWN`, `CAS`, `DNG`, `TCMAPS`, and `MAPCHARS` in `extracted/`. Use `--ghidra` to refresh
+extracted `U1.INTRO`, `MAKE.INDATA`, `MI.U1`, `STUPH`, `GEN`, `OUT`, `TWN`, `CAS`, `DNG`, `SPA`, `TCMAPS`, and `MAPCHARS` in `extracted/`. Use `--ghidra` to refresh
 the startup analysis. The generated Swift, application bundle, original assets,
 and captured frames stay under ignored `build/`.
 
@@ -23,6 +23,8 @@ and enter Sosaria. Arrow keys move, Space passes, and Q saves. Press E on a town
 tile to enter its original TWN screen, or on a castle tile to enter CAS.
 Dungeon tiles now enter DNG's original first-person view; use K at the entrance
 ladder to return outdoors. Saving with Q is allowed outdoors, as in the original.
+SPA is connected: B boards an acquired shuttle, V opens its separate flight
+view, and F fires there. See [space integration and test fixtures](../docs/native-space.md).
 See [dungeon entry and saves](../docs/native-dungeon.md).
 Walk out through a town/castle map exit to return outdoors. See
 [castle entry](../docs/native-castle.md) for verified controls and scope.
@@ -47,6 +49,7 @@ python3 tools/verify_native_sosaria.py
 python3 tools/verify_native_town.py
 python3 tools/verify_native_castle.py
 python3 tools/verify_native_dungeon.py
+python3 tools/verify_native_space.py
 ```
 
 The reference capture uses the established private emulator snapshots. Only its
