@@ -58,6 +58,7 @@ extension StartupMachine {
                 memory[0x24] = 0; memory[0x25] = 0; rts(); continue
             }
             visited.insert(pc); instructions += 1
+            speaker.clockInstruction(self)
             if engineLoaded {
                 if pc >= 0x8956 && !overlay.isEmpty {
                     switch overlay {

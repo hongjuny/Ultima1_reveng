@@ -29,6 +29,7 @@ final class StartupMachine {
     var instructions = 0
     var visited = Set<Int>()
     var soundEdges = 0
+    let speaker = AppleSpeaker()
     var splashPresented = false
     var introFrames = 0
     var titleReady = false
@@ -70,7 +71,7 @@ final class StartupMachine {
         switch addr {
         case 0xC000: return keyboard
         case 0xC010: keyboard &= 0x7F
-        case 0xC030: soundEdges += 1
+        case 0xC030: soundEdges += 1; speaker.toggle()
         case 0xC050: text = false
         case 0xC051: text = true
         case 0xC052: mixed = false
@@ -198,6 +199,7 @@ final class StartupMachine {
             }
             visited.insert(pc)
             instructions += 1
+            speaker.clockInstruction(self)
             try translatedStep()
             // $0C69-$0D0B completes the type-4 reveal when $09DF reaches $88.
             if pc == 0x0B23 {

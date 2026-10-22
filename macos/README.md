@@ -12,6 +12,10 @@ extracted `U1.INTRO`, `MAKE.INDATA`, `MI.U1`, `STUPH`, `GEN`, `OUT`, `TWN`, `CAS
 the startup analysis. The generated Swift, application bundle, original assets,
 and captured frames stay under ignored `build/`.
 
+Original Apple II speaker effects now play through macOS audio. Use **Game →
+Mute Sound** (Command-M) to mute. The current fast gameplay tempo is retained;
+see [speaker implementation and verification](../docs/native-audio.md).
+
 The native app presents the Origin splash, runs the original intro animation,
 and holds a complete Ultima I title frame. The toolbar and Playback menu provide
 pause, skip to title, replay (Command-R), and fullscreen (Command-F).
@@ -57,6 +61,7 @@ python3 tools/verify_native_castle.py
 python3 tools/verify_native_dungeon.py
 python3 tools/verify_native_space.py
 python3 tools/verify_native_test_sessions.py
+python3 tools/verify_native_audio.py
 ```
 
 The reference capture uses the established private emulator snapshots. Only its

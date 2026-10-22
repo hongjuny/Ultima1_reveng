@@ -38,6 +38,8 @@ final class ApplicationDelegate: NSObject, NSApplicationDelegate, NSToolbarDeleg
     var paused = false
     var suspendedGame: StartupMachine?
     var suspendedPaused = false
+    let audio = SpeakerOutput()
+    var muted = false
     var testing = false
     var returnTestItem: NSMenuItem?
 
@@ -58,6 +60,7 @@ final class ApplicationDelegate: NSObject, NSApplicationDelegate, NSToolbarDeleg
         let pauseItem = playback.addItem(withTitle: "Pause / Resume", action: #selector(togglePause), keyEquivalent: "")
         pauseItem.target = self; pauseItem.keyEquivalentModifierMask = []
         playback.addItem(withTitle: "Full Screen", action: #selector(toggleFullscreen), keyEquivalent: "f").target = self
+        playback.addItem(withTitle: "Mute Sound", action: #selector(toggleSound), keyEquivalent: "m").target = self
         let testItem = NSMenuItem(); menu.addItem(testItem)
         let tests = NSMenu(title: "Test"); tests.autoenablesItems = false; testItem.submenu = tests
         tests.addItem(withTitle: "Space Flight (Temporary Save)", action: #selector(startSpaceTest), keyEquivalent: "").target = self
@@ -115,7 +118,9 @@ final class ApplicationDelegate: NSObject, NSApplicationDelegate, NSToolbarDeleg
             window.makeFirstResponder(screen)
             window.subtitle = "The First Age of Darkness"
             screen.playing = false
+            audio.flush()
             machine = try StartupMachine(resources: resources)
+            machine.speaker.enabled = true; machine.speaker.reset()
             paused = false; resumeAt = .distantPast
         } catch { show(error) }
     }
@@ -135,7 +140,9 @@ final class ApplicationDelegate: NSObject, NSApplicationDelegate, NSToolbarDeleg
         do {
             let session = try makeTestSession(resources: resources, overlay: overlay)
             if !testing { suspendedGame = machine; suspendedPaused = paused }
+            audio.flush()
             machine = session
+            machine.speaker.enabled = true; machine.speaker.reset()
             testing = true; returnTestItem?.isEnabled = true
             window.contentView = screen
             screen.playing = true
@@ -148,6 +155,7 @@ final class ApplicationDelegate: NSObject, NSApplicationDelegate, NSToolbarDeleg
     }
     @objc func returnFromTest() {
         guard testing, let original = suspendedGame else { return }
+        audio.flush(); original.speaker.reset()
         machine = original; suspendedGame = nil; testing = false
         returnTestItem?.isEnabled = false
         window.subtitle = "The First Age of Darkness"
@@ -156,13 +164,19 @@ final class ApplicationDelegate: NSObject, NSApplicationDelegate, NSToolbarDeleg
         paused = suspendedPaused; resumeAt = .distantPast
         window.makeFirstResponder(screen)
     }
+    @objc func toggleSound(_ sender: NSMenuItem) {
+        muted.toggle(); sender.state = muted ? .on : .off
+        audio.flush(); machine?.speaker.reset()
+    }
     @objc func togglePause() {
         guard machine?.gameRunning == true || machine?.titleReady != true else { return }
-        paused.toggle()
+        paused.toggle(); audio.flush(); machine?.speaker.reset()
     }
     @objc func skipToTitle() {
         if machine?.gameRunning == true { restart() }
         guard let machine else { return }
+        audio.flush(); machine.speaker.enabled = false
+        defer { machine.speaker.reset(); machine.speaker.enabled = true }
         do {
             while !machine.titleReady && machine.instructions < 100_000_000 {
                 _ = try machine.nextFrame()
@@ -203,9 +217,12 @@ final class ApplicationDelegate: NSObject, NSApplicationDelegate, NSToolbarDeleg
                 if !hadSplash && machine.splashPresented { resumeAt = Date().addingTimeInterval(1.4) }
                 if machine.titleReady && !machine.gameRunning { paused = true }
             }
+            let samples = machine.speaker.drain()
+            if !muted { try audio.submit(samples) }
         } catch { paused = true; show(error) }
     }
     func show(_ error: Error) {
+        audio.flush()
         let alert = NSAlert()
         alert.messageText = "Unable to continue Ultima I"
         alert.informativeText = String(describing: error)
@@ -223,6 +240,11 @@ struct UltimaStartupApplication {
             resources = URL(fileURLWithPath: arguments[index + 1])
         } else {
             resources = Bundle.main.resourceURL!.appendingPathComponent("OriginalData")
+        }
+        if let index = arguments.firstIndex(of: "--capture-audio"), index + 1 < arguments.count {
+            do { try captureAudio(resources: resources, output: URL(fileURLWithPath: arguments[index+1])) }
+            catch { fputs("Audio capture failed: \(error)\n", stderr); exit(1) }
+            return
         }
         if let index = arguments.firstIndex(of: "--capture-resume"), index + 1 < arguments.count {
             do { try captureGEN(resources: resources, output: URL(fileURLWithPath: arguments[index+1]), enterOut: true, resumeOnly: true) }

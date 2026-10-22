@@ -19,6 +19,7 @@ CHECKS = (
     ("native macOS dungeon entry", ["tools/verify_native_dungeon.py"]),
     ("native macOS space entry", ["tools/verify_native_space.py"]),
     ("native macOS TM and isolated test sessions", ["tools/verify_native_test_sessions.py"]),
+    ("native macOS speaker audio", ["tools/verify_native_audio.py"]),
     ("shared I/O vector table", ["tools/inspect_stuph_vectors.py", "--check"]),
     ("four castle gem flags and TM gate", ["tools/verify_quest_flags.py"]),
     ("controlled princess exit qualification boundaries", ["tools/verify_cas_princess_gate.py"]),

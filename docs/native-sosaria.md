@@ -87,5 +87,5 @@ movement, passing and saving. It does not establish that every OUT command or
 long gameplay sequence is correct. Town entry, basic movement and outdoor return are now connected through the
 original TWN overlay; see [town entry](native-town.md). Castle entry, movement, king service and outdoor return are also connected; see
 [castle entry](native-castle.md). Dungeons are also connected; see [dungeon entry](native-dungeon.md). Space is also connected; see [SPA integration](native-space.md). TM is also connected; see [TM and isolated test sessions](native-tm.md). Unsupported module requests stop with an English error.
-Audio is still not connected, and CPU timing is approximate. Original data,
+Original speaker output is connected; see [native audio](native-audio.md). CPU timing is approximate. Original data,
 generated translations and the application bundle remain private.

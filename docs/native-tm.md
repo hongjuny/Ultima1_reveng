@@ -2,7 +2,8 @@
 
 All gameplay overlays are now connected, including TM and its NIF ending data.
 This is integration coverage, not proof of every gameplay branch or complete
-modernization. Audio, exact timing and broader ordinary-play validation remain.
+modernization. Exact timing and broader ordinary-play validation remain.
+Original speaker output is now connected; see [native audio](native-audio.md).
 
 ## Test without acquiring a shuttle
 
