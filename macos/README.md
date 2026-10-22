@@ -8,7 +8,7 @@ open "build/Ultima I.app"
 ```
 
 The first build uses the installed Ghidra and Swift compiler. Keep the locally
-extracted `U1.INTRO`, `MAKE.INDATA`, `MI.U1`, `STUPH`, `GEN`, and `OUT` in `extracted/`. Use `--ghidra` to refresh
+extracted `U1.INTRO`, `MAKE.INDATA`, `MI.U1`, `STUPH`, `GEN`, `OUT`, `TWN`, `TCMAPS`, and `MAPCHARS` in `extracted/`. Use `--ghidra` to refresh
 the startup analysis. The generated Swift, application bundle, original assets,
 and captured frames stay under ignored `build/`.
 
@@ -19,7 +19,9 @@ Press Return/Space on the title or use the person toolbar button to create a
 character through GEN's original Apple II menu. The original English screens,
 font renderer, cursor and keyboard routines cover allocation, race, sex, class,
 name, confirmation and local saving. Choose B in GEN to load the saved character
-and enter Sosaria. Arrow keys move, Space passes, and Q saves. See
+and enter Sosaria. Arrow keys move, Space passes, and Q saves. Press E on a town
+tile to enter its original TWN screen; walk out of town to return outdoors.
+See [town entry and a verified route](../docs/native-town.md),
 [Sosaria entry](../docs/native-sosaria.md) for validation and current scope, and
 [character creation](../docs/native-character-creation.md) for translation boundaries
 and save-format limitations.
@@ -37,6 +39,7 @@ python3 tools/run_runtime.py --no-check trace_startup_title_reference.py
 python3 tools/verify_native_startup.py
 python3 tools/verify_native_character.py
 python3 tools/verify_native_sosaria.py
+python3 tools/verify_native_town.py
 ```
 
 The reference capture uses the established private emulator snapshots. Only its

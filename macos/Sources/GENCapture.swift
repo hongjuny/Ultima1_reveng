@@ -1,6 +1,6 @@
 import Foundation
 
-func captureGEN(resources: URL, output: URL, enterOut: Bool = false, resumeOnly: Bool = false) throws {
+func captureGEN(resources: URL, output: URL, enterOut: Bool = false, resumeOnly: Bool = false, enterTown: Bool = false) throws {
     try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
     let machine = try StartupMachine(resources: resources)
     // Valid packed-decimal inputs cover the number formatter's arithmetic.
@@ -70,6 +70,29 @@ func captureGEN(resources: URL, output: URL, enterOut: Bool = false, resumeOnly:
     if enterOut {
         try key(66); try capture("out-first-input")
         guard machine.overlay == "OUT" else { throw StartupFailure.unsupported("OUT not loaded") }
+        if enterTown {
+            let route: [UInt8] = [11,11] + Array(repeating: 8, count: 10) + [10]
+            for c in route { try key(c) }
+            try capture("town-tile")
+            try key(69); try capture("town-first-input")
+            guard machine.overlay == "TWN" else { throw StartupFailure.unsupported("Town overlay not entered") }
+            let townOrigin = machine.memory
+            let townCPU = (machine.a, machine.x, machine.y, machine.sp, machine.p, machine.pc, machine.page)
+            machine.captureInputBoundaries = false
+            machine.sendKey(11)
+            for _ in 0..<120 { _ = try machine.nextFrame(budget: 6_000) }
+            guard machine.overlay == "TWN", machine.memory[0] == 19, machine.memory[1] == 16 else {
+                throw StartupFailure.unsupported("Live town polling did not accept Up")
+            }
+            try capture("town-live")
+            machine.memory = townOrigin
+            (machine.a, machine.x, machine.y, machine.sp, machine.p, machine.pc, machine.page) = townCPU
+            machine.captureInputBoundaries = true
+            try key(11); try capture("town-up")
+            try key(10); try key(10); try capture("town-exit")
+            guard machine.overlay == "OUT" else { throw StartupFailure.unsupported("Town exit did not restore OUT") }
+            return
+        }
         let origin = machine.memory
         let registers = (machine.a, machine.x, machine.y, machine.sp, machine.p, machine.pc, machine.page)
         func restoreOutdoorInput() {

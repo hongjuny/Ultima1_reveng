@@ -9,11 +9,17 @@ extension StartupMachine {
         var end = argument
         while end < argument + 32 && memory[end] != 0 { end += 1 }
         let name = String(bytes: memory[argument..<end], encoding: .ascii) ?? ""
+        if pc == 0xB733 {
+            setFilename(name)
+            a = nz(0); setFlag(1, false); pc = end+1; return
+        }
         let address: Int
         switch name {
         case "MI.U1": address = 0x7000; engineLoaded = true
         case "STUPH": address = 0x0800
-        case "GEN", "OUT": address = 0x8956; overlay = name
+        case "GEN", "OUT", "TWN": address = 0x8956; overlay = name
+        case "TCMAPS": address = 0x4000
+        case "MAPCHARS": address = 0x0800
         default: throw StartupFailure.unsupported("Module not yet translated: \(name)")
         }
         try load(name, at: address)
@@ -25,7 +31,7 @@ extension StartupMachine {
         for _ in 0..<budget {
             // Only reference captures freeze at this boundary. Interactive runs
             // execute the original cursor, polling and normalization loops.
-            if captureInputBoundaries && engineLoaded && (pc == 0x15BF || (overlay == "OUT" && pc == 0x8A6C)) && keyboard & 0x80 == 0 {
+            if captureInputBoundaries && engineLoaded && (pc == 0x15BF || (overlay == "OUT" && pc == 0x8A6C) || (overlay == "TWN" && pc == 0x8A1E)) && keyboard & 0x80 == 0 {
                 awaitingInput = true
                 return true
             }
@@ -44,7 +50,7 @@ extension StartupMachine {
                 continue
             }
             if pc == 0xB70C && gameRunning { try gameLoader(execute: true); continue }
-            if engineLoaded && pc == 0xB703 { try gameLoader(execute: false); continue }
+            if engineLoaded && (pc == 0xB703 || pc == 0xB733) { try gameLoader(execute: false); continue }
             // Apple monitor HOME clears the text page; the game itself draws HGR.
             if engineLoaded && pc == 0xFC58 {
                 for address in 0x400..<0x800 { memory[address] = 0xA0 }
@@ -56,6 +62,7 @@ extension StartupMachine {
                     switch overlay {
                     case "GEN": try stepGEN()
                     case "OUT": try stepOUT()
+                    case "TWN": try stepTWN()
                     default: throw StartupFailure.unsupported("Untranslated overlay: \(overlay)")
                     }
                 }
