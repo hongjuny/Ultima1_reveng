@@ -1,5 +1,9 @@
 # Ultima I Apple II 역공학 종합 리포트 — 2026-10-21
 
+> Historical research/planning document in Korean. Implementation status has
+> advanced since this was written; see [current status](status.md) and the
+> [English architecture guide](architecture.md).
+
 ## 결론과 판정 기준
 
 대상은 이 저장소의 **1986년 Apple II ProDOS판 Ultima I**다. 부트부터 주요 장면의 첫 루프까지의 실행 구조, 공용 입력 해석과 여섯 장면의 간접 핸들러 표, 저장 레코드의 일부 필드, 여러 게임 규칙의 실제 상태 변화를 연결했다. 이 결과는 **핵심 구조와 선택한 경로를 설명하는 분석 기반**이다. 모든 도달 가능 코드·데이터, 전체 게임 규칙, 화면·소리·타이밍을 대조할 수 있는 **완결된 macOS 포팅 명세는 아직 아니다**.

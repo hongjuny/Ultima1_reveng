@@ -1,5 +1,9 @@
 # 진행·투입 효율 점검 (2026-10-21)
 
+> Historical research/planning document in Korean. Implementation status has
+> advanced since this was written; see [current status](status.md) and the
+> [English architecture guide](architecture.md).
+
 **작성 시점 기록:** 아래의 75조각·2,603바이트·65검사 등은 이 점검 당시의 수치다. 이후 작업까지 반영한 현재 성과와 남은 빈칸은 [종합 리포트](consolidated-report-2026-10-21.md)에 있다.
 
 대상은 1986년 Apple II ProDOS판 *Ultima I*의 동작 분석과 충실한 macOS 포팅 명세다. 이 문서는 현재 저장소와 로컬 검증 결과를 기준으로 한 계획 점검이며, 추정 시간을 실측 생산성으로 취급하지 않는다.

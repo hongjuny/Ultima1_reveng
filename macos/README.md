@@ -1,4 +1,7 @@
-# Ultima I — native macOS startup
+# Ultima I — native macOS application
+
+For prerequisites and clean-checkout setup, see the [developer guide](../CONTRIBUTING.md).
+Current validation boundaries are listed in [status](../docs/status.md).
 
 From the repository root on macOS:
 
@@ -9,7 +12,7 @@ open "build/Ultima I.app"
 
 The first build uses the installed Ghidra and Swift compiler. Keep the locally
 extracted `U1.INTRO`, `MAKE.INDATA`, `MI.U1`, `STUPH`, `GEN`, `OUT`, `TWN`, `CAS`, `DNG`, `SPA`, `TM`, `NIF`, `TCMAPS`, and `MAPCHARS` in `extracted/`. Use `--ghidra` to refresh
-the startup analysis. The generated Swift, application bundle, original assets,
+all native translation analyses. The generated Swift, application bundle, original assets,
 and captured frames stay under ignored `build/`.
 
 Original Apple II speaker effects now play through macOS audio. Use **Game →
