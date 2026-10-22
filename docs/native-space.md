@@ -73,7 +73,6 @@ keyboard routines unchanged.
 
 Full natural acquisition, navigation, docking/refuelling, aimed kills, progression
 and long space sessions need further validation. Their original code is included
-but inclusion is not proof of every branch. The remaining unconnected gameplay
-overlay is TM (time machine, final encounter and ending). Audio and cycle-accurate
+but inclusion is not proof of every branch. TM is also connected; see [TM and isolated test sessions](native-tm.md). Audio and cycle-accurate
 pacing remain pending. Original files, generated Swift, fixture RAM, screenshots
 and the application remain private under ignored `build/`.

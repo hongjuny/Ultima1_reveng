@@ -20,7 +20,9 @@ movement and Q saving. Town/castle/dungeon tiles now enter the original TWN/CAS/
 to Sosaria through their original exit paths. See [Sosaria entry](docs/native-sosaria.md) and
 [town entry](docs/native-town.md) and [castle entry](docs/native-castle.md) and [dungeon entry](docs/native-dungeon.md).
 SPA is also connected through original shuttle boarding; see
-[space integration and validation scope](docs/native-space.md).
+[space integration and validation scope](docs/native-space.md). TM and its
+original ending are connected as well. The **Test** menu starts isolated SPA/TM
+sessions without changing your actual save; see [TM and test sessions](docs/native-tm.md).
 See the [original-screen comparison](docs/native-character-creation.md).
 See [build and controls](macos/README.md) and the [startup translation report](docs/native-startup.md).
 The local app bundle contains original assets and stays under ignored `build/`.

@@ -8,7 +8,7 @@ open "build/Ultima I.app"
 ```
 
 The first build uses the installed Ghidra and Swift compiler. Keep the locally
-extracted `U1.INTRO`, `MAKE.INDATA`, `MI.U1`, `STUPH`, `GEN`, `OUT`, `TWN`, `CAS`, `DNG`, `SPA`, `TCMAPS`, and `MAPCHARS` in `extracted/`. Use `--ghidra` to refresh
+extracted `U1.INTRO`, `MAKE.INDATA`, `MI.U1`, `STUPH`, `GEN`, `OUT`, `TWN`, `CAS`, `DNG`, `SPA`, `TM`, `NIF`, `TCMAPS`, and `MAPCHARS` in `extracted/`. Use `--ghidra` to refresh
 the startup analysis. The generated Swift, application bundle, original assets,
 and captured frames stay under ignored `build/`.
 
@@ -33,6 +33,12 @@ See [town entry and a verified route](../docs/native-town.md),
 [character creation](../docs/native-character-creation.md) for translation boundaries
 and save-format limitations.
 
+To test space immediately, choose **Test → Space Flight (Temporary Save)**
+or the Space Test toolbar button. **Test → Time Machine (Temporary Save)**
+starts TM without acquiring its prerequisites. **Test → Return to Game** restores
+normal play and its unsaved state. These sessions use separate temporary saves;
+your actual U1.VARS remains unchanged. See [TM and isolated tests](../docs/native-tm.md).
+
 The address-preserving Swift blocks come from Ghidra's instruction export,
 including the support code relocated to `$8700`. The native host supplies file
 loading, an event loop, and HGR-to-CoreGraphics rendering. Every translated PC
@@ -50,6 +56,7 @@ python3 tools/verify_native_town.py
 python3 tools/verify_native_castle.py
 python3 tools/verify_native_dungeon.py
 python3 tools/verify_native_space.py
+python3 tools/verify_native_test_sessions.py
 ```
 
 The reference capture uses the established private emulator snapshots. Only its

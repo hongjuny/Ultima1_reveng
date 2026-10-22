@@ -60,7 +60,6 @@ input timing and random state with each original replay remains separate work.
 
 The app now covers town entry, basic movement and outdoor return. Full shop,
 conversation, combat and all-town validation are not established by this test.
-Castles are also connected; see [castle entry](native-castle.md). Dungeons are now connected; see [dungeon entry](native-dungeon.md). Space is also connected; see [SPA integration](native-space.md). TM is the
-remaining unconnected gameplay overlay.
+Castles are also connected; see [castle entry](native-castle.md). Dungeons are now connected; see [dungeon entry](native-dungeon.md). Space is also connected; see [SPA integration](native-space.md). TM is also connected; see [TM and isolated test sessions](native-tm.md).
 Audio and cycle-accurate timing are still pending. Generated source, original
 assets, captures and the application bundle remain under ignored `build/`.

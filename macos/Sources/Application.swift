@@ -36,6 +36,10 @@ final class ApplicationDelegate: NSObject, NSApplicationDelegate, NSToolbarDeleg
     var timer: Timer?
     var resumeAt = Date.distantPast
     var paused = false
+    var suspendedGame: StartupMachine?
+    var suspendedPaused = false
+    var testing = false
+    var returnTestItem: NSMenuItem?
 
     init(resources: URL) { self.resources = resources }
 
@@ -54,6 +58,13 @@ final class ApplicationDelegate: NSObject, NSApplicationDelegate, NSToolbarDeleg
         let pauseItem = playback.addItem(withTitle: "Pause / Resume", action: #selector(togglePause), keyEquivalent: "")
         pauseItem.target = self; pauseItem.keyEquivalentModifierMask = []
         playback.addItem(withTitle: "Full Screen", action: #selector(toggleFullscreen), keyEquivalent: "f").target = self
+        let testItem = NSMenuItem(); menu.addItem(testItem)
+        let tests = NSMenu(title: "Test"); tests.autoenablesItems = false; testItem.submenu = tests
+        tests.addItem(withTitle: "Space Flight (Temporary Save)", action: #selector(startSpaceTest), keyEquivalent: "").target = self
+        tests.addItem(withTitle: "Time Machine (Temporary Save)", action: #selector(startTimeTest), keyEquivalent: "").target = self
+        tests.addItem(.separator())
+        returnTestItem = tests.addItem(withTitle: "Return to Game", action: #selector(returnFromTest), keyEquivalent: "")
+        returnTestItem?.target = self; returnTestItem?.isEnabled = false
         app.mainMenu = menu
 
         window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 800, height: 600),
@@ -98,9 +109,11 @@ final class ApplicationDelegate: NSObject, NSApplicationDelegate, NSToolbarDeleg
     }
 
     @objc func restart() {
+        suspendedGame = nil; testing = false; returnTestItem?.isEnabled = false
         do {
             window.contentView = screen
             window.makeFirstResponder(screen)
+            window.subtitle = "The First Age of Darkness"
             screen.playing = false
             machine = try StartupMachine(resources: resources)
             paused = false; resumeAt = .distantPast
@@ -115,6 +128,33 @@ final class ApplicationDelegate: NSObject, NSApplicationDelegate, NSToolbarDeleg
         screen.input = { [weak self] key in self?.machine.sendKey(key) }
         window.makeFirstResponder(screen)
         paused = false
+    }
+    @objc func startSpaceTest() { startTestSession("SPA") }
+    @objc func startTimeTest() { startTestSession("TM") }
+    func startTestSession(_ overlay: String) {
+        do {
+            let session = try makeTestSession(resources: resources, overlay: overlay)
+            if !testing { suspendedGame = machine; suspendedPaused = paused }
+            machine = session
+            testing = true; returnTestItem?.isEnabled = true
+            window.contentView = screen
+            screen.playing = true
+            screen.input = { [weak self] key in self?.machine.sendKey(key) }
+            screen.frameImage = HGRRenderer.image(memory: machine.memory, page: machine.page)
+            window.subtitle = overlay == "SPA" ? "Space Test — Temporary Save" : "Time Machine Test — Temporary Save"
+            window.makeFirstResponder(screen)
+            paused = false; resumeAt = .distantPast
+        } catch { show(error) }
+    }
+    @objc func returnFromTest() {
+        guard testing, let original = suspendedGame else { return }
+        machine = original; suspendedGame = nil; testing = false
+        returnTestItem?.isEnabled = false
+        window.subtitle = "The First Age of Darkness"
+        screen.playing = original.gameRunning
+        screen.frameImage = HGRRenderer.image(memory: original.memory, page: original.page)
+        paused = suspendedPaused; resumeAt = .distantPast
+        window.makeFirstResponder(screen)
     }
     @objc func togglePause() {
         guard machine?.gameRunning == true || machine?.titleReady != true else { return }
@@ -136,11 +176,12 @@ final class ApplicationDelegate: NSObject, NSApplicationDelegate, NSToolbarDeleg
         toolbarDefaultItemIdentifiers(toolbar)
     }
     func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-        [.init("character"), .flexibleSpace, .init("pause"), .init("skip"), .init("replay"), .init("fullscreen")]
+        [.init("character"), .init("space-test"), .flexibleSpace, .init("pause"), .init("skip"), .init("replay"), .init("fullscreen")]
     }
     func toolbar(_ toolbar: NSToolbar, itemForItemIdentifier id: NSToolbarItem.Identifier,
                  willBeInsertedIntoToolbar flag: Bool) -> NSToolbarItem? {
         let definitions: [String: (String, String, Selector)] = [
+            "space-test": ("Space Test (Temporary Save)", "airplane.circle", #selector(startSpaceTest)),
             "character": ("Start Game", "person.crop.circle.badge.plus", #selector(createCharacter)),
             "pause": ("Pause / Resume", "pause.fill", #selector(togglePause)),
             "skip": ("Skip to Title", "forward.end.fill", #selector(skipToTitle)),
@@ -157,7 +198,7 @@ final class ApplicationDelegate: NSObject, NSApplicationDelegate, NSToolbarDeleg
         guard let machine, !paused, Date() >= resumeAt else { return }
         do {
             let hadSplash = machine.splashPresented
-            if try machine.nextFrame(budget: ["OUT", "TWN", "CAS", "DNG", "SPA"].contains(machine.overlay) ? 6_000 : 150_000) {
+            if try machine.nextFrame(budget: ["OUT", "TWN", "CAS", "DNG", "SPA", "TM"].contains(machine.overlay) ? 6_000 : 150_000) {
                 screen.frameImage = HGRRenderer.image(memory: machine.memory, page: machine.page)
                 if !hadSplash && machine.splashPresented { resumeAt = Date().addingTimeInterval(1.4) }
                 if machine.titleReady && !machine.gameRunning { paused = true }
@@ -186,6 +227,11 @@ struct UltimaStartupApplication {
         if let index = arguments.firstIndex(of: "--capture-resume"), index + 1 < arguments.count {
             do { try captureGEN(resources: resources, output: URL(fileURLWithPath: arguments[index+1]), enterOut: true, resumeOnly: true) }
             catch { fputs("Saved game resume failed: \(error)\n", stderr); exit(1) }
+            return
+        }
+        if let index = arguments.firstIndex(of: "--capture-test-sessions"), index + 1 < arguments.count {
+            do { try captureTestSessions(resources: resources, output: URL(fileURLWithPath: arguments[index+1])) }
+            catch { fputs("Test session capture failed: \(error)\n", stderr); exit(1) }
             return
         }
         if let index = arguments.firstIndex(of: "--capture-space"), index + 1 < arguments.count {

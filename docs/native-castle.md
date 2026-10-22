@@ -48,7 +48,6 @@ captured but are not claimed to match every reference pixel or cycle.
 This verifies entry, selected movement/talk/service behavior and outdoor return.
 It does not establish all castle quests, combat, rescue sequences, or every
 castle variant. Original NPC/quest logic executes rather than being replaced.
-Dungeons are now connected; see [dungeon entry](native-dungeon.md). Space is also connected; see [SPA integration](native-space.md). TM is the
-remaining unconnected gameplay overlay.
+Dungeons are now connected; see [dungeon entry](native-dungeon.md). Space is also connected; see [SPA integration](native-space.md). TM is also connected; see [TM and isolated test sessions](native-tm.md).
 Audio and cycle-accurate pacing remain pending. Original assets, generated code,
 application bundles and captures stay private under ignored `build/`.
