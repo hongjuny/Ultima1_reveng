@@ -48,6 +48,7 @@ captured but are not claimed to match every reference pixel or cycle.
 This verifies entry, selected movement/talk/service behavior and outdoor return.
 It does not establish all castle quests, combat, rescue sequences, or every
 castle variant. Original NPC/quest logic executes rather than being replaced.
-Dungeons, space and time-machine overlays remain outside the native app build.
+Dungeons are now connected; see [dungeon entry](native-dungeon.md). Space and
+time-machine overlays remain outside the native app build.
 Audio and cycle-accurate pacing remain pending. Original assets, generated code,
 application bundles and captures stay private under ignored `build/`.

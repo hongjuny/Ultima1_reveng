@@ -59,10 +59,10 @@ extension StartupMachine {
             guard !path.hasPrefix("/RAM/") else {
                 a = nz(7); setFlag(1, true); pc = resume; return
             }
-            guard ["OUT", "TWN", "CAS", "TCMAPS", "MAPCHARS"].contains(name) else { throw StartupFailure.unsupported("Module not yet translated: \(name)") }
+            guard ["OUT", "TWN", "CAS", "DNG", "TCMAPS", "MAPCHARS"].contains(name) else { throw StartupFailure.unsupported("Module not yet translated: \(name)") }
             destination = service == 0xB721 ? word(at: args) : 0x8956
             data = try Data(contentsOf: resources.appendingPathComponent(name))
-            if ["OUT", "TWN", "CAS"].contains(name) { overlay = name }
+            if ["OUT", "TWN", "CAS", "DNG"].contains(name) { overlay = name }
         }
         guard destination+data.count <= 65536 else { throw StartupFailure.unsupported("File exceeds RAM") }
         memory.replaceSubrange(destination..<destination+data.count, with: data)

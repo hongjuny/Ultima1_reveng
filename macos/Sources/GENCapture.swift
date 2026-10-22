@@ -1,6 +1,6 @@
 import Foundation
 
-func captureGEN(resources: URL, output: URL, enterOut: Bool = false, resumeOnly: Bool = false, enterTown: Bool = false, enterCastle: Bool = false) throws {
+func captureGEN(resources: URL, output: URL, enterOut: Bool = false, resumeOnly: Bool = false, enterTown: Bool = false, enterCastle: Bool = false, enterDungeon: Bool = false) throws {
     try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
     let machine = try StartupMachine(resources: resources)
     // Valid packed-decimal inputs cover the number formatter's arithmetic.
@@ -70,6 +70,45 @@ func captureGEN(resources: URL, output: URL, enterOut: Bool = false, resumeOnly:
     if enterOut {
         try key(66); try capture("out-first-input")
         guard machine.overlay == "OUT" else { throw StartupFailure.unsupported("OUT not loaded") }
+        if enterDungeon {
+            for c: UInt8 in [11,11] + Array(repeating: 8, count: 9) { try key(c) }
+            let route: [UInt8] = Array(repeating: 11, count: 9) + [21,21,21,11,21]
+                + Array(repeating: 11, count: 5) + Array(repeating: 21, count: 9) + [11]
+            for c in route { try key(c) }
+            try capture("dungeon-tile")
+            try key(69); try capture("dungeon-first-input")
+            guard machine.overlay == "DNG" else { throw StartupFailure.unsupported("Dungeon overlay not entered") }
+            let origin = machine.memory
+            let cpu = (machine.a, machine.x, machine.y, machine.sp, machine.p, machine.pc, machine.page)
+            for direction: UInt8 in [11, 10, 21, 8] {
+                machine.memory = origin
+                (machine.a, machine.x, machine.y, machine.sp, machine.p, machine.pc, machine.page) = cpu
+                try key(direction); try capture(String(format:"dungeon-direction-%02x", direction))
+            }
+            machine.memory = origin
+            (machine.a, machine.x, machine.y, machine.sp, machine.p, machine.pc, machine.page) = cpu
+            let savedBefore = machine.saves
+            try key(81); try capture("dungeon-save-denied")
+            guard machine.saves == savedBefore else { throw StartupFailure.unsupported("Dungeon Q unexpectedly saved") }
+            machine.memory = origin
+            (machine.a, machine.x, machine.y, machine.sp, machine.p, machine.pc, machine.page) = cpu
+            machine.captureInputBoundaries = false
+            machine.sendKey(11)
+            for _ in 0..<120 { _ = try machine.nextFrame(budget: 6_000) }
+            guard machine.overlay == "DNG", machine.memory[0xA4E8] == 1, machine.memory[0xA4E9] == 2 else {
+                throw StartupFailure.unsupported("Live dungeon polling did not accept Up")
+            }
+            try capture("dungeon-live")
+            machine.memory = origin
+            (machine.a, machine.x, machine.y, machine.sp, machine.p, machine.pc, machine.page) = cpu
+            machine.captureInputBoundaries = true
+            try key(11); try capture("dungeon-up")
+            machine.memory = origin
+            (machine.a, machine.x, machine.y, machine.sp, machine.p, machine.pc, machine.page) = cpu
+            try key(75); try capture("dungeon-exit")
+            guard machine.overlay == "OUT" else { throw StartupFailure.unsupported("Dungeon exit did not restore OUT") }
+            return
+        }
         if enterCastle {
             for c: UInt8 in [11,11] + Array(repeating: 8, count: 9) { try key(c) }
             try capture("castle-tile")

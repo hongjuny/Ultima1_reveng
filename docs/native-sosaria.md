@@ -86,7 +86,7 @@ This connects character persistence and outdoor entry, rendering, four-direction
 movement, passing and saving. It does not establish that every OUT command or
 long gameplay sequence is correct. Town entry, basic movement and outdoor return are now connected through the
 original TWN overlay; see [town entry](native-town.md). Castle entry, movement, king service and outdoor return are also connected; see
-[castle entry](native-castle.md). Dungeons, space and time-machine overlays are
-not yet included in this app. Unsupported module requests stop with an English error.
+[castle entry](native-castle.md). Dungeons are also connected; see [dungeon entry](native-dungeon.md). Space and
+time-machine overlays are not yet included in this app. Unsupported module requests stop with an English error.
 Audio is still not connected, and CPU timing is approximate. Original data,
 generated translations and the application bundle remain private.
