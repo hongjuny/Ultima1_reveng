@@ -2,6 +2,8 @@
 """Verify native GEN→OUT, four movements, Q save, and fresh-process reload."""
 import json
 import subprocess
+import tempfile
+from pathlib import Path
 from baseline import describe
 from disassemble import ROOT
 from verify_intro_support import main_ram
@@ -12,6 +14,15 @@ def main():
     executable = ROOT / 'build/Ultima I.app/Contents/MacOS/UltimaI'
     if not executable.is_file():
         print('PENDING native Sosaria application'); return
+    # First-launch B must explain a missing local record, not ask for a disk.
+    with tempfile.TemporaryDirectory(prefix='missing-player-', dir=ROOT / 'build') as missing:
+        result = subprocess.run([str(executable), '--capture-resume', missing], capture_output=True, text=True)
+        assert result.returncode == 1 and 'Saved game did not resume OUT' in result.stderr
+        missing_ram = (Path(missing) / 'out-resumed.ram').read_bytes()
+        prompt = missing_ram[0x8A36:0x8A54]
+        assert prompt == b'No saved game. Create with A. ', 'Missing-record prompt still requests disk media'
+        assert not (Path(missing) / 'U1.VARS').exists(), 'B fabricated a player record'
+    print('Missing local save: original GEN renderer gives creation guidance, without a disk-swap prompt')
     output = ROOT / 'build/macos-startup/sosaria'
     subprocess.run([str(executable), '--capture-out', str(output)], check=True)
     references = [('out-first-input','out-first-input')]+[

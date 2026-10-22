@@ -15,7 +15,12 @@ open "build/Ultima I.app"
 
 At the title press Return/Space. In GEN, use A to create and save a character,
 then B to continue the saved game. A previously saved character can be loaded
-with B after restarting the application. The record lives at
+with B after restarting the application. Finish creation by pressing Return after
+the name, then Y at `Save this character? (Y–N)`. Creation alone does not save.
+If B is chosen before any record exists, the original GEN renderer now displays
+`No saved game. Create with A.` in place of the obsolete player-disk request.
+This changes only that host-file error message; successful game screens retain
+their original text. No physical disk swap is required. The record lives at
 `~/Library/Application Support/UltimaI/Characters/U1.VARS`.
 
 Arrow keys move in Sosaria; Space passes a turn; Q saves through the original

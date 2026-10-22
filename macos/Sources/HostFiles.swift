@@ -40,6 +40,17 @@ extension StartupMachine {
             destination = service == 0xB721 ? word(at: args) : 0x7E6D
             let file = playerDirectory.appendingPathComponent(name)
             guard FileManager.default.fileExists(atPath: file.path) else {
+                // The original GEN read-error path asks for removable media.
+                // This port uses a local record: retain its renderer and retry
+                // flow, but explain the actionable cause in the same text slot.
+                if overlay == "GEN" {
+                    let address = 0x8A36
+                    let original = Array("Please put in the Player disk.".utf8)
+                    let replacement = Array("No saved game. Create with A. ".utf8)
+                    if Array(memory[address..<address+original.count]) == original {
+                        memory.replaceSubrange(address..<address+original.count, with: replacement)
+                    }
+                }
                 a = nz(6); setFlag(1, true); pc = resume; return
             }
             data = try Data(contentsOf: file)
